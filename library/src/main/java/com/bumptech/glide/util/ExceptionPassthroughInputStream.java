@@ -12,28 +12,28 @@ import java.util.Queue;
  * framework issue where exceptions during reads while decoding bitmaps in {@link
  * android.graphics.BitmapFactory} can return partially decoded bitmaps.
  *
- * <p>See https://github.com/bumptech/glide/issues/126.
+ * <p>Unlike the deprecated {@link ExceptionCatchingInputStream}, this class will both store and
+ * re-throw any IOExceptions. Rethrowing works around bugs in wrapping streams that may not fully
+ * obey the stream contract. This is really only useful if some middle layer is going to catch the
+ * exception (like BitmapFactory) but we want to propagate the exception instead.
  *
- * @deprecated In some cases, callers may not handle getting 0 or -1 return values from methods,
- *     which can lead to infinite loops (see #4438). Use {@link ExceptionPassthroughInputStream}
- *     instead. This class will be deleted in a future version of Glide.
+ * <p>See https://github.com/bumptech/glide/issues/126 and #4438.
  */
-@Deprecated
-public class ExceptionCatchingInputStream extends InputStream {
+public final class ExceptionPassthroughInputStream extends InputStream {
 
-  private static final Queue<ExceptionCatchingInputStream> QUEUE = Util.createQueue(0);
+  private static final Queue<ExceptionPassthroughInputStream> QUEUE = Util.createQueue(0);
 
   private InputStream wrapped;
   private IOException exception;
 
   @NonNull
-  public static ExceptionCatchingInputStream obtain(@NonNull InputStream toWrap) {
-    ExceptionCatchingInputStream result;
+  public static ExceptionPassthroughInputStream obtain(@NonNull InputStream toWrap) {
+    ExceptionPassthroughInputStream result;
     synchronized (QUEUE) {
       result = QUEUE.poll();
     }
     if (result == null) {
-      result = new ExceptionCatchingInputStream();
+      result = new ExceptionPassthroughInputStream();
     }
     result.setInputStream(toWrap);
     return result;
@@ -46,7 +46,7 @@ public class ExceptionCatchingInputStream extends InputStream {
     }
   }
 
-  ExceptionCatchingInputStream() {
+  ExceptionPassthroughInputStream() {
     // Do nothing.
   }
 
@@ -75,27 +75,23 @@ public class ExceptionCatchingInputStream extends InputStream {
   }
 
   @Override
-  public int read(byte[] buffer) {
-    int read;
+  public int read(byte[] buffer) throws IOException {
     try {
-      read = wrapped.read(buffer);
+      return wrapped.read(buffer);
     } catch (IOException e) {
       exception = e;
-      read = -1;
+      throw e;
     }
-    return read;
   }
 
   @Override
-  public int read(byte[] buffer, int byteOffset, int byteCount) {
-    int read;
+  public int read(byte[] buffer, int byteOffset, int byteCount) throws IOException {
     try {
-      read = wrapped.read(buffer, byteOffset, byteCount);
+      return wrapped.read(buffer, byteOffset, byteCount);
     } catch (IOException e) {
       exception = e;
-      read = -1;
+      throw e;
     }
-    return read;
   }
 
   @Override
@@ -104,27 +100,23 @@ public class ExceptionCatchingInputStream extends InputStream {
   }
 
   @Override
-  public long skip(long byteCount) {
-    long skipped;
+  public long skip(long byteCount) throws IOException {
     try {
-      skipped = wrapped.skip(byteCount);
+      return wrapped.skip(byteCount);
     } catch (IOException e) {
       exception = e;
-      skipped = 0;
+      throw e;
     }
-    return skipped;
   }
 
   @Override
-  public int read() {
-    int result;
+  public int read() throws IOException {
     try {
-      result = wrapped.read();
+      return wrapped.read();
     } catch (IOException e) {
       exception = e;
-      result = -1;
+      throw e;
     }
-    return result;
   }
 
   @Nullable
