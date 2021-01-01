@@ -29,167 +29,167 @@ import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
 public class WideGamutTest {
-  @Rule public final TestRule tearDownGlide = new TearDownGlide();
-  private final ConcurrencyHelper concurrency = new ConcurrencyHelper();
-  private final Context context = ApplicationProvider.getApplicationContext();
+   @Rule public final TestRule tearDownGlide = new TearDownGlide();
+   private final ConcurrencyHelper concurrency = new ConcurrencyHelper();
+   private final Context context = ApplicationProvider.getApplicationContext();
 
-  @Before
-  public void setUp() {
-    assumeTrue(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O);
-  }
+   private static byte[] asJpeg(Bitmap bitmap) {
+      return toByteArray(bitmap, CompressFormat.JPEG);
+   }
 
-  @Test
-  public void load_withWideGamutImage_returnsWideGamutBitmap() {
-    Bitmap bitmap =
-        concurrency.get(
-            Glide.with(context).asBitmap().load(ResourceIds.raw.webkit_logo_p3).submit());
-    assertThat(bitmap.getConfig()).isEqualTo(Bitmap.Config.RGBA_F16);
-  }
+   private static byte[] asPng(Bitmap bitmap) {
+      return toByteArray(bitmap, CompressFormat.PNG);
+   }
 
-  @Test
-  public void load_withWideGamutImage_bitmapInPoolWithSizeAndConfig_usesBitmapFromPool() {
-    int bitmapDimension = 1000;
-    Glide.init(
-        context,
-        new GlideBuilder()
-            .setBitmapPool(new LruBitmapPool(bitmapDimension * bitmapDimension * 8 * 4)));
-    Bitmap expected = Bitmap.createBitmap(bitmapDimension, bitmapDimension, Bitmap.Config.RGBA_F16);
+   private static byte[] asWebp(Bitmap bitmap) {
+      return toByteArray(bitmap, CompressFormat.WEBP);
+   }
 
-    Glide.get(context).getBitmapPool().put(expected);
+   private static byte[] toByteArray(Bitmap bitmap, CompressFormat format) {
+      ByteArrayOutputStream os = new ByteArrayOutputStream();
+      assertThat(bitmap.compress(format, 100, os)).isTrue();
+      return os.toByteArray();
+   }
 
-    Bitmap bitmap =
-        concurrency.get(
-            Glide.with(context).asBitmap().load(ResourceIds.raw.webkit_logo_p3).submit());
-    assertThat(bitmap).isSameInstanceAs(expected);
-  }
+   @Before
+   public void setUp() {
+      assumeTrue(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O);
+   }
 
-  // TODO: Even with hardware allowed, we get a wide F16. Attempting to decode the resource with
-  // preferred config set to hardware fails with:
-  // "D/skia    (10312): --- Failed to allocate a hardware bitmap"
-  @Test
-  public void load_withWideGamutImage_hardwareAllowed_returnsDecodedBitmap() {
-    Bitmap bitmap =
-        concurrency.get(
-            GlideApp.with(context)
-                .asBitmap()
-                .load(ResourceIds.raw.webkit_logo_p3)
-                .set(Downsampler.ALLOW_HARDWARE_CONFIG, true)
-                .submit());
-    assertThat(bitmap).isNotNull();
-  }
+   @Test
+   public void load_withWideGamutImage_returnsWideGamutBitmap() {
+      Bitmap bitmap =
+            concurrency.get(
+                  Glide.with(context).asBitmap().load(ResourceIds.raw.webkit_logo_p3).submit());
+      assertThat(bitmap.getConfig()).isEqualTo(Bitmap.Config.RGBA_F16);
+   }
 
-  @Test
-  public void load_withEncodedPngWideGamutImage_decodesWideGamut() {
-    Bitmap toCompress =
-        Bitmap.createBitmap(
-            100, 100, Bitmap.Config.RGBA_F16, /*hasAlpha=*/ true, ColorSpace.get(Named.DCI_P3));
+   @Test
+   public void load_withWideGamutImage_bitmapInPoolWithSizeAndConfig_usesBitmapFromPool() {
+      int bitmapDimension = 1000;
+      Glide.init(
+            context,
+            new GlideBuilder()
+                  .setBitmapPool(new LruBitmapPool(bitmapDimension * bitmapDimension * 8 * 4)));
+      Bitmap expected = Bitmap.createBitmap(bitmapDimension, bitmapDimension, Bitmap.Config.RGBA_F16);
 
-    byte[] data = asPng(toCompress);
+      Glide.get(context).getBitmapPool().put(expected);
 
-    Bitmap bitmap = concurrency.get(Glide.with(context).asBitmap().load(data).submit());
-    assertThat(bitmap.getConfig()).isEqualTo(Bitmap.Config.RGBA_F16);
-  }
+      Bitmap bitmap =
+            concurrency.get(
+                  Glide.with(context).asBitmap().load(ResourceIds.raw.webkit_logo_p3).submit());
+      assertThat(bitmap).isSameInstanceAs(expected);
+   }
 
-  @Test
-  public void load_withEncodedJpegWideGamutImage_decodesArgb8888() {
-    // TODO(b/71430152): Figure out whether or not this is supposed to pass in API 26 and fail in
-    // API 27.
-    assumeTrue(Build.VERSION.SDK_INT != Build.VERSION_CODES.O_MR1);
-    Bitmap toCompress =
-        Bitmap.createBitmap(
-            100, 100, Bitmap.Config.RGBA_F16, /*hasAlpha=*/ true, ColorSpace.get(Named.DCI_P3));
+   // TODO: Even with hardware allowed, we get a wide F16. Attempting to decode the resource with
+   // preferred config set to hardware fails with:
+   // "D/skia    (10312): --- Failed to allocate a hardware bitmap"
+   @Test
+   public void load_withWideGamutImage_hardwareAllowed_returnsDecodedBitmap() {
+      Bitmap bitmap =
+            concurrency.get(
+                  GlideApp.with(context)
+                        .asBitmap()
+                        .load(ResourceIds.raw.webkit_logo_p3)
+                        .set(Downsampler.ALLOW_HARDWARE_CONFIG, true)
+                        .submit());
+      assertThat(bitmap).isNotNull();
+   }
 
-    byte[] data = asJpeg(toCompress);
+   @Test
+   public void load_withEncodedPngWideGamutImage_decodesWideGamut() {
+      Bitmap toCompress =
+            Bitmap.createBitmap(
+                  100, 100, Bitmap.Config.RGBA_F16, /*hasAlpha=*/ true, ColorSpace.get(Named.DCI_P3));
 
-    Bitmap bitmap = concurrency.get(Glide.with(context).asBitmap().load(data).submit());
-    assertThat(bitmap.getConfig()).isEqualTo(Bitmap.Config.ARGB_8888);
-  }
+      byte[] data = asPng(toCompress);
 
-  @Test
-  public void load_withEncodedWebpWideGamutImage_decodesArgb8888() {
-    Bitmap toCompress =
-        Bitmap.createBitmap(
-            100, 100, Bitmap.Config.RGBA_F16, /*hasAlpha=*/ true, ColorSpace.get(Named.DCI_P3));
+      Bitmap bitmap = concurrency.get(Glide.with(context).asBitmap().load(data).submit());
+      assertThat(bitmap.getConfig()).isEqualTo(Bitmap.Config.RGBA_F16);
+   }
 
-    byte[] data = asWebp(toCompress);
+   @Test
+   public void load_withEncodedJpegWideGamutImage_decodesArgb8888() {
+      // TODO(b/71430152): Figure out whether or not this is supposed to pass in API 26 and fail in
+      // API 27.
+      assumeTrue(Build.VERSION.SDK_INT != Build.VERSION_CODES.O_MR1);
+      Bitmap toCompress =
+            Bitmap.createBitmap(
+                  100, 100, Bitmap.Config.RGBA_F16, /*hasAlpha=*/ true, ColorSpace.get(Named.DCI_P3));
 
-    Bitmap bitmap = concurrency.get(Glide.with(context).asBitmap().load(data).submit());
-    assertThat(bitmap.getConfig()).isEqualTo(Bitmap.Config.ARGB_8888);
-  }
+      byte[] data = asJpeg(toCompress);
 
-  @Test
-  public void load_withSmallerWideGamutInPool_decodesBitmap() {
-    BitmapPool bitmapPool = Glide.get(context).getBitmapPool();
-    Bitmap toPut = Bitmap.createBitmap(300, 298, Config.RGBA_F16);
-    bitmapPool.put(toPut);
-    // Add a second Bitmap to account for the InputStream decode.
-    bitmapPool.put(Bitmap.createBitmap(toPut));
+      Bitmap bitmap = concurrency.get(Glide.with(context).asBitmap().load(data).submit());
+      assertThat(bitmap.getConfig()).isEqualTo(Bitmap.Config.ARGB_8888);
+   }
 
-    Bitmap wideGamut = Bitmap.createBitmap(300, 300, Config.RGBA_F16);
-    byte[] data = asPng(wideGamut);
-    Bitmap bitmap = concurrency.get(Glide.with(context).asBitmap().load(data).submit());
-    assertThat(bitmap).isNotNull();
-  }
+   @Test
+   public void load_withEncodedWebpWideGamutImage_decodesArgb8888() {
+      Bitmap toCompress =
+            Bitmap.createBitmap(
+                  100, 100, Bitmap.Config.RGBA_F16, /*hasAlpha=*/ true, ColorSpace.get(Named.DCI_P3));
 
-  @Test
-  public void circleCrop_withWideGamutBitmap_producesWideGamutBitmap() {
-    Bitmap bitmap = Bitmap.createBitmap(100, 100, Config.RGBA_F16);
-    byte[] data = asPng(bitmap);
+      byte[] data = asWebp(toCompress);
 
-    Bitmap result =
-        concurrency.get(GlideApp.with(context).asBitmap().load(data).circleCrop().submit());
-    assertThat(result).isNotNull();
-    assertThat(result.getConfig()).isEqualTo(Config.RGBA_F16);
-  }
+      Bitmap bitmap = concurrency.get(Glide.with(context).asBitmap().load(data).submit());
+      assertThat(bitmap.getConfig()).isEqualTo(Bitmap.Config.ARGB_8888);
+   }
 
-  @Test
-  public void roundedCorners_withWideGamutBitmap_producesWideGamutBitmap() {
-    Bitmap bitmap = Bitmap.createBitmap(100, 100, Config.RGBA_F16);
-    byte[] data = asPng(bitmap);
+   @Test
+   public void load_withSmallerWideGamutInPool_decodesBitmap() {
+      BitmapPool bitmapPool = Glide.get(context).getBitmapPool();
+      Bitmap toPut = Bitmap.createBitmap(300, 298, Config.RGBA_F16);
+      bitmapPool.put(toPut);
+      // Add a second Bitmap to account for the InputStream decode.
+      bitmapPool.put(Bitmap.createBitmap(toPut));
 
-    Bitmap result =
-        concurrency.get(
-            GlideApp.with(context)
-                .asBitmap()
-                .load(data)
-                .transform(new RoundedCorners(/*roundingRadius=*/ 10))
-                .submit());
-    assertThat(result).isNotNull();
-    assertThat(result.getConfig()).isEqualTo(Config.RGBA_F16);
-  }
+      Bitmap wideGamut = Bitmap.createBitmap(300, 300, Config.RGBA_F16);
+      byte[] data = asPng(wideGamut);
+      Bitmap bitmap = concurrency.get(Glide.with(context).asBitmap().load(data).submit());
+      assertThat(bitmap).isNotNull();
+   }
 
-  @Test
-  public void loadWideGamutImage_withArgb888OfSufficientSizeInPool_usesArgb8888Bitmap() {
-    Bitmap wideGamut = Bitmap.createBitmap(100, 50, Bitmap.Config.RGBA_F16);
-    byte[] data = asPng(wideGamut);
+   @Test
+   public void circleCrop_withWideGamutBitmap_producesWideGamutBitmap() {
+      Bitmap bitmap = Bitmap.createBitmap(100, 100, Config.RGBA_F16);
+      byte[] data = asPng(bitmap);
 
-    Bitmap argb8888 = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888);
-    Glide.init(
-        context,
-        new GlideBuilder()
-            .setBitmapPool(new LruBitmapPool(wideGamut.getAllocationByteCount() * 5)));
-    Glide.get(context).getBitmapPool().put(argb8888);
+      Bitmap result =
+            concurrency.get(GlideApp.with(context).asBitmap().load(data).circleCrop().submit());
+      assertThat(result).isNotNull();
+      assertThat(result.getConfig()).isEqualTo(Config.RGBA_F16);
+   }
 
-    Bitmap result = concurrency.get(Glide.with(context).asBitmap().load(data).submit());
+   @Test
+   public void roundedCorners_withWideGamutBitmap_producesWideGamutBitmap() {
+      Bitmap bitmap = Bitmap.createBitmap(100, 100, Config.RGBA_F16);
+      byte[] data = asPng(bitmap);
 
-    assertThat(result).isSameInstanceAs(argb8888);
-  }
+      Bitmap result =
+            concurrency.get(
+                  GlideApp.with(context)
+                        .asBitmap()
+                        .load(data)
+                        .transform(new RoundedCorners(/*roundingRadius=*/ 10))
+                        .submit());
+      assertThat(result).isNotNull();
+      assertThat(result.getConfig()).isEqualTo(Config.RGBA_F16);
+   }
 
-  private static byte[] asJpeg(Bitmap bitmap) {
-    return toByteArray(bitmap, CompressFormat.JPEG);
-  }
+   @Test
+   public void loadWideGamutImage_withArgb888OfSufficientSizeInPool_usesArgb8888Bitmap() {
+      Bitmap wideGamut = Bitmap.createBitmap(100, 50, Bitmap.Config.RGBA_F16);
+      byte[] data = asPng(wideGamut);
 
-  private static byte[] asPng(Bitmap bitmap) {
-    return toByteArray(bitmap, CompressFormat.PNG);
-  }
+      Bitmap argb8888 = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888);
+      Glide.init(
+            context,
+            new GlideBuilder()
+                  .setBitmapPool(new LruBitmapPool(wideGamut.getAllocationByteCount() * 5)));
+      Glide.get(context).getBitmapPool().put(argb8888);
 
-  private static byte[] asWebp(Bitmap bitmap) {
-    return toByteArray(bitmap, CompressFormat.WEBP);
-  }
+      Bitmap result = concurrency.get(Glide.with(context).asBitmap().load(data).submit());
 
-  private static byte[] toByteArray(Bitmap bitmap, CompressFormat format) {
-    ByteArrayOutputStream os = new ByteArrayOutputStream();
-    assertThat(bitmap.compress(format, 100, os)).isTrue();
-    return os.toByteArray();
-  }
+      assertThat(result).isSameInstanceAs(argb8888);
+   }
 }

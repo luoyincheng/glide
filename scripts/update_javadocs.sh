@@ -15,27 +15,23 @@ version="${major_version}${minor_version}0"
 
 echo "Updating javadocs for ${version}"
 
-if [[ $(git status -uno --porcelain) ]];
-then
+if [[ $(git status -uno --porcelain) ]]; then
   echo "One or more changes, commit or revert first."
   git status -uno --porcelain
   exit 1
 fi
 
-if [ -e "$JAVADOC_GH_PAGES_DIR" ];
-then
+if [ -e "$JAVADOC_GH_PAGES_DIR" ]; then
   echo "javadocs directory exists locally, remove first."
   exit 1
 fi
 
-if [[ $(git rev-list master...origin/master --count) -ne 0 ]];
-then
+if [[ $(git rev-list master...origin/master --count) -ne 0 ]]; then
   echo "Origin and master are not up to date"
   git rev-list master...origin/master --pretty
   exit 1
 fi
-if [[ $(git rev-list gh-pages...origin/gh-pages --count) -ne 0 ]];
-then
+if [[ $(git rev-list gh-pages...origin/gh-pages --count) -ne 0 ]]; then
   echo "Origin and gh-pages are not up to date"
   git rev-list gh-pages...origin/gh-pages --pretty
   exit 1

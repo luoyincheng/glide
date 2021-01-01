@@ -4,18 +4,17 @@ import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 
 /**
- * Exposes the {@link Description} for the current test, similar to {@link
- * org.junit.rules.TestName}.
+ * Exposes the {@link Description} for the current test, similar to {@link org.junit.rules.TestName}.
  */
 public final class TestDescription extends TestWatcher {
-  private Description description;
+   private Description description;
 
-  @Override
-  protected void starting(Description description) {
-    this.description = description;
-  }
+   @Override
+   protected void starting(Description description) {
+      this.description = description;
+   }
 
-  public Description getDescription() {
-    return description;
-  }
+   public Description getDescription() {
+      return description;
+   }
 }

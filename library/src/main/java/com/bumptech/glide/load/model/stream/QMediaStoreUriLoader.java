@@ -30,8 +30,7 @@ import java.io.InputStream;
  * Best effort attempt to work around various Q storage states and bugs.
  *
  * <p>In particular, HEIC images on Q cannot be decoded if they've gone through Android's exif
- * redaction, due to a bug in the implementation that corrupts the file. To avoid the issue, we need
- * to get at the un-redacted File. There are two ways we can do so:
+ * redaction, due to a bug in the implementation that corrupts the file. To avoid the issue, we need to get at the un-redacted File. There are two ways we can do so:
  *
  * <ul>
  *   <li>MediaStore.setRequireOriginal
@@ -53,216 +52,219 @@ import java.io.InputStream;
  *
  * <p>Avoid using this class directly, it may be removed in any future version of Glide.
  *
- * @param <DataT> The type of data this loader will load ({@link InputStream}, {@link
- *     ParcelFileDescriptor}).
+ * @param <DataT> The type of data this loader will load ({@link InputStream}, {@link ParcelFileDescriptor}).
  */
 @RequiresApi(Build.VERSION_CODES.Q)
 public final class QMediaStoreUriLoader<DataT> implements ModelLoader<Uri, DataT> {
-  private final Context context;
-  private final ModelLoader<File, DataT> fileDelegate;
-  private final ModelLoader<Uri, DataT> uriDelegate;
-  private final Class<DataT> dataClass;
+   private final Context context;
+   private final ModelLoader<File, DataT> fileDelegate;
+   private final ModelLoader<Uri, DataT> uriDelegate;
+   private final Class<DataT> dataClass;
 
-  @SuppressWarnings("WeakerAccess")
-  @Synthetic
-  QMediaStoreUriLoader(
-      Context context,
-      ModelLoader<File, DataT> fileDelegate,
-      ModelLoader<Uri, DataT> uriDelegate,
-      Class<DataT> dataClass) {
-    this.context = context.getApplicationContext();
-    this.fileDelegate = fileDelegate;
-    this.uriDelegate = uriDelegate;
-    this.dataClass = dataClass;
-  }
-
-  @Override
-  public LoadData<DataT> buildLoadData(
-      @NonNull Uri uri, int width, int height, @NonNull Options options) {
-    return new LoadData<>(
-        new ObjectKey(uri),
-        new QMediaStoreUriFetcher<>(
-            context, fileDelegate, uriDelegate, uri, width, height, options, dataClass));
-  }
-
-  @Override
-  public boolean handles(@NonNull Uri uri) {
-    return Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && MediaStoreUtil.isMediaStoreUri(uri);
-  }
-
-  private static final class QMediaStoreUriFetcher<DataT> implements DataFetcher<DataT> {
-    private static final String[] PROJECTION = new String[] {MediaStore.MediaColumns.DATA};
-
-    private final Context context;
-    private final ModelLoader<File, DataT> fileDelegate;
-    private final ModelLoader<Uri, DataT> uriDelegate;
-    private final Uri uri;
-    private final int width;
-    private final int height;
-    private final Options options;
-    private final Class<DataT> dataClass;
-
-    private volatile boolean isCancelled;
-    @Nullable private volatile DataFetcher<DataT> delegate;
-
-    QMediaStoreUriFetcher(
-        Context context,
-        ModelLoader<File, DataT> fileDelegate,
-        ModelLoader<Uri, DataT> uriDelegate,
-        Uri uri,
-        int width,
-        int height,
-        Options options,
-        Class<DataT> dataClass) {
+   @SuppressWarnings("WeakerAccess")
+   @Synthetic
+   QMediaStoreUriLoader(
+         Context context,
+         ModelLoader<File, DataT> fileDelegate,
+         ModelLoader<Uri, DataT> uriDelegate,
+         Class<DataT> dataClass) {
       this.context = context.getApplicationContext();
       this.fileDelegate = fileDelegate;
       this.uriDelegate = uriDelegate;
-      this.uri = uri;
-      this.width = width;
-      this.height = height;
-      this.options = options;
       this.dataClass = dataClass;
-    }
+   }
 
-    @Override
-    public void loadData(
-        @NonNull Priority priority, @NonNull DataCallback<? super DataT> callback) {
-      try {
-        DataFetcher<DataT> local = buildDelegateFetcher();
-        if (local == null) {
-          callback.onLoadFailed(
-              new IllegalArgumentException("Failed to build fetcher for: " + uri));
-          return;
-        }
-        delegate = local;
-        if (isCancelled) {
-          cancel();
-        } else {
-          local.loadData(priority, callback);
-        }
-      } catch (FileNotFoundException e) {
-        callback.onLoadFailed(e);
+   @Override
+   public LoadData<DataT> buildLoadData(
+         @NonNull Uri uri, int width, int height, @NonNull Options options) {
+      return new LoadData<>(
+            new ObjectKey(uri),
+            new QMediaStoreUriFetcher<>(
+                  context, fileDelegate, uriDelegate, uri, width, height, options, dataClass));
+   }
+
+   @Override
+   public boolean handles(@NonNull Uri uri) {
+      return Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && MediaStoreUtil.isMediaStoreUri(uri);
+   }
+
+   private static final class QMediaStoreUriFetcher<DataT> implements DataFetcher<DataT> {
+      private static final String[] PROJECTION = new String[]{MediaStore.MediaColumns.DATA};
+
+      private final Context context;
+      private final ModelLoader<File, DataT> fileDelegate;
+      private final ModelLoader<Uri, DataT> uriDelegate;
+      private final Uri uri;
+      private final int width;
+      private final int height;
+      private final Options options;
+      private final Class<DataT> dataClass;
+
+      private volatile boolean isCancelled;
+      @Nullable private volatile DataFetcher<DataT> delegate;
+
+      QMediaStoreUriFetcher(
+            Context context,
+            ModelLoader<File, DataT> fileDelegate,
+            ModelLoader<Uri, DataT> uriDelegate,
+            Uri uri,
+            int width,
+            int height,
+            Options options,
+            Class<DataT> dataClass) {
+         this.context = context.getApplicationContext();
+         this.fileDelegate = fileDelegate;
+         this.uriDelegate = uriDelegate;
+         this.uri = uri;
+         this.width = width;
+         this.height = height;
+         this.options = options;
+         this.dataClass = dataClass;
       }
-    }
 
-    @Nullable
-    private DataFetcher<DataT> buildDelegateFetcher() throws FileNotFoundException {
-      LoadData<DataT> result = buildDelegateData();
-      return result != null ? result.fetcher : null;
-    }
-
-    @Nullable
-    private LoadData<DataT> buildDelegateData() throws FileNotFoundException {
-      if (Environment.isExternalStorageLegacy()) {
-        return fileDelegate.buildLoadData(queryForFilePath(uri), width, height, options);
-      } else {
-        Uri toLoad = isAccessMediaLocationGranted() ? MediaStore.setRequireOriginal(uri) : uri;
-        return uriDelegate.buildLoadData(toLoad, width, height, options);
+      @Override
+      public void loadData(
+            @NonNull Priority priority, @NonNull DataCallback<? super DataT> callback) {
+         try {
+            DataFetcher<DataT> local = buildDelegateFetcher();
+            if (local == null) {
+               callback.onLoadFailed(
+                     new IllegalArgumentException("Failed to build fetcher for: " + uri));
+               return;
+            }
+            delegate = local;
+            if (isCancelled) {
+               cancel();
+            } else {
+               local.loadData(priority, callback);
+            }
+         } catch (FileNotFoundException e) {
+            callback.onLoadFailed(e);
+         }
       }
-    }
 
-    @Override
-    public void cleanup() {
-      DataFetcher<DataT> local = delegate;
-      if (local != null) {
-        local.cleanup();
+      @Nullable
+      private DataFetcher<DataT> buildDelegateFetcher() throws FileNotFoundException {
+         LoadData<DataT> result = buildDelegateData();
+         return result != null ? result.fetcher : null;
       }
-    }
 
-    @Override
-    public void cancel() {
-      isCancelled = true;
-      DataFetcher<DataT> local = delegate;
-      if (local != null) {
-        local.cancel();
+      @Nullable
+      private LoadData<DataT> buildDelegateData() throws FileNotFoundException {
+         if (Environment.isExternalStorageLegacy()) {
+            return fileDelegate.buildLoadData(queryForFilePath(uri), width, height, options);
+         } else {
+            Uri toLoad = isAccessMediaLocationGranted() ? MediaStore.setRequireOriginal(uri) : uri;
+            return uriDelegate.buildLoadData(toLoad, width, height, options);
+         }
       }
-    }
 
-    @NonNull
-    @Override
-    public Class<DataT> getDataClass() {
-      return dataClass;
-    }
-
-    @NonNull
-    @Override
-    public DataSource getDataSource() {
-      return DataSource.LOCAL;
-    }
-
-    @NonNull
-    private File queryForFilePath(Uri uri) throws FileNotFoundException {
-      Cursor cursor = null;
-      try {
-        cursor =
-            context
-                .getContentResolver()
-                .query(
-                    uri,
-                    PROJECTION,
-                    /*selection=*/ null,
-                    /*selectionArgs=*/ null,
-                    /*sortOrder=*/ null);
-        if (cursor == null || !cursor.moveToFirst()) {
-          throw new FileNotFoundException("Failed to media store entry for: " + uri);
-        }
-        String path = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA));
-        if (TextUtils.isEmpty(path)) {
-          throw new FileNotFoundException("File path was empty in media store for: " + uri);
-        }
-        return new File(path);
-      } finally {
-        if (cursor != null) {
-          cursor.close();
-        }
+      @Override
+      public void cleanup() {
+         DataFetcher<DataT> local = delegate;
+         if (local != null) {
+            local.cleanup();
+         }
       }
-    }
 
-    private boolean isAccessMediaLocationGranted() {
-      return context.checkSelfPermission(android.Manifest.permission.ACCESS_MEDIA_LOCATION)
-          == PackageManager.PERMISSION_GRANTED;
-    }
-  }
+      @Override
+      public void cancel() {
+         isCancelled = true;
+         DataFetcher<DataT> local = delegate;
+         if (local != null) {
+            local.cancel();
+         }
+      }
 
-  /** Factory for {@link InputStream}. */
-  @RequiresApi(Build.VERSION_CODES.Q)
-  public static final class InputStreamFactory extends Factory<InputStream> {
-    public InputStreamFactory(Context context) {
-      super(context, InputStream.class);
-    }
-  }
+      @NonNull
+      @Override
+      public Class<DataT> getDataClass() {
+         return dataClass;
+      }
 
-  /** Factory for {@link ParcelFileDescriptor}. */
-  @RequiresApi(Build.VERSION_CODES.Q)
-  public static final class FileDescriptorFactory extends Factory<ParcelFileDescriptor> {
-    public FileDescriptorFactory(Context context) {
-      super(context, ParcelFileDescriptor.class);
-    }
-  }
+      @NonNull
+      @Override
+      public DataSource getDataSource() {
+         return DataSource.LOCAL;
+      }
 
-  private abstract static class Factory<DataT> implements ModelLoaderFactory<Uri, DataT> {
+      @NonNull
+      private File queryForFilePath(Uri uri) throws FileNotFoundException {
+         Cursor cursor = null;
+         try {
+            cursor =
+                  context
+                        .getContentResolver()
+                        .query(
+                              uri,
+                              PROJECTION,
+                              /*selection=*/ null,
+                              /*selectionArgs=*/ null,
+                              /*sortOrder=*/ null);
+            if (cursor == null || !cursor.moveToFirst()) {
+               throw new FileNotFoundException("Failed to media store entry for: " + uri);
+            }
+            String path = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA));
+            if (TextUtils.isEmpty(path)) {
+               throw new FileNotFoundException("File path was empty in media store for: " + uri);
+            }
+            return new File(path);
+         } finally {
+            if (cursor != null) {
+               cursor.close();
+            }
+         }
+      }
 
-    private final Context context;
-    private final Class<DataT> dataClass;
+      private boolean isAccessMediaLocationGranted() {
+         return context.checkSelfPermission(android.Manifest.permission.ACCESS_MEDIA_LOCATION)
+               == PackageManager.PERMISSION_GRANTED;
+      }
+   }
 
-    Factory(Context context, Class<DataT> dataClass) {
-      this.context = context;
-      this.dataClass = dataClass;
-    }
+   /**
+    * Factory for {@link InputStream}.
+    */
+   @RequiresApi(Build.VERSION_CODES.Q)
+   public static final class InputStreamFactory extends Factory<InputStream> {
+      public InputStreamFactory(Context context) {
+         super(context, InputStream.class);
+      }
+   }
 
-    @NonNull
-    @Override
-    public final ModelLoader<Uri, DataT> build(@NonNull MultiModelLoaderFactory multiFactory) {
-      return new QMediaStoreUriLoader<>(
-          context,
-          multiFactory.build(File.class, dataClass),
-          multiFactory.build(Uri.class, dataClass),
-          dataClass);
-    }
+   /**
+    * Factory for {@link ParcelFileDescriptor}.
+    */
+   @RequiresApi(Build.VERSION_CODES.Q)
+   public static final class FileDescriptorFactory extends Factory<ParcelFileDescriptor> {
+      public FileDescriptorFactory(Context context) {
+         super(context, ParcelFileDescriptor.class);
+      }
+   }
 
-    @Override
-    public final void teardown() {
-      // Do nothing.
-    }
-  }
+   private abstract static class Factory<DataT> implements ModelLoaderFactory<Uri, DataT> {
+
+      private final Context context;
+      private final Class<DataT> dataClass;
+
+      Factory(Context context, Class<DataT> dataClass) {
+         this.context = context;
+         this.dataClass = dataClass;
+      }
+
+      @NonNull
+      @Override
+      public final ModelLoader<Uri, DataT> build(@NonNull MultiModelLoaderFactory multiFactory) {
+         return new QMediaStoreUriLoader<>(
+               context,
+               multiFactory.build(File.class, dataClass),
+               multiFactory.build(Uri.class, dataClass),
+               dataClass);
+      }
+
+      @Override
+      public final void teardown() {
+         // Do nothing.
+      }
+   }
 }

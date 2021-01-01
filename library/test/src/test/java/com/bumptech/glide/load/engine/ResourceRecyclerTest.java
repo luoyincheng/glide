@@ -19,55 +19,55 @@ import org.robolectric.annotation.Config;
 @Config(sdk = 18)
 public class ResourceRecyclerTest {
 
-  private ResourceRecycler recycler;
+   private ResourceRecycler recycler;
 
-  @Before
-  public void setUp() {
-    recycler = new ResourceRecycler();
-  }
+   @Before
+   public void setUp() {
+      recycler = new ResourceRecycler();
+   }
 
-  @Test
-  public void recycle_withoutForceNextFrame_recyclesResourceSynchronously() {
-    Resource<?> resource = mockResource();
-    Shadows.shadowOf(Looper.getMainLooper()).pause();
-    recycler.recycle(resource, /*forceNextFrame=*/ false);
-    verify(resource).recycle();
-  }
+   @Test
+   public void recycle_withoutForceNextFrame_recyclesResourceSynchronously() {
+      Resource<?> resource = mockResource();
+      Shadows.shadowOf(Looper.getMainLooper()).pause();
+      recycler.recycle(resource, /*forceNextFrame=*/ false);
+      verify(resource).recycle();
+   }
 
-  @Test
-  public void recycle_withForceNextFrame_postsRecycle() {
-    Resource<?> resource = mockResource();
-    Shadows.shadowOf(Looper.getMainLooper()).pause();
-    recycler.recycle(resource, /*forceNextFrame=*/ true);
-    verify(resource, never()).recycle();
-    Shadows.shadowOf(Looper.getMainLooper()).runToEndOfTasks();
-    verify(resource).recycle();
-  }
+   @Test
+   public void recycle_withForceNextFrame_postsRecycle() {
+      Resource<?> resource = mockResource();
+      Shadows.shadowOf(Looper.getMainLooper()).pause();
+      recycler.recycle(resource, /*forceNextFrame=*/ true);
+      verify(resource, never()).recycle();
+      Shadows.shadowOf(Looper.getMainLooper()).runToEndOfTasks();
+      verify(resource).recycle();
+   }
 
-  @Test
-  public void testDoesNotRecycleChildResourceSynchronously() {
-    Resource<?> parent = mockResource();
-    final Resource<?> child = mockResource();
-    doAnswer(
+   @Test
+   public void testDoesNotRecycleChildResourceSynchronously() {
+      Resource<?> parent = mockResource();
+      final Resource<?> child = mockResource();
+      doAnswer(
             new Answer<Void>() {
-              @Override
-              public Void answer(InvocationOnMock invocationOnMock) throws Throwable {
-                recycler.recycle(child, /*forceNextFrame=*/ false);
-                return null;
-              }
+               @Override
+               public Void answer(InvocationOnMock invocationOnMock) throws Throwable {
+                  recycler.recycle(child, /*forceNextFrame=*/ false);
+                  return null;
+               }
             })
-        .when(parent)
-        .recycle();
+            .when(parent)
+            .recycle();
 
-    Shadows.shadowOf(Looper.getMainLooper()).pause();
+      Shadows.shadowOf(Looper.getMainLooper()).pause();
 
-    recycler.recycle(parent, /*forceNextFrame=*/ false);
+      recycler.recycle(parent, /*forceNextFrame=*/ false);
 
-    verify(parent).recycle();
-    verify(child, never()).recycle();
+      verify(parent).recycle();
+      verify(child, never()).recycle();
 
-    Shadows.shadowOf(Looper.getMainLooper()).runOneTask();
+      Shadows.shadowOf(Looper.getMainLooper()).runOneTask();
 
-    verify(child).recycle();
-  }
+      verify(child).recycle();
+   }
 }

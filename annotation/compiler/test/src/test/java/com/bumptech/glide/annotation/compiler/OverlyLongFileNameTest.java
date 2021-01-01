@@ -23,49 +23,49 @@ import org.junit.runners.JUnit4;
  */
 @RunWith(JUnit4.class)
 public class OverlyLongFileNameTest implements CompilationProvider {
-  @Rule public TemporaryFolder temporaryFolder = new TemporaryFolder();
-  private Compilation compilation;
-  private static final String FILE_NAME_LONGER_THAN_255_CHARS =
-      "SomeReallyReallyRidiculouslyLongFileNameOrPackageNameIGuessThatExceedsTwoHundredAndFiftyFive"
-          + "CharactersThoughThatsOnlyAroundOneHundredCharactersWhichMeansINeedToKeepTypingToGetTo"
-          + "TwoHundredAndFiftyFiveSomehowThankfullyOnlyLikeFiftyToGoNowMaybeButNotQuiteYet"
-          + "SomewhereAroundNowIsProbablyGood";
+   private static final String FILE_NAME_LONGER_THAN_255_CHARS =
+         "SomeReallyReallyRidiculouslyLongFileNameOrPackageNameIGuessThatExceedsTwoHundredAndFiftyFive"
+               + "CharactersThoughThatsOnlyAroundOneHundredCharactersWhichMeansINeedToKeepTypingToGetTo"
+               + "TwoHundredAndFiftyFiveSomehowThankfullyOnlyLikeFiftyToGoNowMaybeButNotQuiteYet"
+               + "SomewhereAroundNowIsProbablyGood";
+   @Rule public TemporaryFolder temporaryFolder = new TemporaryFolder();
+   private Compilation compilation;
 
-  @Before
-  public void setUp() {
-    compilation =
-        javac()
-            .withProcessors(new GlideAnnotationProcessor())
-            .compile(
-                JavaFileObjects.forSourceLines(
-                    FILE_NAME_LONGER_THAN_255_CHARS,
-                    "package com.bumptech.glide.test;",
-                    "import com.bumptech.glide.annotation.GlideModule;",
-                    "import com.bumptech.glide.module.LibraryGlideModule;",
-                    "@GlideModule",
-                    "public final class "
-                        + FILE_NAME_LONGER_THAN_255_CHARS
-                        + " extends LibraryGlideModule {}"));
-  }
+   @Before
+   public void setUp() {
+      compilation =
+            javac()
+                  .withProcessors(new GlideAnnotationProcessor())
+                  .compile(
+                        JavaFileObjects.forSourceLines(
+                              FILE_NAME_LONGER_THAN_255_CHARS,
+                              "package com.bumptech.glide.test;",
+                              "import com.bumptech.glide.annotation.GlideModule;",
+                              "import com.bumptech.glide.module.LibraryGlideModule;",
+                              "@GlideModule",
+                              "public final class "
+                                    + FILE_NAME_LONGER_THAN_255_CHARS
+                                    + " extends LibraryGlideModule {}"));
+   }
 
-  @Test
-  public void compilingLongClassAndOrPackageNameShouldSucceed() throws IOException {
-    CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
-    for (JavaFileObject file : compilation.generatedFiles()) {
-      temporaryFolder.create();
-      String actualFileName = new File(file.getName()).getName();
-      if (!actualFileName.startsWith(FILE_NAME_LONGER_THAN_255_CHARS)) {
-        try {
-          temporaryFolder.newFile(actualFileName).createNewFile();
-        } catch (IOException e) {
-          throw new RuntimeException("Failed to create: " + actualFileName, e);
-        }
+   @Test
+   public void compilingLongClassAndOrPackageNameShouldSucceed() throws IOException {
+      CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
+      for (JavaFileObject file : compilation.generatedFiles()) {
+         temporaryFolder.create();
+         String actualFileName = new File(file.getName()).getName();
+         if (!actualFileName.startsWith(FILE_NAME_LONGER_THAN_255_CHARS)) {
+            try {
+               temporaryFolder.newFile(actualFileName).createNewFile();
+            } catch (IOException e) {
+               throw new RuntimeException("Failed to create: " + actualFileName, e);
+            }
+         }
       }
-    }
-  }
+   }
 
-  @Override
-  public Compilation getCompilation() {
-    return compilation;
-  }
+   @Override
+   public Compilation getCompilation() {
+      return compilation;
+   }
 }

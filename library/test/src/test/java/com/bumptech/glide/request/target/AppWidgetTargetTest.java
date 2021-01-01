@@ -24,123 +24,123 @@ import org.robolectric.shadows.ShadowAppWidgetManager;
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 18, shadows = AppWidgetTargetTest.UpdateShadowAppWidgetManager.class)
 public class AppWidgetTargetTest {
-  private UpdateShadowAppWidgetManager shadowManager;
-  private RemoteViews views;
-  private int viewId;
+   private UpdateShadowAppWidgetManager shadowManager;
+   private RemoteViews views;
+   private int viewId;
 
-  @Before
-  public void setUp() {
-    shadowManager = Shadow.extract(AppWidgetManager.getInstance(RuntimeEnvironment.application));
-    viewId = 1234;
-    views = mock(RemoteViews.class);
-  }
+   @Before
+   public void setUp() {
+      shadowManager = Shadow.extract(AppWidgetManager.getInstance(RuntimeEnvironment.application));
+      viewId = 1234;
+      views = mock(RemoteViews.class);
+   }
 
-  @Test
-  public void testSetsBitmapOnRemoteViewsWithViewIdWhenCreatedWithComponentName() {
-    ComponentName componentName = mock(ComponentName.class);
-    AppWidgetTarget target =
-        new AppWidgetTarget(RuntimeEnvironment.application, viewId, views, componentName);
+   @Test
+   public void testSetsBitmapOnRemoteViewsWithViewIdWhenCreatedWithComponentName() {
+      ComponentName componentName = mock(ComponentName.class);
+      AppWidgetTarget target =
+            new AppWidgetTarget(RuntimeEnvironment.application, viewId, views, componentName);
 
-    Bitmap bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888);
-    target.onResourceReady(bitmap, null /*glideAnimation*/);
+      Bitmap bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888);
+      target.onResourceReady(bitmap, null /*glideAnimation*/);
 
-    verify(views).setImageViewBitmap(eq(viewId), eq(bitmap));
-  }
+      verify(views).setImageViewBitmap(eq(viewId), eq(bitmap));
+   }
 
-  @Test
-  public void testUpdatesAppWidgetWhenCreatedWithComponentName() {
-    ComponentName componentName = mock(ComponentName.class);
-    AppWidgetTarget target =
-        new AppWidgetTarget(RuntimeEnvironment.application, viewId, views, componentName);
+   @Test
+   public void testUpdatesAppWidgetWhenCreatedWithComponentName() {
+      ComponentName componentName = mock(ComponentName.class);
+      AppWidgetTarget target =
+            new AppWidgetTarget(RuntimeEnvironment.application, viewId, views, componentName);
 
-    target.onResourceReady(
-        Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888), null
-        /*glideAnimation*/ );
+      target.onResourceReady(
+            Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888), null
+            /*glideAnimation*/);
 
-    assertEquals(componentName, shadowManager.updatedComponentName);
-    assertEquals(views, shadowManager.updatedRemoteViews);
-  }
+      assertEquals(componentName, shadowManager.updatedComponentName);
+      assertEquals(views, shadowManager.updatedRemoteViews);
+   }
 
-  @Test
-  public void testSetsBitmapOnRemoteViewsWithViewIdWhenCreatedWithWidgetIds() {
-    int[] widgetIds = new int[] {1};
-    AppWidgetTarget target =
-        new AppWidgetTarget(RuntimeEnvironment.application, viewId, views, widgetIds);
+   @Test
+   public void testSetsBitmapOnRemoteViewsWithViewIdWhenCreatedWithWidgetIds() {
+      int[] widgetIds = new int[]{1};
+      AppWidgetTarget target =
+            new AppWidgetTarget(RuntimeEnvironment.application, viewId, views, widgetIds);
 
-    Bitmap bitmap = Bitmap.createBitmap(100, 200, Bitmap.Config.RGB_565);
-    target.onResourceReady(bitmap, null /*glideAnimation*/);
+      Bitmap bitmap = Bitmap.createBitmap(100, 200, Bitmap.Config.RGB_565);
+      target.onResourceReady(bitmap, null /*glideAnimation*/);
 
-    verify(views).setImageViewBitmap(eq(viewId), eq(bitmap));
-  }
+      verify(views).setImageViewBitmap(eq(viewId), eq(bitmap));
+   }
 
-  @Test
-  public void testUpdatesAppWidgetWhenCreatedWithWidgetIds() {
-    int[] widgetIds = new int[] {1};
-    AppWidgetTarget target =
-        new AppWidgetTarget(RuntimeEnvironment.application, viewId, views, widgetIds);
+   @Test
+   public void testUpdatesAppWidgetWhenCreatedWithWidgetIds() {
+      int[] widgetIds = new int[]{1};
+      AppWidgetTarget target =
+            new AppWidgetTarget(RuntimeEnvironment.application, viewId, views, widgetIds);
 
-    target.onResourceReady(
-        Bitmap.createBitmap(200, 100, Bitmap.Config.ARGB_8888), null
-        /*glideAnimation*/ );
+      target.onResourceReady(
+            Bitmap.createBitmap(200, 100, Bitmap.Config.ARGB_8888), null
+            /*glideAnimation*/);
 
-    assertThat(widgetIds).isEqualTo(shadowManager.updatedWidgetIds);
-    assertEquals(views, shadowManager.updatedRemoteViews);
-  }
+      assertThat(widgetIds).isEqualTo(shadowManager.updatedWidgetIds);
+      assertEquals(views, shadowManager.updatedRemoteViews);
+   }
 
-  @Test(expected = NullPointerException.class)
-  public void testThrowsWhenGivenNullContextWithWidgetIds() {
-    new AppWidgetTarget(null /*context*/, 1234 /*viewId*/, views, 1 /*widgetIds*/);
-  }
+   @Test(expected = NullPointerException.class)
+   public void testThrowsWhenGivenNullContextWithWidgetIds() {
+      new AppWidgetTarget(null /*context*/, 1234 /*viewId*/, views, 1 /*widgetIds*/);
+   }
 
-  @Test(expected = NullPointerException.class)
-  public void testThrowsWhenGivenNullContextWithComponentName() {
-    new AppWidgetTarget(null /*context*/, 1234 /*viewId*/, views, mock(ComponentName.class));
-  }
+   @Test(expected = NullPointerException.class)
+   public void testThrowsWhenGivenNullContextWithComponentName() {
+      new AppWidgetTarget(null /*context*/, 1234 /*viewId*/, views, mock(ComponentName.class));
+   }
 
-  @Test(expected = NullPointerException.class)
-  public void testThrowsWhenGivenNullRemoteViewsWithWidgetIds() {
-    new AppWidgetTarget(
-        RuntimeEnvironment.application, viewId, null /*remoteViews*/, 1 /*widgetIds*/);
-  }
+   @Test(expected = NullPointerException.class)
+   public void testThrowsWhenGivenNullRemoteViewsWithWidgetIds() {
+      new AppWidgetTarget(
+            RuntimeEnvironment.application, viewId, null /*remoteViews*/, 1 /*widgetIds*/);
+   }
 
-  @Test(expected = NullPointerException.class)
-  public void testThrowsWhenGivenNullRemoteViewsWithComponentName() {
-    new AppWidgetTarget(
-        RuntimeEnvironment.application, viewId, null /*remoteViews*/, mock(ComponentName.class));
-  }
+   @Test(expected = NullPointerException.class)
+   public void testThrowsWhenGivenNullRemoteViewsWithComponentName() {
+      new AppWidgetTarget(
+            RuntimeEnvironment.application, viewId, null /*remoteViews*/, mock(ComponentName.class));
+   }
 
-  @Test(expected = NullPointerException.class)
-  public void testThrowsWhenGivenNullWidgetIds() {
-    new AppWidgetTarget(RuntimeEnvironment.application, viewId, views, (int[]) null /*widgetIds*/);
-  }
+   @Test(expected = NullPointerException.class)
+   public void testThrowsWhenGivenNullWidgetIds() {
+      new AppWidgetTarget(RuntimeEnvironment.application, viewId, views, (int[]) null /*widgetIds*/);
+   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void testThrowsWhenGivenEmptyWidgetIds() {
-    new AppWidgetTarget(RuntimeEnvironment.application, viewId, views);
-  }
+   @Test(expected = IllegalArgumentException.class)
+   public void testThrowsWhenGivenEmptyWidgetIds() {
+      new AppWidgetTarget(RuntimeEnvironment.application, viewId, views);
+   }
 
-  @Test(expected = NullPointerException.class)
-  public void testThrowsWhenGivenNullComponentName() {
-    new AppWidgetTarget(RuntimeEnvironment.application, viewId, views, (ComponentName) null);
-  }
+   @Test(expected = NullPointerException.class)
+   public void testThrowsWhenGivenNullComponentName() {
+      new AppWidgetTarget(RuntimeEnvironment.application, viewId, views, (ComponentName) null);
+   }
 
-  @Implements(AppWidgetManager.class)
-  public static class UpdateShadowAppWidgetManager extends ShadowAppWidgetManager {
-    int[] updatedWidgetIds;
-    RemoteViews updatedRemoteViews;
-    ComponentName updatedComponentName;
+   @Implements(AppWidgetManager.class)
+   public static class UpdateShadowAppWidgetManager extends ShadowAppWidgetManager {
+      int[] updatedWidgetIds;
+      RemoteViews updatedRemoteViews;
+      ComponentName updatedComponentName;
 
-    @Implementation
-    @Override
-    public void updateAppWidget(int[] appWidgetIds, RemoteViews views) {
-      updatedWidgetIds = appWidgetIds;
-      updatedRemoteViews = views;
-    }
+      @Implementation
+      @Override
+      public void updateAppWidget(int[] appWidgetIds, RemoteViews views) {
+         updatedWidgetIds = appWidgetIds;
+         updatedRemoteViews = views;
+      }
 
-    @Implementation
-    public void updateAppWidget(ComponentName componentName, RemoteViews views) {
-      updatedComponentName = componentName;
-      updatedRemoteViews = views;
-    }
-  }
+      @Implementation
+      public void updateAppWidget(ComponentName componentName, RemoteViews views) {
+         updatedComponentName = componentName;
+         updatedRemoteViews = views;
+      }
+   }
 }

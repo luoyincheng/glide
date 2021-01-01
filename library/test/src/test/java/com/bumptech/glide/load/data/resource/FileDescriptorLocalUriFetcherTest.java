@@ -28,48 +28,48 @@ import org.robolectric.shadow.api.Shadow;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(
-    sdk = 18,
-    shadows = {ContentResolverShadow.class})
+      sdk = 18,
+      shadows = {ContentResolverShadow.class})
 public class FileDescriptorLocalUriFetcherTest {
 
-  @Mock private DataFetcher.DataCallback<ParcelFileDescriptor> callback;
+   @Mock private DataFetcher.DataCallback<ParcelFileDescriptor> callback;
 
-  @Before
-  public void setUp() {
-    MockitoAnnotations.initMocks(this);
-  }
+   @Before
+   public void setUp() {
+      MockitoAnnotations.initMocks(this);
+   }
 
-  @Test
-  public void testLoadResource_returnsFileDescriptor() throws Exception {
-    Context context = RuntimeEnvironment.application;
-    Uri uri = Uri.parse("file://nothing");
+   @Test
+   public void testLoadResource_returnsFileDescriptor() throws Exception {
+      Context context = RuntimeEnvironment.application;
+      Uri uri = Uri.parse("file://nothing");
 
-    ContentResolver contentResolver = context.getContentResolver();
-    ContentResolverShadow shadow = Shadow.extract(contentResolver);
+      ContentResolver contentResolver = context.getContentResolver();
+      ContentResolverShadow shadow = Shadow.extract(contentResolver);
 
-    AssetFileDescriptor assetFileDescriptor = mock(AssetFileDescriptor.class);
-    ParcelFileDescriptor parcelFileDescriptor = mock(ParcelFileDescriptor.class);
-    when(assetFileDescriptor.getParcelFileDescriptor()).thenReturn(parcelFileDescriptor);
-    shadow.registerFileDescriptor(uri, assetFileDescriptor);
+      AssetFileDescriptor assetFileDescriptor = mock(AssetFileDescriptor.class);
+      ParcelFileDescriptor parcelFileDescriptor = mock(ParcelFileDescriptor.class);
+      when(assetFileDescriptor.getParcelFileDescriptor()).thenReturn(parcelFileDescriptor);
+      shadow.registerFileDescriptor(uri, assetFileDescriptor);
 
-    FileDescriptorLocalUriFetcher fetcher =
-        new FileDescriptorLocalUriFetcher(context.getContentResolver(), uri);
-    fetcher.loadData(Priority.NORMAL, callback);
-    verify(callback).onDataReady(eq(parcelFileDescriptor));
-  }
+      FileDescriptorLocalUriFetcher fetcher =
+            new FileDescriptorLocalUriFetcher(context.getContentResolver(), uri);
+      fetcher.loadData(Priority.NORMAL, callback);
+      verify(callback).onDataReady(eq(parcelFileDescriptor));
+   }
 
-  @Test
-  public void testLoadResource_withNullFileDescriptor_callsLoadFailed() {
-    Context context = RuntimeEnvironment.application;
-    Uri uri = Uri.parse("file://nothing");
+   @Test
+   public void testLoadResource_withNullFileDescriptor_callsLoadFailed() {
+      Context context = RuntimeEnvironment.application;
+      Uri uri = Uri.parse("file://nothing");
 
-    ContentResolver contentResolver = context.getContentResolver();
-    ContentResolverShadow shadow = Shadow.extract(contentResolver);
-    shadow.registerFileDescriptor(uri, null /*fileDescriptor*/);
+      ContentResolver contentResolver = context.getContentResolver();
+      ContentResolverShadow shadow = Shadow.extract(contentResolver);
+      shadow.registerFileDescriptor(uri, null /*fileDescriptor*/);
 
-    FileDescriptorLocalUriFetcher fetcher =
-        new FileDescriptorLocalUriFetcher(context.getContentResolver(), uri);
-    fetcher.loadData(Priority.NORMAL, callback);
-    verify(callback).onLoadFailed(isA(FileNotFoundException.class));
-  }
+      FileDescriptorLocalUriFetcher fetcher =
+            new FileDescriptorLocalUriFetcher(context.getContentResolver(), uri);
+      fetcher.loadData(Priority.NORMAL, callback);
+      verify(callback).onLoadFailed(isA(FileNotFoundException.class));
+   }
 }

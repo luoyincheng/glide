@@ -21,84 +21,83 @@ import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 
 /**
- * Generates overrides for BaseRequestOptions methods so that subclasses' methods return the
- * subclass type, not just BaseRequestOptions.
+ * Generates overrides for BaseRequestOptions methods so that subclasses' methods return the subclass type, not just BaseRequestOptions.
  */
 final class RequestOptionsOverrideGenerator {
 
-  private final TypeElement baseRequestOptionsType;
-  private ProcessorUtil processorUtil;
+   private final TypeElement baseRequestOptionsType;
+   private ProcessorUtil processorUtil;
 
-  RequestOptionsOverrideGenerator(
-      ProcessingEnvironment processingEnv, ProcessorUtil processorUtil) {
+   RequestOptionsOverrideGenerator(
+         ProcessingEnvironment processingEnv, ProcessorUtil processorUtil) {
 
-    this.processorUtil = processorUtil;
-    baseRequestOptionsType =
-        processingEnv.getElementUtils().getTypeElement(BASE_REQUEST_OPTIONS_QUALIFIED_NAME);
-  }
+      this.processorUtil = processorUtil;
+      baseRequestOptionsType =
+            processingEnv.getElementUtils().getTypeElement(BASE_REQUEST_OPTIONS_QUALIFIED_NAME);
+   }
 
-  List<MethodSpec> generateInstanceMethodOverridesForRequestOptions(TypeName typeToOverrideIn) {
-    return generateInstanceMethodOverridesForRequestOptions(
-        typeToOverrideIn, Collections.<String>emptySet());
-  }
+   List<MethodSpec> generateInstanceMethodOverridesForRequestOptions(TypeName typeToOverrideIn) {
+      return generateInstanceMethodOverridesForRequestOptions(
+            typeToOverrideIn, Collections.<String>emptySet());
+   }
 
-  List<MethodSpec> generateInstanceMethodOverridesForRequestOptions(
-      final TypeName typeToOverrideIn, final Set<String> excludedMethods) {
-    return FluentIterable.from(
+   List<MethodSpec> generateInstanceMethodOverridesForRequestOptions(
+         final TypeName typeToOverrideIn, final Set<String> excludedMethods) {
+      return FluentIterable.from(
             processorUtil.findInstanceMethodsReturning(
-                baseRequestOptionsType, baseRequestOptionsType))
-        .filter(
-            new Predicate<ExecutableElement>() {
-              @Override
-              public boolean apply(ExecutableElement input) {
-                return !excludedMethods.contains(input.getSimpleName().toString());
-              }
-            })
-        .transform(
-            new Function<ExecutableElement, MethodSpec>() {
-              @Override
-              public MethodSpec apply(ExecutableElement input) {
-                return generateRequestOptionOverride(typeToOverrideIn, input);
-              }
-            })
-        .toList();
-  }
+                  baseRequestOptionsType, baseRequestOptionsType))
+            .filter(
+                  new Predicate<ExecutableElement>() {
+                     @Override
+                     public boolean apply(ExecutableElement input) {
+                        return !excludedMethods.contains(input.getSimpleName().toString());
+                     }
+                  })
+            .transform(
+                  new Function<ExecutableElement, MethodSpec>() {
+                     @Override
+                     public MethodSpec apply(ExecutableElement input) {
+                        return generateRequestOptionOverride(typeToOverrideIn, input);
+                     }
+                  })
+            .toList();
+   }
 
-  private MethodSpec generateRequestOptionOverride(
-      TypeName typeToOverrideIn, ExecutableElement methodToOverride) {
-    MethodSpec.Builder result =
-        processorUtil.overriding(methodToOverride).returns(typeToOverrideIn);
-    result.addCode(
-        CodeBlock.builder()
-            .add("return ($T) super.$N(", typeToOverrideIn, methodToOverride.getSimpleName())
-            .add(
-                FluentIterable.from(result.build().parameters)
-                    .transform(
-                        new Function<ParameterSpec, String>() {
-                          @Override
-                          public String apply(ParameterSpec input) {
-                            return input.name;
-                          }
-                        })
-                    .join(Joiner.on(", ")))
-            .add(");\n")
-            .build());
-
-    if (methodToOverride.getSimpleName().toString().contains("transform")
-        && methodToOverride.isVarArgs()) {
-      result
-          .addModifiers(Modifier.FINAL)
-          .addAnnotation(SafeVarargs.class)
-          .addAnnotation(
-              AnnotationSpec.builder(SuppressWarnings.class)
-                  .addMember("value", "$S", "varargs")
+   private MethodSpec generateRequestOptionOverride(
+         TypeName typeToOverrideIn, ExecutableElement methodToOverride) {
+      MethodSpec.Builder result =
+            processorUtil.overriding(methodToOverride).returns(typeToOverrideIn);
+      result.addCode(
+            CodeBlock.builder()
+                  .add("return ($T) super.$N(", typeToOverrideIn, methodToOverride.getSimpleName())
+                  .add(
+                        FluentIterable.from(result.build().parameters)
+                              .transform(
+                                    new Function<ParameterSpec, String>() {
+                                       @Override
+                                       public String apply(ParameterSpec input) {
+                                          return input.name;
+                                       }
+                                    })
+                              .join(Joiner.on(", ")))
+                  .add(");\n")
                   .build());
-    }
 
-    for (AnnotationMirror mirror : methodToOverride.getAnnotationMirrors()) {
-      result.addAnnotation(AnnotationSpec.get(mirror));
-    }
+      if (methodToOverride.getSimpleName().toString().contains("transform")
+            && methodToOverride.isVarArgs()) {
+         result
+               .addModifiers(Modifier.FINAL)
+               .addAnnotation(SafeVarargs.class)
+               .addAnnotation(
+                     AnnotationSpec.builder(SuppressWarnings.class)
+                           .addMember("value", "$S", "varargs")
+                           .build());
+      }
 
-    return result.build();
-  }
+      for (AnnotationMirror mirror : methodToOverride.getAnnotationMirrors()) {
+         result.addAnnotation(AnnotationSpec.get(mirror));
+      }
+
+      return result.build();
+   }
 }

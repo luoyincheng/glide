@@ -31,7 +31,7 @@ version=$1
 echo "Setting version to $version"
 echo -n "Is this a correct? (y/n)? "
 read answer
-if echo "$answer" | grep -iq "^y" ; then
+if echo "$answer" | grep -iq "^y"; then
   echo "Updating gradle.properties"
 else
   echo "Cancelling"
@@ -54,7 +54,7 @@ git diff
 
 echo "Updated files, is this correct? (y/n)?"
 read answer
-if echo "$answer" | grep -iq "^y" ; then
+if echo "$answer" | grep -iq "^y"; then
   echo "Committing and pushing..."
 else
   echo "Cancelling"

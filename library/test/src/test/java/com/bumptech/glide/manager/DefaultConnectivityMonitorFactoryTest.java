@@ -14,27 +14,27 @@ import org.robolectric.shadows.ShadowApplication;
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 18)
 public class DefaultConnectivityMonitorFactoryTest {
-  private ConnectivityMonitorFactory factory;
+   private ConnectivityMonitorFactory factory;
 
-  @Before
-  public void setUp() {
-    factory = new DefaultConnectivityMonitorFactory();
-  }
+   @Before
+   public void setUp() {
+      factory = new DefaultConnectivityMonitorFactory();
+   }
 
-  @Test
-  public void testReturnsDefaultConnectivityMonitorWhenHasPermission() {
-    ShadowApplication.getInstance().grantPermissions("android.permission.ACCESS_NETWORK_STATE");
-    ConnectivityMonitor connectivityMonitor =
-        factory.build(
-            RuntimeEnvironment.application, mock(ConnectivityMonitor.ConnectivityListener.class));
-    assertThat(connectivityMonitor).isInstanceOf(DefaultConnectivityMonitor.class);
-  }
+   @Test
+   public void testReturnsDefaultConnectivityMonitorWhenHasPermission() {
+      ShadowApplication.getInstance().grantPermissions("android.permission.ACCESS_NETWORK_STATE");
+      ConnectivityMonitor connectivityMonitor =
+            factory.build(
+                  RuntimeEnvironment.application, mock(ConnectivityMonitor.ConnectivityListener.class));
+      assertThat(connectivityMonitor).isInstanceOf(DefaultConnectivityMonitor.class);
+   }
 
-  @Test
-  public void testReturnsNullConnectivityMonitorWhenDoesNotHavePermission() {
-    ConnectivityMonitor connectivityMonitor =
-        factory.build(
-            RuntimeEnvironment.application, mock(ConnectivityMonitor.ConnectivityListener.class));
-    assertThat(connectivityMonitor).isInstanceOf(NullConnectivityMonitor.class);
-  }
+   @Test
+   public void testReturnsNullConnectivityMonitorWhenDoesNotHavePermission() {
+      ConnectivityMonitor connectivityMonitor =
+            factory.build(
+                  RuntimeEnvironment.application, mock(ConnectivityMonitor.ConnectivityListener.class));
+      assertThat(connectivityMonitor).isInstanceOf(NullConnectivityMonitor.class);
+   }
 }

@@ -22,82 +22,81 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 /**
- * Verifies the output of the processor with a simple single extension option in the new option
- * style where extension methods always return values.
+ * Verifies the output of the processor with a simple single extension option in the new option style where extension methods always return values.
  */
 @RunWith(JUnit4.class)
 public class GlideExtensionWithOptionTest implements CompilationProvider {
-  @Rule
-  public final RegenerateResourcesRule regenerateResourcesRule = new RegenerateResourcesRule(this);
+   @Rule
+   public final RegenerateResourcesRule regenerateResourcesRule = new RegenerateResourcesRule(this);
 
-  private Compilation compilation;
+   private Compilation compilation;
 
-  @Before
-  public void setUp() {
-    compilation =
-        javac()
-            .withProcessors(new GlideAnnotationProcessor())
-            .compile(emptyAppModule(), forResource("ExtensionWithOption.java"));
-    assertThat(compilation).succeededWithoutWarnings();
-  }
+   @Before
+   public void setUp() {
+      compilation =
+            javac()
+                  .withProcessors(new GlideAnnotationProcessor())
+                  .compile(emptyAppModule(), forResource("ExtensionWithOption.java"));
+      assertThat(compilation).succeededWithoutWarnings();
+   }
 
-  @Test
-  public void compilation_generatesAllExpectedFiles() {
-    Truth.assertThat(compilation.generatedSourceFiles()).hasSize(7);
-  }
+   @Test
+   public void compilation_generatesAllExpectedFiles() {
+      Truth.assertThat(compilation.generatedSourceFiles()).hasSize(7);
+   }
 
-  @Test
-  public void compilation_generatesExpectedGlideOptionsClass() throws IOException {
-    assertThat(compilation)
-        .generatedSourceFile(subpackage("GlideOptions"))
-        .hasSourceEquivalentTo(forResource("GlideOptions.java"));
-  }
+   @Test
+   public void compilation_generatesExpectedGlideOptionsClass() throws IOException {
+      assertThat(compilation)
+            .generatedSourceFile(subpackage("GlideOptions"))
+            .hasSourceEquivalentTo(forResource("GlideOptions.java"));
+   }
 
-  @Test
-  public void compilation_generatesExpectedGlideRequestClass() throws IOException {
-    assertThat(compilation)
-        .generatedSourceFile(subpackage("GlideRequest"))
-        .hasSourceEquivalentTo(forResource("GlideRequest.java"));
-  }
+   @Test
+   public void compilation_generatesExpectedGlideRequestClass() throws IOException {
+      assertThat(compilation)
+            .generatedSourceFile(subpackage("GlideRequest"))
+            .hasSourceEquivalentTo(forResource("GlideRequest.java"));
+   }
 
-  @Test
-  @ReferencedResource
-  public void compilation_generatesExpectedGlideRequestsClass() throws IOException {
-    assertThat(compilation)
-        .generatedSourceFile(subpackage("GlideRequests"))
-        .hasSourceEquivalentTo(appResource("GlideRequests.java"));
-  }
+   @Test
+   @ReferencedResource
+   public void compilation_generatesExpectedGlideRequestsClass() throws IOException {
+      assertThat(compilation)
+            .generatedSourceFile(subpackage("GlideRequests"))
+            .hasSourceEquivalentTo(appResource("GlideRequests.java"));
+   }
 
-  @Test
-  @ReferencedResource
-  public void compilationGeneratesExpectedGlideAppClass() throws IOException {
-    assertThat(compilation)
-        .generatedSourceFile(subpackage("GlideApp"))
-        .hasSourceEquivalentTo(appResource("GlideApp.java"));
-  }
+   @Test
+   @ReferencedResource
+   public void compilationGeneratesExpectedGlideAppClass() throws IOException {
+      assertThat(compilation)
+            .generatedSourceFile(subpackage("GlideApp"))
+            .hasSourceEquivalentTo(appResource("GlideApp.java"));
+   }
 
-  @Test
-  @ReferencedResource
-  public void compilation_generatesExpectedGeneratedAppGlideModuleImpl() throws IOException {
-    assertThat(compilation)
-        .generatedSourceFile(glide("GeneratedAppGlideModuleImpl"))
-        .hasSourceEquivalentTo(appResource("GeneratedAppGlideModuleImpl.java"));
-  }
+   @Test
+   @ReferencedResource
+   public void compilation_generatesExpectedGeneratedAppGlideModuleImpl() throws IOException {
+      assertThat(compilation)
+            .generatedSourceFile(glide("GeneratedAppGlideModuleImpl"))
+            .hasSourceEquivalentTo(appResource("GeneratedAppGlideModuleImpl.java"));
+   }
 
-  @Test
-  @ReferencedResource
-  public void compilation_generatesExpectedGeneratedRequestManagerFactory() throws IOException {
-    assertThat(compilation)
-        .generatedSourceFile(glide("GeneratedRequestManagerFactory"))
-        .hasSourceEquivalentTo(appResource("GeneratedRequestManagerFactory.java"));
-  }
+   @Test
+   @ReferencedResource
+   public void compilation_generatesExpectedGeneratedRequestManagerFactory() throws IOException {
+      assertThat(compilation)
+            .generatedSourceFile(glide("GeneratedRequestManagerFactory"))
+            .hasSourceEquivalentTo(appResource("GeneratedRequestManagerFactory.java"));
+   }
 
-  private JavaFileObject forResource(String name) {
-    return Util.forResource(getClass().getSimpleName(), name);
-  }
+   private JavaFileObject forResource(String name) {
+      return Util.forResource(getClass().getSimpleName(), name);
+   }
 
-  @Override
-  public Compilation getCompilation() {
-    return compilation;
-  }
+   @Override
+   public Compilation getCompilation() {
+      return compilation;
+   }
 }

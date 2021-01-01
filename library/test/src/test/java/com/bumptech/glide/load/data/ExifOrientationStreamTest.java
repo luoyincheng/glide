@@ -17,31 +17,31 @@ import org.robolectric.annotation.Config;
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 18)
 public class ExifOrientationStreamTest {
-  private ArrayPool byteArrayPool;
+   private ArrayPool byteArrayPool;
 
-  private InputStream openOrientationExample(boolean isLandscape, int item) {
-    String filePrefix = isLandscape ? "Landscape" : "Portrait";
-    return TestResourceUtil.openResource(getClass(), filePrefix + "_" + item + ".jpg");
-  }
+   private InputStream openOrientationExample(boolean isLandscape, int item) {
+      String filePrefix = isLandscape ? "Landscape" : "Portrait";
+      return TestResourceUtil.openResource(getClass(), filePrefix + "_" + item + ".jpg");
+   }
 
-  @Before
-  public void setUp() {
-    byteArrayPool = new LruArrayPool();
-  }
+   @Before
+   public void setUp() {
+      byteArrayPool = new LruArrayPool();
+   }
 
-  @Test
-  public void testIncludesGivenExifOrientation() throws IOException {
-    for (int i = 0; i < 8; i++) {
-      for (int j = 0; j < 8; j++) {
-        InputStream toWrap = openOrientationExample(true /*isLandscape*/, j + 1);
-        InputStream wrapped = new ExifOrientationStream(toWrap, i);
-        DefaultImageHeaderParser parser = new DefaultImageHeaderParser();
-        assertThat(parser.getOrientation(wrapped, byteArrayPool)).isEqualTo(i);
+   @Test
+   public void testIncludesGivenExifOrientation() throws IOException {
+      for (int i = 0; i < 8; i++) {
+         for (int j = 0; j < 8; j++) {
+            InputStream toWrap = openOrientationExample(true /*isLandscape*/, j + 1);
+            InputStream wrapped = new ExifOrientationStream(toWrap, i);
+            DefaultImageHeaderParser parser = new DefaultImageHeaderParser();
+            assertThat(parser.getOrientation(wrapped, byteArrayPool)).isEqualTo(i);
 
-        toWrap = openOrientationExample(false /*isLandscape*/, j + 1);
-        wrapped = new ExifOrientationStream(toWrap, i);
-        assertThat(parser.getOrientation(wrapped, byteArrayPool)).isEqualTo(i);
+            toWrap = openOrientationExample(false /*isLandscape*/, j + 1);
+            wrapped = new ExifOrientationStream(toWrap, i);
+            assertThat(parser.getOrientation(wrapped, byteArrayPool)).isEqualTo(i);
+         }
       }
-    }
-  }
+   }
 }

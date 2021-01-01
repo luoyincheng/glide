@@ -15,20 +15,20 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class FileDecoderTest {
 
-  private FileDecoder decoder;
-  private Options options;
+   private FileDecoder decoder;
+   private Options options;
 
-  @Before
-  public void setUp() {
-    decoder = new FileDecoder();
-    options = new Options();
-  }
+   @Before
+   public void setUp() {
+      decoder = new FileDecoder();
+      options = new Options();
+   }
 
-  @Test
-  public void testReturnsGivenFileAsResource() throws IOException {
-    File expected = new File("testFile");
-    Resource<File> decoded = Preconditions.checkNotNull(decoder.decode(expected, 1, 1, options));
+   @Test
+   public void testReturnsGivenFileAsResource() throws IOException {
+      File expected = new File("testFile");
+      Resource<File> decoded = Preconditions.checkNotNull(decoder.decode(expected, 1, 1, options));
 
-    assertEquals(expected, decoded.get());
-  }
+      assertEquals(expected, decoded.get());
+   }
 }

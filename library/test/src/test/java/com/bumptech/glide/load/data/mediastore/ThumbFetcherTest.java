@@ -22,41 +22,41 @@ import org.robolectric.annotation.Config;
 @Config(sdk = 18)
 public class ThumbFetcherTest {
 
-  @Mock private ThumbnailStreamOpener opener;
-  @Mock private DataFetcher.DataCallback<InputStream> callback;
-  @Mock private InputStream expected;
+   @Mock private ThumbnailStreamOpener opener;
+   @Mock private DataFetcher.DataCallback<InputStream> callback;
+   @Mock private InputStream expected;
 
-  private ThumbFetcher fetcher;
-  private Uri uri;
+   private ThumbFetcher fetcher;
+   private Uri uri;
 
-  @Before
-  public void setUp() {
-    MockitoAnnotations.initMocks(this);
+   @Before
+   public void setUp() {
+      MockitoAnnotations.initMocks(this);
 
-    uri = Uri.withAppendedPath(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, "123");
-    fetcher = new ThumbFetcher(uri, opener);
-  }
+      uri = Uri.withAppendedPath(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, "123");
+      fetcher = new ThumbFetcher(uri, opener);
+   }
 
-  @Test
-  public void testReturnsInputStreamFromThumbnailOpener() throws Exception {
-    when(opener.open(eq(uri))).thenReturn(expected);
+   @Test
+   public void testReturnsInputStreamFromThumbnailOpener() throws Exception {
+      when(opener.open(eq(uri))).thenReturn(expected);
 
-    fetcher.loadData(Priority.LOW, callback);
-    verify(callback).onDataReady(isNotNull(InputStream.class));
-  }
+      fetcher.loadData(Priority.LOW, callback);
+      verify(callback).onDataReady(isNotNull(InputStream.class));
+   }
 
-  @Test
-  public void testClosesInputStreamFromThumbnailOpenerOnCleanup() throws Exception {
-    when(opener.open(eq(uri))).thenReturn(expected);
+   @Test
+   public void testClosesInputStreamFromThumbnailOpenerOnCleanup() throws Exception {
+      when(opener.open(eq(uri))).thenReturn(expected);
 
-    fetcher.loadData(Priority.HIGH, callback);
+      fetcher.loadData(Priority.HIGH, callback);
 
-    fetcher.cleanup();
-    verify(expected).close();
-  }
+      fetcher.cleanup();
+      verify(expected).close();
+   }
 
-  @Test
-  public void testDoesNotThrowIfCleanupWithNullInputStream() {
-    fetcher.cleanup();
-  }
+   @Test
+   public void testDoesNotThrowIfCleanupWithNullInputStream() {
+      fetcher.cleanup();
+   }
 }

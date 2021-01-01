@@ -15,32 +15,32 @@ import org.robolectric.annotation.Config;
 @Config(sdk = 18)
 public class DrawableCrossFadeFactoryTest {
 
-  private DrawableCrossFadeFactory factory;
+   private DrawableCrossFadeFactory factory;
 
-  @SuppressWarnings("unchecked")
-  @Before
-  public void setUp() {
-    factory = new DrawableCrossFadeFactory(100 /*duration*/, false /*isCrossFadeEnabled*/);
-  }
+   @SuppressWarnings("unchecked")
+   @Before
+   public void setUp() {
+      factory = new DrawableCrossFadeFactory(100 /*duration*/, false /*isCrossFadeEnabled*/);
+   }
 
-  @Test
-  public void testReturnsNoAnimationIfFromMemoryCache() {
-    assertEquals(
-        NoTransition.<Drawable>get(),
-        factory.build(DataSource.MEMORY_CACHE, true /*isFirstResource*/));
-  }
+   @Test
+   public void testReturnsNoAnimationIfFromMemoryCache() {
+      assertEquals(
+            NoTransition.<Drawable>get(),
+            factory.build(DataSource.MEMORY_CACHE, true /*isFirstResource*/));
+   }
 
-  @Test
-  public void testReturnsReturnsAnimationIfNotFromMemoryCacheAndIsFirstResource() {
-    assertNotEquals(
-        NoTransition.<Drawable>get(),
-        factory.build(DataSource.DATA_DISK_CACHE, true /*isFirstResource*/));
-  }
+   @Test
+   public void testReturnsReturnsAnimationIfNotFromMemoryCacheAndIsFirstResource() {
+      assertNotEquals(
+            NoTransition.<Drawable>get(),
+            factory.build(DataSource.DATA_DISK_CACHE, true /*isFirstResource*/));
+   }
 
-  @Test
-  public void testReturnsAnimationIfNotFromMemoryCacheAndNotIsFirstResource() {
-    assertNotEquals(
-        NoTransition.<Drawable>get(),
-        factory.build(DataSource.DATA_DISK_CACHE, false /*isFirstResource*/));
-  }
+   @Test
+   public void testReturnsAnimationIfNotFromMemoryCacheAndNotIsFirstResource() {
+      assertNotEquals(
+            NoTransition.<Drawable>get(),
+            factory.build(DataSource.DATA_DISK_CACHE, false /*isFirstResource*/));
+   }
 }

@@ -23,47 +23,47 @@ import org.robolectric.annotation.Config;
 @Config(sdk = 18)
 public class FileDescriptorAssetPathFetcherTest {
 
-  @Mock private AssetManager assetManager;
-  @Mock private AssetFileDescriptor assetFileDescriptor;
-  @Mock private DataFetcher.DataCallback<ParcelFileDescriptor> callback;
+   @Mock private AssetManager assetManager;
+   @Mock private AssetFileDescriptor assetFileDescriptor;
+   @Mock private DataFetcher.DataCallback<ParcelFileDescriptor> callback;
 
-  private FileDescriptorAssetPathFetcher fetcher;
-  private ParcelFileDescriptor expected;
+   private FileDescriptorAssetPathFetcher fetcher;
+   private ParcelFileDescriptor expected;
 
-  @Before
-  public void setUp() throws IOException {
-    MockitoAnnotations.initMocks(this);
-    String assetPath = "/some/asset/path";
-    fetcher = new FileDescriptorAssetPathFetcher(assetManager, assetPath);
-    expected = mock(ParcelFileDescriptor.class);
-    when(assetFileDescriptor.getParcelFileDescriptor()).thenReturn(expected);
-    when(assetManager.openFd(eq(assetPath))).thenReturn(assetFileDescriptor);
-  }
+   @Before
+   public void setUp() throws IOException {
+      MockitoAnnotations.initMocks(this);
+      String assetPath = "/some/asset/path";
+      fetcher = new FileDescriptorAssetPathFetcher(assetManager, assetPath);
+      expected = mock(ParcelFileDescriptor.class);
+      when(assetFileDescriptor.getParcelFileDescriptor()).thenReturn(expected);
+      when(assetManager.openFd(eq(assetPath))).thenReturn(assetFileDescriptor);
+   }
 
-  @Test
-  public void testOpensInputStreamForPathWithAssetManager() throws Exception {
-    fetcher.loadData(Priority.NORMAL, callback);
-    verify(callback).onDataReady(eq(expected));
-  }
+   @Test
+   public void testOpensInputStreamForPathWithAssetManager() throws Exception {
+      fetcher.loadData(Priority.NORMAL, callback);
+      verify(callback).onDataReady(eq(expected));
+   }
 
-  @Test
-  public void testClosesOpenedInputStreamOnCleanup() throws Exception {
-    fetcher.loadData(Priority.NORMAL, callback);
-    fetcher.cleanup();
+   @Test
+   public void testClosesOpenedInputStreamOnCleanup() throws Exception {
+      fetcher.loadData(Priority.NORMAL, callback);
+      fetcher.cleanup();
 
-    verify(expected).close();
-  }
+      verify(expected).close();
+   }
 
-  @Test
-  public void testDoesNothingOnCleanupIfNoDataLoaded() throws IOException {
-    fetcher.cleanup();
-    verify(expected, never()).close();
-  }
+   @Test
+   public void testDoesNothingOnCleanupIfNoDataLoaded() throws IOException {
+      fetcher.cleanup();
+      verify(expected, never()).close();
+   }
 
-  @Test
-  public void testDoesNothingOnCancel() throws Exception {
-    fetcher.loadData(Priority.NORMAL, callback);
-    fetcher.cancel();
-    verify(expected, never()).close();
-  }
+   @Test
+   public void testDoesNothingOnCancel() throws Exception {
+      fetcher.loadData(Priority.NORMAL, callback);
+      fetcher.cancel();
+      verify(expected, never()).close();
+   }
 }

@@ -23,42 +23,42 @@ import org.robolectric.annotation.Config;
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 18)
 public class StreamGifDecoderTest {
-  private static final byte[] GIF_HEADER = new byte[] {0x47, 0x49, 0x46};
+   private static final byte[] GIF_HEADER = new byte[]{0x47, 0x49, 0x46};
 
-  @Mock private ResourceDecoder<ByteBuffer, GifDrawable> byteBufferDecoder;
-  private StreamGifDecoder decoder;
-  private Options options;
+   @Mock private ResourceDecoder<ByteBuffer, GifDrawable> byteBufferDecoder;
+   private StreamGifDecoder decoder;
+   private Options options;
 
-  @Before
-  public void setUp() {
-    MockitoAnnotations.initMocks(this);
+   @Before
+   public void setUp() {
+      MockitoAnnotations.initMocks(this);
 
-    List<ImageHeaderParser> parsers = new ArrayList<>();
-    parsers.add(new DefaultImageHeaderParser());
+      List<ImageHeaderParser> parsers = new ArrayList<>();
+      parsers.add(new DefaultImageHeaderParser());
 
-    decoder = new StreamGifDecoder(parsers, byteBufferDecoder, new LruArrayPool());
-    options = new Options();
-  }
+      decoder = new StreamGifDecoder(parsers, byteBufferDecoder, new LruArrayPool());
+      options = new Options();
+   }
 
-  @Test
-  public void testDoesNotHandleStreamIfEnabledButNotAGif() throws IOException {
-    assertThat(decoder.handles(new ByteArrayInputStream(new byte[0]), options)).isFalse();
-  }
+   @Test
+   public void testDoesNotHandleStreamIfEnabledButNotAGif() throws IOException {
+      assertThat(decoder.handles(new ByteArrayInputStream(new byte[0]), options)).isFalse();
+   }
 
-  @Test
-  public void testHandlesStreamIfContainsGifHeaderAndDisabledIsNotSet() throws IOException {
-    assertThat(decoder.handles(new ByteArrayInputStream(GIF_HEADER), options)).isTrue();
-  }
+   @Test
+   public void testHandlesStreamIfContainsGifHeaderAndDisabledIsNotSet() throws IOException {
+      assertThat(decoder.handles(new ByteArrayInputStream(GIF_HEADER), options)).isTrue();
+   }
 
-  @Test
-  public void testHandlesStreamIfContainsGifHeaderAndDisabledIsFalse() throws IOException {
-    options.set(GifOptions.DISABLE_ANIMATION, false);
-    assertThat(decoder.handles(new ByteArrayInputStream(GIF_HEADER), options)).isTrue();
-  }
+   @Test
+   public void testHandlesStreamIfContainsGifHeaderAndDisabledIsFalse() throws IOException {
+      options.set(GifOptions.DISABLE_ANIMATION, false);
+      assertThat(decoder.handles(new ByteArrayInputStream(GIF_HEADER), options)).isTrue();
+   }
 
-  @Test
-  public void testDoesNotHandleStreamIfDisabled() throws IOException {
-    options.set(GifOptions.DISABLE_ANIMATION, true);
-    assertThat(decoder.handles(new ByteArrayInputStream(GIF_HEADER), options)).isFalse();
-  }
+   @Test
+   public void testDoesNotHandleStreamIfDisabled() throws IOException {
+      options.set(GifOptions.DISABLE_ANIMATION, true);
+      assertThat(decoder.handles(new ByteArrayInputStream(GIF_HEADER), options)).isFalse();
+   }
 }

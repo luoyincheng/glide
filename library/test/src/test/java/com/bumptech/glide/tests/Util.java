@@ -27,135 +27,132 @@ import org.robolectric.util.ReflectionHelpers;
 // FIXME move to testutil module
 public class Util {
 
-  /**
-   * Gives the proper generic type to the {@link ArgumentCaptor}. Only useful when the captor's
-   * {@code T} is also a generic type. Without this it's really ugly to have a properly typed captor
-   * object.
-   */
-  @SuppressWarnings("unchecked")
-  public static <T> ArgumentCaptor<T> cast(ArgumentCaptor<?> captor) {
-    return (ArgumentCaptor<T>) captor;
-  }
+   /**
+    * Gives the proper generic type to the {@link ArgumentCaptor}. Only useful when the captor's {@code T} is also a generic type. Without this it's really ugly to have a properly typed captor
+    * object.
+    */
+   @SuppressWarnings("unchecked")
+   public static <T> ArgumentCaptor<T> cast(ArgumentCaptor<?> captor) {
+      return (ArgumentCaptor<T>) captor;
+   }
 
-  public static DataSource isADataSource() {
-    return isA(DataSource.class);
-  }
+   public static DataSource isADataSource() {
+      return isA(DataSource.class);
+   }
 
-  public static Context anyContext() {
-    return any();
-  }
+   public static Context anyContext() {
+      return any();
+   }
 
-  /**
-   * Creates a Mockito argument matcher to be used in verify. It returns a generic typed {@link
-   * Resource} to prevent unchecked warnings.
-   */
-  @SuppressWarnings("unchecked")
-  public static <T> Resource<T> anyResource() {
-    return any(Resource.class);
-  }
+   /**
+    * Creates a Mockito argument matcher to be used in verify. It returns a generic typed {@link Resource} to prevent unchecked warnings.
+    */
+   @SuppressWarnings("unchecked")
+   public static <T> Resource<T> anyResource() {
+      return any(Resource.class);
+   }
 
-  /**
-   * Creates a Mockito mock object. It returns a generic typed {@link Resource} to prevent unchecked
-   * warnings.
-   */
-  @SuppressWarnings("unchecked")
-  public static <T> Resource<T> mockResource() {
-    return mock(Resource.class);
-  }
+   /**
+    * Creates a Mockito mock object. It returns a generic typed {@link Resource} to prevent unchecked warnings.
+    */
+   @SuppressWarnings("unchecked")
+   public static <T> Resource<T> mockResource() {
+      return mock(Resource.class);
+   }
 
-  public static boolean isWindows() {
-    return System.getProperty("os.name").startsWith("Windows");
-  }
+   public static boolean isWindows() {
+      return System.getProperty("os.name").startsWith("Windows");
+   }
 
-  public static void writeFile(File file, byte[] data) throws IOException {
-    OutputStream out = new FileOutputStream(file);
-    try {
-      out.write(data);
-      out.flush();
-      out.close();
-    } finally {
+   public static void writeFile(File file, byte[] data) throws IOException {
+      OutputStream out = new FileOutputStream(file);
       try {
-        out.close();
-      } catch (IOException ex) {
-        // Do nothing.
+         out.write(data);
+         out.flush();
+         out.close();
+      } finally {
+         try {
+            out.close();
+         } catch (IOException ex) {
+            // Do nothing.
+         }
       }
-    }
-  }
+   }
 
-  public static byte[] readFile(File file, int expectedLength) throws IOException {
-    InputStream is = new FileInputStream(file);
-    byte[] result = new byte[expectedLength];
-    try {
-      assertEquals(expectedLength, is.read(result));
-      assertEquals(-1, is.read());
-    } finally {
+   public static byte[] readFile(File file, int expectedLength) throws IOException {
+      InputStream is = new FileInputStream(file);
+      byte[] result = new byte[expectedLength];
       try {
-        is.close();
-      } catch (IOException e) {
-        // Do nothing.
+         assertEquals(expectedLength, is.read(result));
+         assertEquals(-1, is.read());
+      } finally {
+         try {
+            is.close();
+         } catch (IOException e) {
+            // Do nothing.
+         }
       }
-    }
-    return result;
-  }
+      return result;
+   }
 
-  public static void setSdkVersionInt(int version) {
-    ReflectionHelpers.setStaticField(Build.VERSION.class, "SDK_INT", version);
-  }
+   public static void setSdkVersionInt(int version) {
+      ReflectionHelpers.setStaticField(Build.VERSION.class, "SDK_INT", version);
+   }
 
-  public static final class WriteDigest implements Answer<Void> {
-    private final String toWrite;
+   public static final class WriteDigest implements Answer<Void> {
+      private final String toWrite;
 
-    public WriteDigest(String toWrite) {
-      this.toWrite = toWrite;
-    }
-
-    @Override
-    public Void answer(InvocationOnMock invocationOnMock) throws Throwable {
-      MessageDigest md = (MessageDigest) invocationOnMock.getArguments()[0];
-      md.update(toWrite.getBytes("UTF-8"));
-      return null;
-    }
-  }
-
-  public static final class ReturnsSelfAnswer implements Answer<Object> {
-
-    @Override
-    public Object answer(InvocationOnMock invocation) throws Throwable {
-      Object mock = invocation.getMock();
-      if (invocation.getMethod().getReturnType().isInstance(mock)) {
-        return mock;
-      } else {
-        return RETURNS_DEFAULTS.answer(invocation);
+      public WriteDigest(String toWrite) {
+         this.toWrite = toWrite;
       }
-    }
-  }
 
-  public static final class CallDataReady<T> implements Answer<Void> {
+      @Override
+      public Void answer(InvocationOnMock invocationOnMock) throws Throwable {
+         MessageDigest md = (MessageDigest) invocationOnMock.getArguments()[0];
+         md.update(toWrite.getBytes("UTF-8"));
+         return null;
+      }
+   }
 
-    private final T data;
+   public static final class ReturnsSelfAnswer implements Answer<Object> {
 
-    public CallDataReady(T data) {
-      this.data = data;
-    }
+      @Override
+      public Object answer(InvocationOnMock invocation) throws Throwable {
+         Object mock = invocation.getMock();
+         if (invocation.getMethod().getReturnType().isInstance(mock)) {
+            return mock;
+         } else {
+            return RETURNS_DEFAULTS.answer(invocation);
+         }
+      }
+   }
 
-    @SuppressWarnings("unchecked")
-    @Override
-    public Void answer(InvocationOnMock invocationOnMock) throws Throwable {
-      DataFetcher.DataCallback<T> callback =
-          (DataFetcher.DataCallback<T>) invocationOnMock.getArguments()[1];
-      callback.onDataReady(data);
-      return null;
-    }
-  }
+   public static final class CallDataReady<T> implements Answer<Void> {
 
-  public static final class CreateBitmap implements Answer<Bitmap> {
+      private final T data;
 
-    @Override
-    public Bitmap answer(InvocationOnMock invocation) throws Throwable {
-      int width = (Integer) invocation.getArguments()[0];
-      int height = (Integer) invocation.getArguments()[1];
-      Bitmap.Config config = (Bitmap.Config) invocation.getArguments()[2];
-      return Bitmap.createBitmap(width, height, config);
-    }
-  }
+      public CallDataReady(T data) {
+         this.data = data;
+      }
+
+      @SuppressWarnings("unchecked")
+      @Override
+      public Void answer(InvocationOnMock invocationOnMock) throws Throwable {
+         DataFetcher.DataCallback<T> callback =
+               (DataFetcher.DataCallback<T>) invocationOnMock.getArguments()[1];
+         callback.onDataReady(data);
+         return null;
+      }
+   }
+
+   public static final class CreateBitmap implements Answer<Bitmap> {
+
+      @Override
+      public Bitmap answer(InvocationOnMock invocation) throws Throwable {
+         int width = (Integer) invocation.getArguments()[0];
+         int height = (Integer) invocation.getArguments()[1];
+         Bitmap.Config config = (Bitmap.Config) invocation.getArguments()[2];
+         return Bitmap.createBitmap(width, height, config);
+      }
+   }
 }

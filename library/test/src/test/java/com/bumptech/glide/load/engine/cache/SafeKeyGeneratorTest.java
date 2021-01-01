@@ -16,43 +16,43 @@ import org.robolectric.annotation.Config;
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 18)
 public class SafeKeyGeneratorTest {
-  private SafeKeyGenerator keyGenerator;
-  private int nextId;
+   private SafeKeyGenerator keyGenerator;
+   private int nextId;
 
-  @Before
-  public void setUp() {
-    nextId = 0;
-    keyGenerator = new SafeKeyGenerator();
-  }
+   @Before
+   public void setUp() {
+      nextId = 0;
+      keyGenerator = new SafeKeyGenerator();
+   }
 
-  @Test
-  public void testKeysAreValidForDiskCache() {
-    final Pattern diskCacheRegex = Pattern.compile("[a-z0-9_-]{64}");
-    for (int i = 0; i < 1000; i++) {
-      String key = getRandomKeyFromGenerator();
-      Matcher matcher = diskCacheRegex.matcher(key);
-      assertTrue(key, matcher.matches());
-    }
-  }
+   @Test
+   public void testKeysAreValidForDiskCache() {
+      final Pattern diskCacheRegex = Pattern.compile("[a-z0-9_-]{64}");
+      for (int i = 0; i < 1000; i++) {
+         String key = getRandomKeyFromGenerator();
+         Matcher matcher = diskCacheRegex.matcher(key);
+         assertTrue(key, matcher.matches());
+      }
+   }
 
-  private String getRandomKeyFromGenerator() {
-    return keyGenerator.getSafeKey(new MockKey(getNextId()));
-  }
+   private String getRandomKeyFromGenerator() {
+      return keyGenerator.getSafeKey(new MockKey(getNextId()));
+   }
 
-  private String getNextId() {
-    return String.valueOf(nextId++);
-  }
+   private String getNextId() {
+      return String.valueOf(nextId++);
+   }
 
-  private static final class MockKey implements Key {
-    private final String id;
+   private static final class MockKey implements Key {
+      private final String id;
 
-    MockKey(String id) {
-      this.id = id;
-    }
+      MockKey(String id) {
+         this.id = id;
+      }
 
-    @Override
-    public void updateDiskCacheKey(@NonNull MessageDigest messageDigest) {
-      messageDigest.update(id.getBytes(CHARSET));
-    }
-  }
+      @Override
+      public void updateDiskCacheKey(@NonNull MessageDigest messageDigest) {
+         messageDigest.update(id.getBytes(CHARSET));
+      }
+   }
 }

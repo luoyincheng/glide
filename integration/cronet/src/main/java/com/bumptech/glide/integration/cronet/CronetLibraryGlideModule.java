@@ -15,26 +15,25 @@ import java.nio.ByteBuffer;
 import org.chromium.net.CronetEngine;
 
 /**
- * A {@link LibraryGlideModule} that registers components allowing remote image fetching to be done
- * using Cronet.
+ * A {@link LibraryGlideModule} that registers components allowing remote image fetching to be done using Cronet.
  */
 @GlideModule
 public final class CronetLibraryGlideModule extends LibraryGlideModule {
 
-  @Override
-  public void registerComponents(
-      final @NonNull Context context, @NonNull Glide glide, @NonNull Registry registry) {
-    CronetRequestFactory factory =
-        new CronetRequestFactoryImpl(
-            new Supplier<CronetEngine>() {
-              @Override
-              public CronetEngine get() {
-                return CronetEngineSingleton.getSingleton(context);
-              }
-            });
-    registry.replace(
-        GlideUrl.class, InputStream.class, new StreamFactory(factory, null /* dataLogger */));
-    registry.prepend(
-        GlideUrl.class, ByteBuffer.class, new ByteBufferFactory(factory, null /* dataLogger */));
-  }
+   @Override
+   public void registerComponents(
+         final @NonNull Context context, @NonNull Glide glide, @NonNull Registry registry) {
+      CronetRequestFactory factory =
+            new CronetRequestFactoryImpl(
+                  new Supplier<CronetEngine>() {
+                     @Override
+                     public CronetEngine get() {
+                        return CronetEngineSingleton.getSingleton(context);
+                     }
+                  });
+      registry.replace(
+            GlideUrl.class, InputStream.class, new StreamFactory(factory, null /* dataLogger */));
+      registry.prepend(
+            GlideUrl.class, ByteBuffer.class, new ByteBufferFactory(factory, null /* dataLogger */));
+   }
 }

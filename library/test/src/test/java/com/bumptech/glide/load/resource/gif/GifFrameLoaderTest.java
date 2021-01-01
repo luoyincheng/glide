@@ -48,334 +48,334 @@ import org.robolectric.annotation.LooperMode;
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 18)
 public class GifFrameLoaderTest {
-  @Rule public TearDownGlide tearDownGlide = new TearDownGlide();
+   @Rule public TearDownGlide tearDownGlide = new TearDownGlide();
 
-  @Mock private GifFrameLoader.FrameCallback callback;
-  @Mock private GifDecoder gifDecoder;
-  @Mock private Handler handler;
-  @Mock private Transformation<Bitmap> transformation;
-  @Mock private RequestManager requestManager;
-  private GifFrameLoader loader;
-  private RequestBuilder<Bitmap> requestBuilder;
-  private Bitmap firstFrame;
+   @Mock private GifFrameLoader.FrameCallback callback;
+   @Mock private GifDecoder gifDecoder;
+   @Mock private Handler handler;
+   @Mock private Transformation<Bitmap> transformation;
+   @Mock private RequestManager requestManager;
+   private GifFrameLoader loader;
+   private RequestBuilder<Bitmap> requestBuilder;
+   private Bitmap firstFrame;
 
-  @SuppressWarnings("unchecked")
-  @Before
-  public void setUp() {
-    MockitoAnnotations.initMocks(this);
-    when(handler.obtainMessage(anyInt(), isA(DelayTarget.class))).thenReturn(mock(Message.class));
+   private static Glide getGlideSingleton() {
+      return Glide.get(RuntimeEnvironment.application);
+   }
 
-    firstFrame = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888);
+   @SuppressWarnings("unchecked")
+   private static Target<Bitmap> aTarget() {
+      return isA(Target.class);
+   }
 
-    ByteBuffer byteBuffer = ByteBuffer.allocate(10);
-    when(gifDecoder.getData()).thenReturn(byteBuffer);
+   @SuppressWarnings("unchecked")
+   @Before
+   public void setUp() {
+      MockitoAnnotations.initMocks(this);
+      when(handler.obtainMessage(anyInt(), isA(DelayTarget.class))).thenReturn(mock(Message.class));
 
-    requestBuilder = mock(RequestBuilder.class, new ReturnsSelfAnswer());
+      firstFrame = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888);
 
-    loader = createGifFrameLoader(handler);
-  }
+      ByteBuffer byteBuffer = ByteBuffer.allocate(10);
+      when(gifDecoder.getData()).thenReturn(byteBuffer);
 
-  @NonNull
-  private GifFrameLoader createGifFrameLoader(Handler handler) {
-    Glide glide = getGlideSingleton();
-    GifFrameLoader result =
-        new GifFrameLoader(
-            glide.getBitmapPool(),
-            requestManager,
-            gifDecoder,
-            handler,
-            requestBuilder,
-            transformation,
-            firstFrame);
-    result.subscribe(callback);
-    return result;
-  }
+      requestBuilder = mock(RequestBuilder.class, new ReturnsSelfAnswer());
 
-  private static Glide getGlideSingleton() {
-    return Glide.get(RuntimeEnvironment.application);
-  }
+      loader = createGifFrameLoader(handler);
+   }
 
-  @SuppressWarnings("unchecked")
-  @Test
-  public void testSetFrameTransformationSetsTransformationOnRequestBuilder() {
-    verify(requestBuilder, times(2)).apply(isA(RequestOptions.class));
-    Transformation<Bitmap> transformation = mock(Transformation.class);
-    loader.setFrameTransformation(transformation, firstFrame);
+   @NonNull
+   private GifFrameLoader createGifFrameLoader(Handler handler) {
+      Glide glide = getGlideSingleton();
+      GifFrameLoader result =
+            new GifFrameLoader(
+                  glide.getBitmapPool(),
+                  requestManager,
+                  gifDecoder,
+                  handler,
+                  requestBuilder,
+                  transformation,
+                  firstFrame);
+      result.subscribe(callback);
+      return result;
+   }
 
-    verify(requestBuilder, times(3)).apply(isA(RequestOptions.class));
-  }
+   @SuppressWarnings("unchecked")
+   @Test
+   public void testSetFrameTransformationSetsTransformationOnRequestBuilder() {
+      verify(requestBuilder, times(2)).apply(isA(RequestOptions.class));
+      Transformation<Bitmap> transformation = mock(Transformation.class);
+      loader.setFrameTransformation(transformation, firstFrame);
 
-  @Test(expected = NullPointerException.class)
-  public void testSetFrameTransformationThrowsIfGivenNullTransformation() {
-    loader.setFrameTransformation(null, null);
-  }
+      verify(requestBuilder, times(3)).apply(isA(RequestOptions.class));
+   }
 
-  @Test
-  public void testReturnsSizeFromGifDecoderAndCurrentFrame() {
-    int decoderByteSize = 123456;
-    when(gifDecoder.getByteSize()).thenReturn(decoderByteSize);
-    assertThat(loader.getSize()).isEqualTo(decoderByteSize + Util.getBitmapByteSize(firstFrame));
-  }
+   @Test(expected = NullPointerException.class)
+   public void testSetFrameTransformationThrowsIfGivenNullTransformation() {
+      loader.setFrameTransformation(null, null);
+   }
 
-  @Test
-  public void testStartGetsNextFrameIfNotStartedAndWithNoLoadPending() {
-    verify(requestBuilder).into(aTarget());
-  }
+   @Test
+   public void testReturnsSizeFromGifDecoderAndCurrentFrame() {
+      int decoderByteSize = 123456;
+      when(gifDecoder.getByteSize()).thenReturn(decoderByteSize);
+      assertThat(loader.getSize()).isEqualTo(decoderByteSize + Util.getBitmapByteSize(firstFrame));
+   }
 
-  @Test
-  public void testGetNextFrameIncrementsSignatureAndAdvancesDecoderBeforeStartingLoad() {
-    InOrder order = inOrder(gifDecoder, requestBuilder);
-    order.verify(gifDecoder).advance();
-    order.verify(requestBuilder).apply(isA(RequestOptions.class));
-    order.verify(requestBuilder).into(aTarget());
-  }
+   @Test
+   public void testStartGetsNextFrameIfNotStartedAndWithNoLoadPending() {
+      verify(requestBuilder).into(aTarget());
+   }
 
-  @Test
-  public void testGetCurrentFrameReturnsFirstFrameWHenNoLoadHasCompleted() {
-    assertThat(loader.getCurrentFrame()).isEqualTo(firstFrame);
-  }
+   @Test
+   public void testGetNextFrameIncrementsSignatureAndAdvancesDecoderBeforeStartingLoad() {
+      InOrder order = inOrder(gifDecoder, requestBuilder);
+      order.verify(gifDecoder).advance();
+      order.verify(requestBuilder).apply(isA(RequestOptions.class));
+      order.verify(requestBuilder).into(aTarget());
+   }
 
-  @Test
-  public void testGetCurrentFrameReturnsCurrentBitmapAfterLoadHasCompleted() {
-    final Bitmap result = Bitmap.createBitmap(100, 200, Bitmap.Config.ARGB_8888);
-    DelayTarget target = mock(DelayTarget.class);
-    when(target.getResource()).thenReturn(result);
-    loader.onFrameReady(target);
+   @Test
+   public void testGetCurrentFrameReturnsFirstFrameWHenNoLoadHasCompleted() {
+      assertThat(loader.getCurrentFrame()).isEqualTo(firstFrame);
+   }
 
-    assertEquals(result, loader.getCurrentFrame());
-  }
+   @Test
+   public void testGetCurrentFrameReturnsCurrentBitmapAfterLoadHasCompleted() {
+      final Bitmap result = Bitmap.createBitmap(100, 200, Bitmap.Config.ARGB_8888);
+      DelayTarget target = mock(DelayTarget.class);
+      when(target.getResource()).thenReturn(result);
+      loader.onFrameReady(target);
 
-  @Test
-  public void testStartDoesNotStartIfAlreadyRunning() {
-    loader.subscribe(mock(FrameCallback.class));
+      assertEquals(result, loader.getCurrentFrame());
+   }
 
-    verify(requestBuilder, times(1)).into(aTarget());
-  }
+   @Test
+   public void testStartDoesNotStartIfAlreadyRunning() {
+      loader.subscribe(mock(FrameCallback.class));
 
-  @Test
-  public void testGetNextFrameDoesNotStartLoadIfLoaderIsNotRunning() {
-    verify(requestBuilder, times(1)).into(aTarget());
-    loader.unsubscribe(callback);
-    loader.onFrameReady(mock(DelayTarget.class));
+      verify(requestBuilder, times(1)).into(aTarget());
+   }
 
-    verify(requestBuilder, times(1)).into(aTarget());
-  }
+   @Test
+   public void testGetNextFrameDoesNotStartLoadIfLoaderIsNotRunning() {
+      verify(requestBuilder, times(1)).into(aTarget());
+      loader.unsubscribe(callback);
+      loader.onFrameReady(mock(DelayTarget.class));
 
-  @Test
-  public void testGetNextFrameDoesNotStartLoadIfLoadIsInProgress() {
-    loader.unsubscribe(callback);
-    loader.subscribe(callback);
+      verify(requestBuilder, times(1)).into(aTarget());
+   }
 
-    verify(requestBuilder, times(1)).into(aTarget());
-  }
+   @Test
+   public void testGetNextFrameDoesNotStartLoadIfLoadIsInProgress() {
+      loader.unsubscribe(callback);
+      loader.subscribe(callback);
 
-  @Test
-  public void testGetNextFrameDoesStartLoadIfRestartedAndNoLoadIsInProgress() {
-    loader.unsubscribe(callback);
+      verify(requestBuilder, times(1)).into(aTarget());
+   }
 
-    loader.onFrameReady(mock(DelayTarget.class));
-    loader.subscribe(callback);
+   @Test
+   public void testGetNextFrameDoesStartLoadIfRestartedAndNoLoadIsInProgress() {
+      loader.unsubscribe(callback);
 
-    verify(requestBuilder, times(2)).into(aTarget());
-  }
+      loader.onFrameReady(mock(DelayTarget.class));
+      loader.subscribe(callback);
 
-  @Test
-  public void testGetNextFrameDoesStartLoadAfterLoadCompletesIfStarted() {
-    loader.onFrameReady(mock(DelayTarget.class));
+      verify(requestBuilder, times(2)).into(aTarget());
+   }
 
-    verify(requestBuilder, times(2)).into(aTarget());
-  }
+   @Test
+   public void testGetNextFrameDoesStartLoadAfterLoadCompletesIfStarted() {
+      loader.onFrameReady(mock(DelayTarget.class));
 
-  @Test
-  public void testOnFrameReadyClearsPreviousFrame() {
-    // Force the loader to create a real Handler.
-    loader = createGifFrameLoader(null);
+      verify(requestBuilder, times(2)).into(aTarget());
+   }
 
-    DelayTarget previous = newDelayTarget();
-    Request previousRequest = mock(Request.class);
-    previous.setRequest(previousRequest);
-    previous.onResourceReady(
-        Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888), /*transition=*/ null);
+   @Test
+   public void testOnFrameReadyClearsPreviousFrame() {
+      // Force the loader to create a real Handler.
+      loader = createGifFrameLoader(null);
 
-    DelayTarget current = mock(DelayTarget.class);
-    when(current.getResource()).thenReturn(Bitmap.createBitmap(100, 100, Bitmap.Config.RGB_565));
-    loader.onFrameReady(previous);
-    loader.onFrameReady(current);
+      DelayTarget previous = newDelayTarget();
+      Request previousRequest = mock(Request.class);
+      previous.setRequest(previousRequest);
+      previous.onResourceReady(
+            Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888), /*transition=*/ null);
 
-    verify(requestManager).clear(eq(previous));
-  }
+      DelayTarget current = mock(DelayTarget.class);
+      when(current.getResource()).thenReturn(Bitmap.createBitmap(100, 100, Bitmap.Config.RGB_565));
+      loader.onFrameReady(previous);
+      loader.onFrameReady(current);
 
-  @Test
-  public void testOnFrameReadyWithNullResourceDoesNotClearPreviousFrame() {
-    // Force the loader to create a real Handler by passing null.
-    loader = createGifFrameLoader(null);
+      verify(requestManager).clear(eq(previous));
+   }
 
-    DelayTarget previous = newDelayTarget();
-    Request previousRequest = mock(Request.class);
-    previous.setRequest(previousRequest);
-    previous.onResourceReady(Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888), null);
+   @Test
+   public void testOnFrameReadyWithNullResourceDoesNotClearPreviousFrame() {
+      // Force the loader to create a real Handler by passing null.
+      loader = createGifFrameLoader(null);
 
-    DelayTarget current = mock(DelayTarget.class);
-    when(current.getResource()).thenReturn(null);
-    loader.onFrameReady(previous);
-    loader.onFrameReady(current);
+      DelayTarget previous = newDelayTarget();
+      Request previousRequest = mock(Request.class);
+      previous.setRequest(previousRequest);
+      previous.onResourceReady(Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888), null);
 
-    verify(previousRequest, never()).clear();
-  }
+      DelayTarget current = mock(DelayTarget.class);
+      when(current.getResource()).thenReturn(null);
+      loader.onFrameReady(previous);
+      loader.onFrameReady(current);
 
-  @Test
-  public void testDelayTargetSendsMessageWithHandlerDelayed() {
-    long targetTime = 1234;
-    DelayTarget delayTarget = new DelayTarget(handler, 1, targetTime);
-    delayTarget.onResourceReady(
-        Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888), null
-        /*glideAnimation*/ );
-    verify(handler).sendMessageAtTime(isA(Message.class), eq(targetTime));
-  }
+      verify(previousRequest, never()).clear();
+   }
 
-  @Test
-  public void testDelayTargetSetsResourceOnResourceReady() {
-    DelayTarget delayTarget = new DelayTarget(handler, 1, 1);
-    Bitmap expected = Bitmap.createBitmap(100, 200, Bitmap.Config.RGB_565);
-    delayTarget.onResourceReady(expected, null /*glideAnimation*/);
+   @Test
+   public void testDelayTargetSendsMessageWithHandlerDelayed() {
+      long targetTime = 1234;
+      DelayTarget delayTarget = new DelayTarget(handler, 1, targetTime);
+      delayTarget.onResourceReady(
+            Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888), null
+            /*glideAnimation*/);
+      verify(handler).sendMessageAtTime(isA(Message.class), eq(targetTime));
+   }
 
-    assertEquals(expected, delayTarget.getResource());
-  }
+   @Test
+   public void testDelayTargetSetsResourceOnResourceReady() {
+      DelayTarget delayTarget = new DelayTarget(handler, 1, 1);
+      Bitmap expected = Bitmap.createBitmap(100, 200, Bitmap.Config.RGB_565);
+      delayTarget.onResourceReady(expected, null /*glideAnimation*/);
 
-  @Test
-  public void testClearsCompletedLoadOnFrameReadyIfCleared() {
-    // Force the loader to create a real Handler by passing null;
-    loader = createGifFrameLoader(null);
-    loader.clear();
-    DelayTarget delayTarget = newDelayTarget();
-    Request request = mock(Request.class);
-    delayTarget.setRequest(request);
+      assertEquals(expected, delayTarget.getResource());
+   }
 
-    loader.onFrameReady(delayTarget);
+   @Test
+   public void testClearsCompletedLoadOnFrameReadyIfCleared() {
+      // Force the loader to create a real Handler by passing null;
+      loader = createGifFrameLoader(null);
+      loader.clear();
+      DelayTarget delayTarget = newDelayTarget();
+      Request request = mock(Request.class);
+      delayTarget.setRequest(request);
 
-    verify(requestManager).clear(eq(delayTarget));
-  }
+      loader.onFrameReady(delayTarget);
 
-  @Test
-  public void
-      testDoesNotReturnResourceForCompletedFrameInGetCurrentFrameIfLoadCompletesWhileCleared() {
-    loader.clear();
-    DelayTarget delayTarget = mock(DelayTarget.class);
-    Bitmap bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888);
-    when(delayTarget.getResource()).thenReturn(bitmap);
+      verify(requestManager).clear(eq(delayTarget));
+   }
 
-    loader.onFrameReady(delayTarget);
+   @Test
+   public void
+   testDoesNotReturnResourceForCompletedFrameInGetCurrentFrameIfLoadCompletesWhileCleared() {
+      loader.clear();
+      DelayTarget delayTarget = mock(DelayTarget.class);
+      Bitmap bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888);
+      when(delayTarget.getResource()).thenReturn(bitmap);
 
-    assertNull(loader.getCurrentFrame());
-  }
+      loader.onFrameReady(delayTarget);
 
-  @Test
-  public void onFrameReady_whenNotRunning_doesNotClearPreviouslyLoadedImage() {
-    loader = createGifFrameLoader(/*handler=*/ null);
-    DelayTarget loaded = mock(DelayTarget.class);
-    when(loaded.getResource()).thenReturn(Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888));
-    loader.onFrameReady(loaded);
-    loader.unsubscribe(callback);
+      assertNull(loader.getCurrentFrame());
+   }
 
-    DelayTarget nextFrame = mock(DelayTarget.class);
-    when(nextFrame.getResource())
-        .thenReturn(Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888));
-    loader.onFrameReady(nextFrame);
-    verify(requestManager, never()).clear(loaded);
-  }
+   @Test
+   public void onFrameReady_whenNotRunning_doesNotClearPreviouslyLoadedImage() {
+      loader = createGifFrameLoader(/*handler=*/ null);
+      DelayTarget loaded = mock(DelayTarget.class);
+      when(loaded.getResource()).thenReturn(Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888));
+      loader.onFrameReady(loaded);
+      loader.unsubscribe(callback);
 
-  @Test
-  public void onFrameReady_whenNotRunning_clearsPendingFrameOnClear() {
-    loader = createGifFrameLoader(/*handler=*/ null);
-    DelayTarget loaded = mock(DelayTarget.class);
-    when(loaded.getResource()).thenReturn(Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888));
-    loader.onFrameReady(loaded);
-    loader.unsubscribe(callback);
+      DelayTarget nextFrame = mock(DelayTarget.class);
+      when(nextFrame.getResource())
+            .thenReturn(Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888));
+      loader.onFrameReady(nextFrame);
+      verify(requestManager, never()).clear(loaded);
+   }
 
-    DelayTarget nextFrame = mock(DelayTarget.class);
-    when(nextFrame.getResource())
-        .thenReturn(Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888));
-    loader.onFrameReady(nextFrame);
+   @Test
+   public void onFrameReady_whenNotRunning_clearsPendingFrameOnClear() {
+      loader = createGifFrameLoader(/*handler=*/ null);
+      DelayTarget loaded = mock(DelayTarget.class);
+      when(loaded.getResource()).thenReturn(Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888));
+      loader.onFrameReady(loaded);
+      loader.unsubscribe(callback);
 
-    loader.clear();
-    verify(requestManager).clear(loaded);
-    verify(requestManager).clear(nextFrame);
-  }
+      DelayTarget nextFrame = mock(DelayTarget.class);
+      when(nextFrame.getResource())
+            .thenReturn(Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888));
+      loader.onFrameReady(nextFrame);
 
-  @Test
-  public void onFrameReady_whenNotRunning_clearsOldFrameOnStart() {
-    loader = createGifFrameLoader(/*handler=*/ null);
-    DelayTarget loaded = mock(DelayTarget.class);
-    when(loaded.getResource()).thenReturn(Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888));
-    loader.onFrameReady(loaded);
-    loader.unsubscribe(callback);
+      loader.clear();
+      verify(requestManager).clear(loaded);
+      verify(requestManager).clear(nextFrame);
+   }
 
-    DelayTarget nextFrame = mock(DelayTarget.class);
-    when(nextFrame.getResource())
-        .thenReturn(Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888));
-    loader.onFrameReady(nextFrame);
+   @Test
+   public void onFrameReady_whenNotRunning_clearsOldFrameOnStart() {
+      loader = createGifFrameLoader(/*handler=*/ null);
+      DelayTarget loaded = mock(DelayTarget.class);
+      when(loaded.getResource()).thenReturn(Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888));
+      loader.onFrameReady(loaded);
+      loader.unsubscribe(callback);
 
-    loader.subscribe(callback);
-    verify(requestManager).clear(loaded);
-  }
+      DelayTarget nextFrame = mock(DelayTarget.class);
+      when(nextFrame.getResource())
+            .thenReturn(Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888));
+      loader.onFrameReady(nextFrame);
 
-  @Test
-  public void onFrameReady_whenNotRunning_callsFrameReadyWithNewFrameOnStart() {
-    loader = createGifFrameLoader(/*handler=*/ null);
-    DelayTarget loaded = mock(DelayTarget.class);
-    when(loaded.getResource()).thenReturn(Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888));
-    loader.onFrameReady(loaded);
-    loader.unsubscribe(callback);
+      loader.subscribe(callback);
+      verify(requestManager).clear(loaded);
+   }
 
-    DelayTarget nextFrame = mock(DelayTarget.class);
-    Bitmap expected = Bitmap.createBitmap(200, 200, Bitmap.Config.ARGB_8888);
-    when(nextFrame.getResource()).thenReturn(expected);
-    loader.onFrameReady(nextFrame);
+   @Test
+   public void onFrameReady_whenNotRunning_callsFrameReadyWithNewFrameOnStart() {
+      loader = createGifFrameLoader(/*handler=*/ null);
+      DelayTarget loaded = mock(DelayTarget.class);
+      when(loaded.getResource()).thenReturn(Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888));
+      loader.onFrameReady(loaded);
+      loader.unsubscribe(callback);
 
-    verify(callback, times(1)).onFrameReady();
-    loader.subscribe(callback);
-    verify(callback, times(2)).onFrameReady();
-    assertThat(loader.getCurrentFrame()).isEqualTo(expected);
-  }
+      DelayTarget nextFrame = mock(DelayTarget.class);
+      Bitmap expected = Bitmap.createBitmap(200, 200, Bitmap.Config.ARGB_8888);
+      when(nextFrame.getResource()).thenReturn(expected);
+      loader.onFrameReady(nextFrame);
 
-  @Test
-  public void onFrameReady_whenInvisible_setVisibleLater() {
-    loader = createGifFrameLoader(/*handler=*/ null);
-    // The target is invisible at this point.
-    loader.unsubscribe(callback);
-    loader.setNextStartFromFirstFrame();
-    DelayTarget loaded = mock(DelayTarget.class);
-    when(loaded.getResource()).thenReturn(Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888));
-    loader.onFrameReady(loaded);
-    loader.subscribe(callback);
-  }
+      verify(callback, times(1)).onFrameReady();
+      loader.subscribe(callback);
+      verify(callback, times(2)).onFrameReady();
+      assertThat(loader.getCurrentFrame()).isEqualTo(expected);
+   }
 
-  @Test
-  public void startFromFirstFrame_withPendingFrame_clearsPendingFrame() {
-    loader = createGifFrameLoader(/*handler=*/ null);
-    DelayTarget loaded = mock(DelayTarget.class);
-    when(loaded.getResource()).thenReturn(Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888));
-    loader.onFrameReady(loaded);
-    loader.unsubscribe(callback);
+   @Test
+   public void onFrameReady_whenInvisible_setVisibleLater() {
+      loader = createGifFrameLoader(/*handler=*/ null);
+      // The target is invisible at this point.
+      loader.unsubscribe(callback);
+      loader.setNextStartFromFirstFrame();
+      DelayTarget loaded = mock(DelayTarget.class);
+      when(loaded.getResource()).thenReturn(Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888));
+      loader.onFrameReady(loaded);
+      loader.subscribe(callback);
+   }
 
-    DelayTarget nextFrame = mock(DelayTarget.class);
-    Bitmap expected = Bitmap.createBitmap(200, 200, Bitmap.Config.ARGB_8888);
-    when(nextFrame.getResource()).thenReturn(expected);
-    loader.onFrameReady(nextFrame);
+   @Test
+   public void startFromFirstFrame_withPendingFrame_clearsPendingFrame() {
+      loader = createGifFrameLoader(/*handler=*/ null);
+      DelayTarget loaded = mock(DelayTarget.class);
+      when(loaded.getResource()).thenReturn(Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888));
+      loader.onFrameReady(loaded);
+      loader.unsubscribe(callback);
 
-    loader.setNextStartFromFirstFrame();
-    verify(requestManager).clear(nextFrame);
+      DelayTarget nextFrame = mock(DelayTarget.class);
+      Bitmap expected = Bitmap.createBitmap(200, 200, Bitmap.Config.ARGB_8888);
+      when(nextFrame.getResource()).thenReturn(expected);
+      loader.onFrameReady(nextFrame);
 
-    loader.subscribe(callback);
-    verify(callback, times(1)).onFrameReady();
-  }
+      loader.setNextStartFromFirstFrame();
+      verify(requestManager).clear(nextFrame);
 
-  private DelayTarget newDelayTarget() {
-    return new DelayTarget(handler, /*index=*/ 0, /*targetTime=*/ 0);
-  }
+      loader.subscribe(callback);
+      verify(callback, times(1)).onFrameReady();
+   }
 
-  @SuppressWarnings("unchecked")
-  private static Target<Bitmap> aTarget() {
-    return isA(Target.class);
-  }
+   private DelayTarget newDelayTarget() {
+      return new DelayTarget(handler, /*index=*/ 0, /*targetTime=*/ 0);
+   }
 }

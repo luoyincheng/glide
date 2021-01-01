@@ -29,11 +29,11 @@ if !(($VERBOSE)); then
   exec 2>/dev/null
 fi
 
-echo "Setting up environment..."  1>&3 2>&4
-adb devices | grep -v "List of devices" | grep device \
-  || echo "No devices found, try starting an emulator" 1>&3 2>&4
+echo "Setting up environment..." 1>&3 2>&4
+adb devices | grep -v "List of devices" | grep device ||
+  echo "No devices found, try starting an emulator" 1>&3 2>&4
 
-adb root || true 
+adb root || true
 # In case there are any old artifacts from an old or failed test, clean them up.
 adb shell rm -r $DIRECTORY || true
 # Create the signal file.
@@ -45,13 +45,13 @@ adb shell touch "${DIRECTORY}/${REGENERATE_FILE_NAME}"
 
 # On APIs > 22 we need to grant the appropriate runtime permissions so our test APK can write
 # resource files to the public sdcard. Cache and internal cache directories aren't consistently
-# available across all versions of Android. So far this is the best cross SDK solution I've 
+# available across all versions of Android. So far this is the best cross SDK solution I've
 # found
-sdk_version=`adb shell getprop ro.build.version.sdk`
-sdk_version=`echo $sdk_version | tr -d '\r'`
+sdk_version=$(adb shell getprop ro.build.version.sdk)
+sdk_version=$(echo $sdk_version | tr -d '\r')
 if [[ $sdk_version -gt 22 ]]; then
   echo "Installing apks and granting runtime permissions..." 1>&3 2>&4
-  ./gradlew :instrumentation:installDebug :instrumentation:installDebugAndroidTest 
+  ./gradlew :instrumentation:installDebug :instrumentation:installDebugAndroidTest
   adb shell pm grant com.bumptech.glide.instrumentation android.permission.WRITE_EXTERNAL_STORAGE
   adb shell pm grant com.bumptech.glide.instrumentation android.permission.READ_EXTERNAL_STORAGE
   adb shell pm grant com.bumptech.glide.instrumentation.test android.permission.WRITE_EXTERNAL_STORAGE
@@ -59,15 +59,15 @@ if [[ $sdk_version -gt 22 ]]; then
 fi
 
 echo "Generating updated resource files..." 1>&3 2>&4
-./gradlew :instrumentation:connectedDebugAndroidTest $test_restriction --parallel || true 
+./gradlew :instrumentation:connectedDebugAndroidTest $test_restriction --parallel || true
 
 echo "Copying updated resource files to res directory..." 1>&3 2>&4
 adb pull $DIRECTORY
-rm "${DIRECTORY_NAME}/${REGENERATE_FILE_NAME}" 
-cp $DIRECTORY_NAME/raw/* instrumentation/src/main/res/raw 
+rm "${DIRECTORY_NAME}/${REGENERATE_FILE_NAME}"
+cp $DIRECTORY_NAME/raw/* instrumentation/src/main/res/raw
 rm -rf $DIRECTORY_NAME
 adb shell rm -r $DIRECTORY
- 
+
 echo "Verifying all tests pass..." 1>&3 2>&4
 
 ./gradlew :instrumentation:clean

@@ -16,121 +16,120 @@ import java.io.InputStream;
 import java.util.concurrent.CountDownLatch;
 
 /**
- * Allows callers to load an object but force the load to pause until {@link WaitModel#countDown()}
- * is called.
+ * Allows callers to load an object but force the load to pause until {@link WaitModel#countDown()} is called.
  */
 public final class WaitModelLoader<Model, Data> implements ModelLoader<WaitModel<Model>, Data> {
 
-  private final ModelLoader<Model, Data> wrapped;
+   private final ModelLoader<Model, Data> wrapped;
 
-  private WaitModelLoader(ModelLoader<Model, Data> wrapped) {
-    this.wrapped = wrapped;
-  }
-
-  @Nullable
-  @Override
-  public LoadData<Data> buildLoadData(
-      @NonNull WaitModel<Model> waitModel, int width, int height, @NonNull Options options) {
-    LoadData<Data> wrappedLoadData =
-        wrapped.buildLoadData(waitModel.wrapped, width, height, options);
-    if (wrappedLoadData == null) {
-      return null;
-    }
-    return new LoadData<>(
-        wrappedLoadData.sourceKey, new WaitFetcher<>(wrappedLoadData.fetcher, waitModel.latch));
-  }
-
-  @Override
-  public boolean handles(@NonNull WaitModel<Model> waitModel) {
-    return wrapped.handles(waitModel.wrapped);
-  }
-
-  public static final class WaitModel<T> {
-    private final CountDownLatch latch = new CountDownLatch(1);
-    private final T wrapped;
-
-    WaitModel(T wrapped) {
+   private WaitModelLoader(ModelLoader<Model, Data> wrapped) {
       this.wrapped = wrapped;
-    }
+   }
 
-    public void countDown() {
-      if (latch.getCount() != 1) {
-        throw new IllegalStateException();
+   @Nullable
+   @Override
+   public LoadData<Data> buildLoadData(
+         @NonNull WaitModel<Model> waitModel, int width, int height, @NonNull Options options) {
+      LoadData<Data> wrappedLoadData =
+            wrapped.buildLoadData(waitModel.wrapped, width, height, options);
+      if (wrappedLoadData == null) {
+         return null;
       }
-      latch.countDown();
-    }
-  }
+      return new LoadData<>(
+            wrappedLoadData.sourceKey, new WaitFetcher<>(wrappedLoadData.fetcher, waitModel.latch));
+   }
 
-  public static final class Factory<Model, Data>
-      implements ModelLoaderFactory<WaitModel<Model>, Data> {
+   @Override
+   public boolean handles(@NonNull WaitModel<Model> waitModel) {
+      return wrapped.handles(waitModel.wrapped);
+   }
 
-    private final Class<Model> modelClass;
-    private final Class<Data> dataClass;
+   public static final class WaitModel<T> {
+      private final CountDownLatch latch = new CountDownLatch(1);
+      private final T wrapped;
 
-    Factory(Class<Model> modelClass, Class<Data> dataClass) {
-      this.modelClass = modelClass;
-      this.dataClass = dataClass;
-    }
+      WaitModel(T wrapped) {
+         this.wrapped = wrapped;
+      }
 
-    public static synchronized <T> WaitModel<T> waitOn(T model) {
-      @SuppressWarnings("unchecked")
-      ModelLoaderFactory<WaitModel<T>, InputStream> streamFactory =
-          new Factory<>((Class<T>) model.getClass(), InputStream.class);
-      Glide.get(InstrumentationRegistry.getTargetContext())
-          .getRegistry()
-          .replace(WaitModel.class, InputStream.class, streamFactory);
+      public void countDown() {
+         if (latch.getCount() != 1) {
+            throw new IllegalStateException();
+         }
+         latch.countDown();
+      }
+   }
 
-      return new WaitModel<>(model);
-    }
+   public static final class Factory<Model, Data>
+         implements ModelLoaderFactory<WaitModel<Model>, Data> {
 
-    @NonNull
-    @Override
-    public ModelLoader<WaitModel<Model>, Data> build(MultiModelLoaderFactory multiFactory) {
-      return new WaitModelLoader<>(multiFactory.build(modelClass, dataClass));
-    }
+      private final Class<Model> modelClass;
+      private final Class<Data> dataClass;
 
-    @Override
-    public void teardown() {
-      // Do nothing.
-    }
-  }
+      Factory(Class<Model> modelClass, Class<Data> dataClass) {
+         this.modelClass = modelClass;
+         this.dataClass = dataClass;
+      }
 
-  private static final class WaitFetcher<Data> implements DataFetcher<Data> {
+      public static synchronized <T> WaitModel<T> waitOn(T model) {
+         @SuppressWarnings("unchecked")
+         ModelLoaderFactory<WaitModel<T>, InputStream> streamFactory =
+               new Factory<>((Class<T>) model.getClass(), InputStream.class);
+         Glide.get(InstrumentationRegistry.getTargetContext())
+               .getRegistry()
+               .replace(WaitModel.class, InputStream.class, streamFactory);
 
-    private final DataFetcher<Data> wrapped;
-    private final CountDownLatch toWaitOn;
+         return new WaitModel<>(model);
+      }
 
-    WaitFetcher(DataFetcher<Data> wrapped, CountDownLatch toWaitOn) {
-      this.wrapped = wrapped;
-      this.toWaitOn = toWaitOn;
-    }
+      @NonNull
+      @Override
+      public ModelLoader<WaitModel<Model>, Data> build(MultiModelLoaderFactory multiFactory) {
+         return new WaitModelLoader<>(multiFactory.build(modelClass, dataClass));
+      }
 
-    @Override
-    public void loadData(@NonNull Priority priority, @NonNull DataCallback<? super Data> callback) {
-      ConcurrencyHelper.waitOnLatch(toWaitOn);
-      wrapped.loadData(priority, callback);
-    }
+      @Override
+      public void teardown() {
+         // Do nothing.
+      }
+   }
 
-    @Override
-    public void cleanup() {
-      wrapped.cleanup();
-    }
+   private static final class WaitFetcher<Data> implements DataFetcher<Data> {
 
-    @Override
-    public void cancel() {
-      wrapped.cancel();
-    }
+      private final DataFetcher<Data> wrapped;
+      private final CountDownLatch toWaitOn;
 
-    @NonNull
-    @Override
-    public Class<Data> getDataClass() {
-      return wrapped.getDataClass();
-    }
+      WaitFetcher(DataFetcher<Data> wrapped, CountDownLatch toWaitOn) {
+         this.wrapped = wrapped;
+         this.toWaitOn = toWaitOn;
+      }
 
-    @NonNull
-    @Override
-    public DataSource getDataSource() {
-      return wrapped.getDataSource();
-    }
-  }
+      @Override
+      public void loadData(@NonNull Priority priority, @NonNull DataCallback<? super Data> callback) {
+         ConcurrencyHelper.waitOnLatch(toWaitOn);
+         wrapped.loadData(priority, callback);
+      }
+
+      @Override
+      public void cleanup() {
+         wrapped.cleanup();
+      }
+
+      @Override
+      public void cancel() {
+         wrapped.cancel();
+      }
+
+      @NonNull
+      @Override
+      public Class<Data> getDataClass() {
+         return wrapped.getDataClass();
+      }
+
+      @NonNull
+      @Override
+      public DataSource getDataSource() {
+         return wrapped.getDataSource();
+      }
+   }
 }

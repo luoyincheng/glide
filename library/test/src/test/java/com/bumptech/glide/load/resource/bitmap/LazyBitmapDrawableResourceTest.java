@@ -20,68 +20,68 @@ import org.robolectric.RuntimeEnvironment;
 
 @RunWith(RobolectricTestRunner.class)
 public class LazyBitmapDrawableResourceTest {
-  @Mock private Resource<Bitmap> bitmapResource;
-  private LazyBitmapDrawableResource resource;
-  private Resources resources;
-  private Bitmap bitmap;
+   @Mock private Resource<Bitmap> bitmapResource;
+   private LazyBitmapDrawableResource resource;
+   private Resources resources;
+   private Bitmap bitmap;
 
-  @Before
-  public void setUp() {
-    MockitoAnnotations.initMocks(this);
+   @Before
+   public void setUp() {
+      MockitoAnnotations.initMocks(this);
 
-    bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888);
-    when(bitmapResource.get()).thenReturn(bitmap);
+      bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888);
+      when(bitmapResource.get()).thenReturn(bitmap);
 
-    resources = RuntimeEnvironment.application.getResources();
-    resource =
-        (LazyBitmapDrawableResource) LazyBitmapDrawableResource.obtain(resources, bitmapResource);
-  }
+      resources = RuntimeEnvironment.application.getResources();
+      resource =
+            (LazyBitmapDrawableResource) LazyBitmapDrawableResource.obtain(resources, bitmapResource);
+   }
 
-  @Test
-  public void obtain_withNullBitmapResource_returnsNull() {
-    assertThat(LazyBitmapDrawableResource.obtain(resources, null)).isNull();
-  }
+   @Test
+   public void obtain_withNullBitmapResource_returnsNull() {
+      assertThat(LazyBitmapDrawableResource.obtain(resources, null)).isNull();
+   }
 
-  @Test
-  public void getSize_returnsSizeOfWrappedResource() {
-    when(bitmapResource.getSize()).thenReturn(100);
-    assertThat(resource.getSize()).isEqualTo(100);
-  }
+   @Test
+   public void getSize_returnsSizeOfWrappedResource() {
+      when(bitmapResource.getSize()).thenReturn(100);
+      assertThat(resource.getSize()).isEqualTo(100);
+   }
 
-  @Test
-  public void recycle_callsRecycleOnWrappedResource() {
-    resource.recycle();
-    verify(bitmapResource).recycle();
-  }
+   @Test
+   public void recycle_callsRecycleOnWrappedResource() {
+      resource.recycle();
+      verify(bitmapResource).recycle();
+   }
 
-  @Test
-  public void recycle_doesNotRecycleWrappedBitmap() {
-    resource.recycle();
-    assertThat(bitmap.isRecycled()).isFalse();
-  }
+   @Test
+   public void recycle_doesNotRecycleWrappedBitmap() {
+      resource.recycle();
+      assertThat(bitmap.isRecycled()).isFalse();
+   }
 
-  @Test
-  public void get_returnsDrawableContainingWrappedBitmap() {
-    BitmapDrawable drawable = resource.get();
-    assertThat(drawable.getBitmap()).isSameInstanceAs(bitmap);
-  }
+   @Test
+   public void get_returnsDrawableContainingWrappedBitmap() {
+      BitmapDrawable drawable = resource.get();
+      assertThat(drawable.getBitmap()).isSameInstanceAs(bitmap);
+   }
 
-  @Test
-  public void initialize_withNonInitializableResource_doesNothing() {
-    resource.initialize();
-  }
+   @Test
+   public void initialize_withNonInitializableResource_doesNothing() {
+      resource.initialize();
+   }
 
-  @Test
-  public void initialize_withWrappedInitializableResource_callsInitializeOnWrapped() {
-    InitializableBitmapResource bitmapResource = mock(InitializableBitmapResource.class);
-    resource =
-        (LazyBitmapDrawableResource) LazyBitmapDrawableResource.obtain(resources, bitmapResource);
-    resource.initialize();
+   @Test
+   public void initialize_withWrappedInitializableResource_callsInitializeOnWrapped() {
+      InitializableBitmapResource bitmapResource = mock(InitializableBitmapResource.class);
+      resource =
+            (LazyBitmapDrawableResource) LazyBitmapDrawableResource.obtain(resources, bitmapResource);
+      resource.initialize();
 
-    verify(bitmapResource).initialize();
-  }
+      verify(bitmapResource).initialize();
+   }
 
-  private interface InitializableBitmapResource extends Initializable, Resource<Bitmap> {
-    // Intentionally empty.
-  }
+   private interface InitializableBitmapResource extends Initializable, Resource<Bitmap> {
+      // Intentionally empty.
+   }
 }

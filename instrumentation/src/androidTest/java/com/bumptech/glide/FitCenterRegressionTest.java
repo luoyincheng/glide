@@ -27,99 +27,99 @@ import org.junit.runner.RunWith;
 @SplitBySdk({24, 23, 21, 19, 18, 16})
 @RegressionTest
 public class FitCenterRegressionTest {
-  @Rule public final TestName testName = new TestName();
-  @Rule public final TearDownGlide tearDownGlide = new TearDownGlide();
-  private BitmapRegressionTester bitmapRegressionTester;
-  private Context context;
-  private CanonicalBitmap canonical;
+   @Rule public final TestName testName = new TestName();
+   @Rule public final TearDownGlide tearDownGlide = new TearDownGlide();
+   private BitmapRegressionTester bitmapRegressionTester;
+   private Context context;
+   private CanonicalBitmap canonical;
 
-  @Before
-  public void setUp() {
-    context = ApplicationProvider.getApplicationContext();
-    bitmapRegressionTester = new BitmapRegressionTester(getClass(), testName);
-    canonical = new CanonicalBitmap();
-  }
+   @Before
+   public void setUp() {
+      context = ApplicationProvider.getApplicationContext();
+      bitmapRegressionTester = new BitmapRegressionTester(getClass(), testName);
+      canonical = new CanonicalBitmap();
+   }
 
-  @Test
-  public void fitCenter_withSquareSmallerThanImage_returnsImageFitWithinSquare()
-      throws ExecutionException, InterruptedException {
+   @Test
+   public void fitCenter_withSquareSmallerThanImage_returnsImageFitWithinSquare()
+         throws ExecutionException, InterruptedException {
 
-    Bitmap result =
-        bitmapRegressionTester.test(
-            GlideApp.with(context).asBitmap().load(canonical.getBitmap()).fitCenter().override(50));
+      Bitmap result =
+            bitmapRegressionTester.test(
+                  GlideApp.with(context).asBitmap().load(canonical.getBitmap()).fitCenter().override(50));
 
-    assertThat(result.getWidth()).isEqualTo(50);
-    assertThat(result.getHeight()).isEqualTo(37);
-  }
+      assertThat(result.getWidth()).isEqualTo(50);
+      assertThat(result.getHeight()).isEqualTo(37);
+   }
 
-  @Test
-  public void fitCenter_withSquareLargerThanImage_returnsUpscaledSquare()
-      throws ExecutionException, InterruptedException {
-    float multiplier = 1.1f;
-    int multipliedWidth = (int) (canonical.getWidth() * multiplier);
-    int multipliedHeight = (int) (canonical.getHeight() * multiplier);
-    Bitmap result =
-        bitmapRegressionTester.test(
-            GlideApp.with(context)
-                .asBitmap()
-                .load(canonical.getBitmap())
-                .fitCenter()
-                .override(multipliedWidth));
+   @Test
+   public void fitCenter_withSquareLargerThanImage_returnsUpscaledSquare()
+         throws ExecutionException, InterruptedException {
+      float multiplier = 1.1f;
+      int multipliedWidth = (int) (canonical.getWidth() * multiplier);
+      int multipliedHeight = (int) (canonical.getHeight() * multiplier);
+      Bitmap result =
+            bitmapRegressionTester.test(
+                  GlideApp.with(context)
+                        .asBitmap()
+                        .load(canonical.getBitmap())
+                        .fitCenter()
+                        .override(multipliedWidth));
 
-    assertThat(result.getWidth()).isEqualTo(multipliedWidth);
-    assertThat(result.getHeight()).isEqualTo(multipliedHeight);
-  }
+      assertThat(result.getWidth()).isEqualTo(multipliedWidth);
+      assertThat(result.getHeight()).isEqualTo(multipliedHeight);
+   }
 
-  @Test
-  public void fitCenter_withNarrowRectangle_fitsWithinMaintainingAspectRatio()
-      throws ExecutionException, InterruptedException {
-    Bitmap result =
-        bitmapRegressionTester.test(
-            GlideApp.with(context)
-                .asBitmap()
-                .load(canonical.getBitmap())
-                .fitCenter()
-                .override(canonical.getWidth() / 10, canonical.getHeight()));
+   @Test
+   public void fitCenter_withNarrowRectangle_fitsWithinMaintainingAspectRatio()
+         throws ExecutionException, InterruptedException {
+      Bitmap result =
+            bitmapRegressionTester.test(
+                  GlideApp.with(context)
+                        .asBitmap()
+                        .load(canonical.getBitmap())
+                        .fitCenter()
+                        .override(canonical.getWidth() / 10, canonical.getHeight()));
 
-    assertThat(result.getWidth()).isEqualTo(canonical.getWidth() / 10);
-    assertThat(result.getHeight()).isEqualTo(canonical.getHeight() / 10);
-  }
+      assertThat(result.getWidth()).isEqualTo(canonical.getWidth() / 10);
+      assertThat(result.getHeight()).isEqualTo(canonical.getHeight() / 10);
+   }
 
-  @Test
-  public void fitCenter_withShortRectangle_fitsWithinMaintainingAspectRatio()
-      throws ExecutionException, InterruptedException {
-    Bitmap result =
-        bitmapRegressionTester.test(
-            GlideApp.with(context)
-                .asBitmap()
-                .load(canonical.getBitmap())
-                .fitCenter()
-                .override(canonical.getWidth(), canonical.getHeight() / 2));
+   @Test
+   public void fitCenter_withShortRectangle_fitsWithinMaintainingAspectRatio()
+         throws ExecutionException, InterruptedException {
+      Bitmap result =
+            bitmapRegressionTester.test(
+                  GlideApp.with(context)
+                        .asBitmap()
+                        .load(canonical.getBitmap())
+                        .fitCenter()
+                        .override(canonical.getWidth(), canonical.getHeight() / 2));
 
-    assertThat(result.getWidth()).isEqualTo(canonical.getWidth() / 2);
-    assertThat(result.getHeight()).isEqualTo(canonical.getHeight() / 2);
-  }
+      assertThat(result.getWidth()).isEqualTo(canonical.getWidth() / 2);
+      assertThat(result.getHeight()).isEqualTo(canonical.getHeight() / 2);
+   }
 
-  @Test
-  public void fitCenter_withHugeRectangle_throwsOOM()
-      throws ExecutionException, InterruptedException {
-    float multiplier = Integer.MAX_VALUE / (canonical.getWidth() * canonical.getHeight() * 2);
-    final int overrideWidth = (int) multiplier * canonical.getWidth();
-    final int overrideHeight = (int) multiplier * canonical.getHeight();
+   @Test
+   public void fitCenter_withHugeRectangle_throwsOOM()
+         throws ExecutionException, InterruptedException {
+      float multiplier = Integer.MAX_VALUE / (canonical.getWidth() * canonical.getHeight() * 2);
+      final int overrideWidth = (int) multiplier * canonical.getWidth();
+      final int overrideHeight = (int) multiplier * canonical.getHeight();
 
-    assertThrows(
-        ExecutionException.class,
-        new ThrowingRunnable() {
-          @Override
-          public void run() throws Throwable {
-            GlideApp.with(context)
-                .asBitmap()
-                .load(canonical.getBitmap())
-                .fitCenter()
-                .override(overrideWidth, overrideHeight)
-                .submit()
-                .get();
-          }
-        });
-  }
+      assertThrows(
+            ExecutionException.class,
+            new ThrowingRunnable() {
+               @Override
+               public void run() throws Throwable {
+                  GlideApp.with(context)
+                        .asBitmap()
+                        .load(canonical.getBitmap())
+                        .fitCenter()
+                        .override(overrideWidth, overrideHeight)
+                        .submit()
+                        .get();
+               }
+            });
+   }
 }
