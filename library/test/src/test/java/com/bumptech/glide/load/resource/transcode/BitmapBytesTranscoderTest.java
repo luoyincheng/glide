@@ -19,62 +19,62 @@ import org.robolectric.annotation.Config;
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 18)
 public class BitmapBytesTranscoderTest {
-  private BitmapBytesTranscoderHarness harness;
+   private BitmapBytesTranscoderHarness harness;
 
-  @Before()
-  public void setUp() {
-    harness = new BitmapBytesTranscoderHarness();
-  }
+   @Before()
+   public void setUp() {
+      harness = new BitmapBytesTranscoderHarness();
+   }
 
-  @Test
-  public void testReturnsBytesOfGivenBitmap() {
-    assertThat(harness.getTranscodeResult()).isEqualTo(harness.getExpectedData());
-  }
-
-  @Test
-  public void testUsesGivenQuality() {
-    harness.quality = 66;
-    assertThat(harness.getTranscodeResult()).isEqualTo(harness.getExpectedData());
-  }
-
-  @Test
-  public void testUsesGivenFormat() {
-    for (Bitmap.CompressFormat format : Bitmap.CompressFormat.values()) {
-      harness.compressFormat = format;
+   @Test
+   public void testReturnsBytesOfGivenBitmap() {
       assertThat(harness.getTranscodeResult()).isEqualTo(harness.getExpectedData());
-    }
-  }
+   }
 
-  @Test
-  public void testBitmapResourceIsRecycled() {
-    harness.getTranscodeResult();
+   @Test
+   public void testUsesGivenQuality() {
+      harness.quality = 66;
+      assertThat(harness.getTranscodeResult()).isEqualTo(harness.getExpectedData());
+   }
 
-    verify(harness.bitmapResource).recycle();
-  }
+   @Test
+   public void testUsesGivenFormat() {
+      for (Bitmap.CompressFormat format : Bitmap.CompressFormat.values()) {
+         harness.compressFormat = format;
+         assertThat(harness.getTranscodeResult()).isEqualTo(harness.getExpectedData());
+      }
+   }
 
-  private static class BitmapBytesTranscoderHarness {
-    Bitmap.CompressFormat compressFormat = Bitmap.CompressFormat.JPEG;
-    int quality = 100;
-    final Bitmap bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ALPHA_8);
-    final Resource<Bitmap> bitmapResource = mockResource();
-    final Options options = new Options();
+   @Test
+   public void testBitmapResourceIsRecycled() {
+      harness.getTranscodeResult();
 
-    BitmapBytesTranscoderHarness() {
-      when(bitmapResource.get()).thenReturn(bitmap);
-    }
+      verify(harness.bitmapResource).recycle();
+   }
 
-    byte[] getTranscodeResult() {
-      BitmapBytesTranscoder transcoder = new BitmapBytesTranscoder(compressFormat, quality);
-      Resource<byte[]> bytesResource =
-          Preconditions.checkNotNull(transcoder.transcode(bitmapResource, options));
+   private static class BitmapBytesTranscoderHarness {
+      final Bitmap bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ALPHA_8);
+      final Resource<Bitmap> bitmapResource = mockResource();
+      final Options options = new Options();
+      Bitmap.CompressFormat compressFormat = Bitmap.CompressFormat.JPEG;
+      int quality = 100;
 
-      return bytesResource.get();
-    }
+      BitmapBytesTranscoderHarness() {
+         when(bitmapResource.get()).thenReturn(bitmap);
+      }
 
-    byte[] getExpectedData() {
-      ByteArrayOutputStream os = new ByteArrayOutputStream();
-      bitmap.compress(compressFormat, quality, os);
-      return os.toByteArray();
-    }
-  }
+      byte[] getTranscodeResult() {
+         BitmapBytesTranscoder transcoder = new BitmapBytesTranscoder(compressFormat, quality);
+         Resource<byte[]> bytesResource =
+               Preconditions.checkNotNull(transcoder.transcode(bitmapResource, options));
+
+         return bytesResource.get();
+      }
+
+      byte[] getExpectedData() {
+         ByteArrayOutputStream os = new ByteArrayOutputStream();
+         bitmap.compress(compressFormat, quality, os);
+         return os.toByteArray();
+      }
+   }
 }

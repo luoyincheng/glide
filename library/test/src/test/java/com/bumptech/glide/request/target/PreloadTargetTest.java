@@ -21,31 +21,31 @@ import org.robolectric.annotation.LooperMode;
 @Config(sdk = 18)
 public class PreloadTargetTest {
 
-  @Mock private RequestManager requestManager;
+   @Mock private RequestManager requestManager;
 
-  @Before
-  public void setUp() {
-    MockitoAnnotations.initMocks(this);
-  }
+   @Before
+   public void setUp() {
+      MockitoAnnotations.initMocks(this);
+   }
 
-  @Test
-  public void testCallsSizeReadyWithGivenDimensions() {
-    int width = 1234;
-    int height = 456;
-    PreloadTarget<Object> target = PreloadTarget.obtain(requestManager, width, height);
-    SizeReadyCallback cb = mock(SizeReadyCallback.class);
-    target.getSize(cb);
+   @Test
+   public void testCallsSizeReadyWithGivenDimensions() {
+      int width = 1234;
+      int height = 456;
+      PreloadTarget<Object> target = PreloadTarget.obtain(requestManager, width, height);
+      SizeReadyCallback cb = mock(SizeReadyCallback.class);
+      target.getSize(cb);
 
-    verify(cb).onSizeReady(eq(width), eq(height));
-  }
+      verify(cb).onSizeReady(eq(width), eq(height));
+   }
 
-  @Test
-  public void testClearsTargetInOnResourceReady() {
-    Request request = mock(Request.class);
-    PreloadTarget<Object> target = PreloadTarget.obtain(requestManager, 100, 100);
-    target.setRequest(request);
-    target.onResourceReady(new Object(), null);
+   @Test
+   public void testClearsTargetInOnResourceReady() {
+      Request request = mock(Request.class);
+      PreloadTarget<Object> target = PreloadTarget.obtain(requestManager, 100, 100);
+      target.setRequest(request);
+      target.onResourceReady(new Object(), null);
 
-    verify(requestManager).clear(eq(target));
-  }
+      verify(requestManager).clear(eq(target));
+   }
 }

@@ -20,53 +20,53 @@ import org.robolectric.annotation.Config;
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 18)
 public class DrawableCrossFadeViewAnimationTest {
-  private CrossFadeHarness harness;
+   private CrossFadeHarness harness;
 
-  @Before
-  public void setup() {
-    harness = new CrossFadeHarness();
-  }
+   @Before
+   public void setup() {
+      harness = new CrossFadeHarness();
+   }
 
-  @Test
-  public void testIgnoresNullViews() {
-    when(harness.adapter.getView()).thenReturn(null);
-    harness.animation.transition(harness.current, harness.adapter);
-  }
+   @Test
+   public void testIgnoresNullViews() {
+      when(harness.adapter.getView()).thenReturn(null);
+      harness.animation.transition(harness.current, harness.adapter);
+   }
 
-  @Test
-  public void transition_withNonNullPreviousDrawable_setsTransitionDrawable() {
-    Drawable previous = new ColorDrawable(Color.WHITE);
-    when(harness.adapter.getCurrentDrawable()).thenReturn(previous);
-    harness.animation.transition(harness.current, harness.adapter);
+   @Test
+   public void transition_withNonNullPreviousDrawable_setsTransitionDrawable() {
+      Drawable previous = new ColorDrawable(Color.WHITE);
+      when(harness.adapter.getCurrentDrawable()).thenReturn(previous);
+      harness.animation.transition(harness.current, harness.adapter);
 
-    verify(harness.adapter).setDrawable(any(TransitionDrawable.class));
-  }
+      verify(harness.adapter).setDrawable(any(TransitionDrawable.class));
+   }
 
-  @Test
-  public void transition_withNullPreviousDrawable_setsTransitionDrawable() {
-    harness.animation.transition(harness.current, harness.adapter);
+   @Test
+   public void transition_withNullPreviousDrawable_setsTransitionDrawable() {
+      harness.animation.transition(harness.current, harness.adapter);
 
-    verify(harness.adapter).setDrawable(any(TransitionDrawable.class));
-  }
+      verify(harness.adapter).setDrawable(any(TransitionDrawable.class));
+   }
 
-  @Test
-  public void transition_withNoCurrentDrawable_returnsTrue() {
-    assertTrue(harness.animation.transition(harness.current, harness.adapter));
-  }
+   @Test
+   public void transition_withNoCurrentDrawable_returnsTrue() {
+      assertTrue(harness.animation.transition(harness.current, harness.adapter));
+   }
 
-  @Test
-  public void transition_withCurrentDrawable_returnsTrue() {
-    Drawable previous = new ColorDrawable(Color.RED);
-    when(harness.adapter.getCurrentDrawable()).thenReturn(previous);
-    assertTrue(harness.animation.transition(harness.current, harness.adapter));
-  }
+   @Test
+   public void transition_withCurrentDrawable_returnsTrue() {
+      Drawable previous = new ColorDrawable(Color.RED);
+      when(harness.adapter.getCurrentDrawable()).thenReturn(previous);
+      assertTrue(harness.animation.transition(harness.current, harness.adapter));
+   }
 
-  @SuppressWarnings("unchecked")
-  private static class CrossFadeHarness {
-    final Drawable current = new ColorDrawable(Color.GRAY);
-    final ViewAdapter adapter = mock(ViewAdapter.class);
-    final int duration = 200;
-    final DrawableCrossFadeTransition animation =
-        new DrawableCrossFadeTransition(duration, true /*isCrossFadeEnabled*/);
-  }
+   @SuppressWarnings("unchecked")
+   private static class CrossFadeHarness {
+      final Drawable current = new ColorDrawable(Color.GRAY);
+      final ViewAdapter adapter = mock(ViewAdapter.class);
+      final int duration = 200;
+      final DrawableCrossFadeTransition animation =
+            new DrawableCrossFadeTransition(duration, true /*isCrossFadeEnabled*/);
+   }
 }

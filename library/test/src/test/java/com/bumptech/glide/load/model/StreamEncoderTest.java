@@ -19,32 +19,32 @@ import org.robolectric.annotation.Config;
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 18)
 public class StreamEncoderTest {
-  private StreamEncoder encoder;
-  private File file;
+   private StreamEncoder encoder;
+   private File file;
 
-  @Before
-  public void setUp() {
-    encoder = new StreamEncoder(new LruArrayPool());
-    file = new File(RuntimeEnvironment.application.getCacheDir(), "test");
-  }
+   @Before
+   public void setUp() {
+      encoder = new StreamEncoder(new LruArrayPool());
+      file = new File(RuntimeEnvironment.application.getCacheDir(), "test");
+   }
 
-  @After
-  public void tearDown() {
-    // GC before delete() to release files on Windows (https://stackoverflow.com/a/4213208/253468)
-    System.gc();
-    if (!file.delete()) {
-      throw new IllegalStateException("Failed to delete: " + file);
-    }
-  }
+   @After
+   public void tearDown() {
+      // GC before delete() to release files on Windows (https://stackoverflow.com/a/4213208/253468)
+      System.gc();
+      if (!file.delete()) {
+         throw new IllegalStateException("Failed to delete: " + file);
+      }
+   }
 
-  @Test
-  public void testWritesDataFromInputStreamToOutputStream() throws IOException {
-    String fakeData = "SomeRandomFakeData";
-    ByteArrayInputStream is = new ByteArrayInputStream(fakeData.getBytes("UTF-8"));
-    encoder.encode(is, file, new Options());
+   @Test
+   public void testWritesDataFromInputStreamToOutputStream() throws IOException {
+      String fakeData = "SomeRandomFakeData";
+      ByteArrayInputStream is = new ByteArrayInputStream(fakeData.getBytes("UTF-8"));
+      encoder.encode(is, file, new Options());
 
-    byte[] data = ByteBufferUtil.toBytes(ByteBufferUtil.fromFile(file));
+      byte[] data = ByteBufferUtil.toBytes(ByteBufferUtil.fromFile(file));
 
-    assertEquals(fakeData, new String(data, "UTF-8"));
-  }
+      assertEquals(fakeData, new String(data, "UTF-8"));
+   }
 }

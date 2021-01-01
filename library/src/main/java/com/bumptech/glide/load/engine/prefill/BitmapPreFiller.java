@@ -10,71 +10,70 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * A class for pre-filling {@link android.graphics.Bitmap Bitmaps} in a {@link
- * com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool}.
+ * A class for pre-filling {@link android.graphics.Bitmap Bitmaps} in a {@link com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool}.
  */
 public final class BitmapPreFiller {
 
-  private final MemoryCache memoryCache;
-  private final BitmapPool bitmapPool;
-  private final DecodeFormat defaultFormat;
+   private final MemoryCache memoryCache;
+   private final BitmapPool bitmapPool;
+   private final DecodeFormat defaultFormat;
 
-  private BitmapPreFillRunner current;
+   private BitmapPreFillRunner current;
 
-  public BitmapPreFiller(
-      MemoryCache memoryCache, BitmapPool bitmapPool, DecodeFormat defaultFormat) {
-    this.memoryCache = memoryCache;
-    this.bitmapPool = bitmapPool;
-    this.defaultFormat = defaultFormat;
-  }
+   public BitmapPreFiller(
+         MemoryCache memoryCache, BitmapPool bitmapPool, DecodeFormat defaultFormat) {
+      this.memoryCache = memoryCache;
+      this.bitmapPool = bitmapPool;
+      this.defaultFormat = defaultFormat;
+   }
 
-  @SuppressWarnings("deprecation")
-  public void preFill(PreFillType.Builder... bitmapAttributeBuilders) {
-    if (current != null) {
-      current.cancel();
-    }
+   private static int getSizeInBytes(PreFillType size) {
+      return Util.getBitmapByteSize(size.getWidth(), size.getHeight(), size.getConfig());
+   }
 
-    PreFillType[] bitmapAttributes = new PreFillType[bitmapAttributeBuilders.length];
-    for (int i = 0; i < bitmapAttributeBuilders.length; i++) {
-      PreFillType.Builder builder = bitmapAttributeBuilders[i];
-      if (builder.getConfig() == null) {
-        builder.setConfig(
-            defaultFormat == DecodeFormat.PREFER_ARGB_8888
-                ? Bitmap.Config.ARGB_8888
-                : Bitmap.Config.RGB_565);
+   @SuppressWarnings("deprecation")
+   public void preFill(PreFillType.Builder... bitmapAttributeBuilders) {
+      if (current != null) {
+         current.cancel();
       }
-      bitmapAttributes[i] = builder.build();
-    }
 
-    PreFillQueue allocationOrder = generateAllocationOrder(bitmapAttributes);
-    current = new BitmapPreFillRunner(bitmapPool, memoryCache, allocationOrder);
-    Util.postOnUiThread(current);
-  }
+      PreFillType[] bitmapAttributes = new PreFillType[bitmapAttributeBuilders.length];
+      for (int i = 0; i < bitmapAttributeBuilders.length; i++) {
+         PreFillType.Builder builder = bitmapAttributeBuilders[i];
+         if (builder.getConfig() == null) {
+            builder.setConfig(
+                  defaultFormat == DecodeFormat.PREFER_ARGB_8888
+                        ? Bitmap.Config.ARGB_8888
+                        : Bitmap.Config.RGB_565);
+         }
+         bitmapAttributes[i] = builder.build();
+      }
 
-  @VisibleForTesting
-  PreFillQueue generateAllocationOrder(PreFillType... preFillSizes) {
-    final long maxSize =
-        memoryCache.getMaxSize() - memoryCache.getCurrentSize() + bitmapPool.getMaxSize();
+      PreFillQueue allocationOrder = generateAllocationOrder(bitmapAttributes);
+      current = new BitmapPreFillRunner(bitmapPool, memoryCache, allocationOrder);
+      Util.postOnUiThread(current);
+   }
 
-    int totalWeight = 0;
-    for (PreFillType size : preFillSizes) {
-      totalWeight += size.getWeight();
-    }
+   @VisibleForTesting
+   PreFillQueue generateAllocationOrder(PreFillType... preFillSizes) {
+      final long maxSize =
+            memoryCache.getMaxSize() - memoryCache.getCurrentSize() + bitmapPool.getMaxSize();
 
-    final float bytesPerWeight = maxSize / (float) totalWeight;
+      int totalWeight = 0;
+      for (PreFillType size : preFillSizes) {
+         totalWeight += size.getWeight();
+      }
 
-    Map<PreFillType, Integer> attributeToCount = new HashMap<>();
-    for (PreFillType size : preFillSizes) {
-      int bytesForSize = Math.round(bytesPerWeight * size.getWeight());
-      int bytesPerBitmap = getSizeInBytes(size);
-      int bitmapsForSize = bytesForSize / bytesPerBitmap;
-      attributeToCount.put(size, bitmapsForSize);
-    }
+      final float bytesPerWeight = maxSize / (float) totalWeight;
 
-    return new PreFillQueue(attributeToCount);
-  }
+      Map<PreFillType, Integer> attributeToCount = new HashMap<>();
+      for (PreFillType size : preFillSizes) {
+         int bytesForSize = Math.round(bytesPerWeight * size.getWeight());
+         int bytesPerBitmap = getSizeInBytes(size);
+         int bitmapsForSize = bytesForSize / bytesPerBitmap;
+         attributeToCount.put(size, bitmapsForSize);
+      }
 
-  private static int getSizeInBytes(PreFillType size) {
-    return Util.getBitmapByteSize(size.getWidth(), size.getHeight(), size.getConfig());
-  }
+      return new PreFillQueue(attributeToCount);
+   }
 }

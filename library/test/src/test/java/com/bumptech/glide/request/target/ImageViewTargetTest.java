@@ -32,130 +32,130 @@ import org.robolectric.annotation.Config;
 @Config(sdk = 18)
 public class ImageViewTargetTest {
 
-  @Mock private AnimatedDrawable animatedDrawable;
-  private ImageView view;
-  private TestTarget target;
-  private ColorDrawable drawable;
+   @Mock private AnimatedDrawable animatedDrawable;
+   private ImageView view;
+   private TestTarget target;
+   private ColorDrawable drawable;
 
-  @Before
-  public void setUp() {
-    MockitoAnnotations.initMocks(this);
+   @Before
+   public void setUp() {
+      MockitoAnnotations.initMocks(this);
 
-    view = new ImageView(RuntimeEnvironment.application);
-    target = new TestTarget(view);
-    drawable = new ColorDrawable(Color.RED);
-  }
+      view = new ImageView(RuntimeEnvironment.application);
+      target = new TestTarget(view);
+      drawable = new ColorDrawable(Color.RED);
+   }
 
-  @Test
-  public void testReturnsCurrentDrawable() {
-    view.setImageDrawable(drawable);
+   @Test
+   public void testReturnsCurrentDrawable() {
+      view.setImageDrawable(drawable);
 
-    assertEquals(drawable, target.getCurrentDrawable());
-  }
+      assertEquals(drawable, target.getCurrentDrawable());
+   }
 
-  @Test
-  public void testSetsDrawableSetsDrawableOnView() {
-    target.setDrawable(drawable);
+   @Test
+   public void testSetsDrawableSetsDrawableOnView() {
+      target.setDrawable(drawable);
 
-    assertEquals(drawable, view.getDrawable());
-  }
+      assertEquals(drawable, view.getDrawable());
+   }
 
-  @Test
-  public void testSetsDrawableOnLoadStarted() {
-    target.onLoadStarted(drawable);
+   @Test
+   public void testSetsDrawableOnLoadStarted() {
+      target.onLoadStarted(drawable);
 
-    assertEquals(drawable, view.getDrawable());
-  }
+      assertEquals(drawable, view.getDrawable());
+   }
 
-  @Test
-  public void testSetDrawableOnLoadFailed() {
-    target.onLoadFailed(drawable);
+   @Test
+   public void testSetDrawableOnLoadFailed() {
+      target.onLoadFailed(drawable);
 
-    assertEquals(drawable, view.getDrawable());
-  }
+      assertEquals(drawable, view.getDrawable());
+   }
 
-  @Test
-  public void testSetsDrawableOnLoadCleared() {
-    target.onLoadCleared(drawable);
+   @Test
+   public void testSetsDrawableOnLoadCleared() {
+      target.onLoadCleared(drawable);
 
-    assertEquals(drawable, view.getDrawable());
-  }
+      assertEquals(drawable, view.getDrawable());
+   }
 
-  @Test
-  public void testSetsDrawableOnViewInOnResourceReadyWhenAnimationReturnsFalse() {
-    @SuppressWarnings("unchecked")
-    Transition<Drawable> animation = mock(Transition.class);
-    when(animation.transition(any(Drawable.class), eq(target))).thenReturn(false);
-    Drawable resource = new ColorDrawable(Color.GRAY);
-    target.onResourceReady(resource, animation);
+   @Test
+   public void testSetsDrawableOnViewInOnResourceReadyWhenAnimationReturnsFalse() {
+      @SuppressWarnings("unchecked")
+      Transition<Drawable> animation = mock(Transition.class);
+      when(animation.transition(any(Drawable.class), eq(target))).thenReturn(false);
+      Drawable resource = new ColorDrawable(Color.GRAY);
+      target.onResourceReady(resource, animation);
 
-    assertEquals(resource, target.resource);
-  }
+      assertEquals(resource, target.resource);
+   }
 
-  @Test
-  public void testDoesNotSetDrawableOnViewInOnResourceReadyWhenAnimationReturnsTrue() {
-    Drawable resource = new ColorDrawable(Color.RED);
-    @SuppressWarnings("unchecked")
-    Transition<Drawable> animation = mock(Transition.class);
-    when(animation.transition(eq(resource), eq(target))).thenReturn(true);
-    target.onResourceReady(resource, animation);
+   @Test
+   public void testDoesNotSetDrawableOnViewInOnResourceReadyWhenAnimationReturnsTrue() {
+      Drawable resource = new ColorDrawable(Color.RED);
+      @SuppressWarnings("unchecked")
+      Transition<Drawable> animation = mock(Transition.class);
+      when(animation.transition(eq(resource), eq(target))).thenReturn(true);
+      target.onResourceReady(resource, animation);
 
-    assertNull(target.resource);
-  }
+      assertNull(target.resource);
+   }
 
-  @Test
-  public void testProvidesCurrentPlaceholderToAnimationIfPresent() {
-    Drawable placeholder = new ColorDrawable(Color.BLACK);
-    view.setImageDrawable(placeholder);
+   @Test
+   public void testProvidesCurrentPlaceholderToAnimationIfPresent() {
+      Drawable placeholder = new ColorDrawable(Color.BLACK);
+      view.setImageDrawable(placeholder);
 
-    @SuppressWarnings("unchecked")
-    Transition<Drawable> animation = mock(Transition.class);
+      @SuppressWarnings("unchecked")
+      Transition<Drawable> animation = mock(Transition.class);
 
-    target.onResourceReady(new ColorDrawable(Color.GREEN), animation);
+      target.onResourceReady(new ColorDrawable(Color.GREEN), animation);
 
-    ArgumentCaptor<Drawable> drawableCaptor = ArgumentCaptor.forClass(Drawable.class);
-    verify(animation).transition(drawableCaptor.capture(), eq(target));
-    assertThat(((ColorDrawable) drawableCaptor.getValue()).getColor()).isEqualTo(Color.GREEN);
-  }
+      ArgumentCaptor<Drawable> drawableCaptor = ArgumentCaptor.forClass(Drawable.class);
+      verify(animation).transition(drawableCaptor.capture(), eq(target));
+      assertThat(((ColorDrawable) drawableCaptor.getValue()).getColor()).isEqualTo(Color.GREEN);
+   }
 
-  @Test
-  public void onResourceReady_withAnimatableResource_startsAnimatableAfterSetResource() {
-    AnimatedDrawable drawable = mock(AnimatedDrawable.class);
-    ImageView view = mock(ImageView.class);
-    target = new TestTarget(view);
-    target.onResourceReady(drawable, /*transition=*/ null);
+   @Test
+   public void onResourceReady_withAnimatableResource_startsAnimatableAfterSetResource() {
+      AnimatedDrawable drawable = mock(AnimatedDrawable.class);
+      ImageView view = mock(ImageView.class);
+      target = new TestTarget(view);
+      target.onResourceReady(drawable, /*transition=*/ null);
 
-    InOrder order = inOrder(view, drawable);
-    order.verify(view).setImageDrawable(drawable);
-    order.verify(drawable).start();
-  }
+      InOrder order = inOrder(view, drawable);
+      order.verify(view).setImageDrawable(drawable);
+      order.verify(drawable).start();
+   }
 
-  @Test
-  public void onLoadCleared_withAnimatableDrawable_stopsDrawable() {
-    target.onResourceReady(animatedDrawable, /*transition=*/ null);
-    verify(animatedDrawable).start();
-    verify(animatedDrawable, never()).stop();
+   @Test
+   public void onLoadCleared_withAnimatableDrawable_stopsDrawable() {
+      target.onResourceReady(animatedDrawable, /*transition=*/ null);
+      verify(animatedDrawable).start();
+      verify(animatedDrawable, never()).stop();
 
-    target.onLoadCleared(/*placeholder=*/ null);
+      target.onLoadCleared(/*placeholder=*/ null);
 
-    verify(animatedDrawable).stop();
-  }
+      verify(animatedDrawable).stop();
+   }
 
-  private abstract static class AnimatedDrawable extends Drawable implements Animatable {
-    // Intentionally empty.
-  }
+   private abstract static class AnimatedDrawable extends Drawable implements Animatable {
+      // Intentionally empty.
+   }
 
-  private static final class TestTarget extends ImageViewTarget<Drawable> {
-    public Drawable resource;
+   private static final class TestTarget extends ImageViewTarget<Drawable> {
+      public Drawable resource;
 
-    TestTarget(ImageView view) {
-      super(view);
-    }
+      TestTarget(ImageView view) {
+         super(view);
+      }
 
-    @Override
-    protected void setResource(Drawable resource) {
-      this.resource = resource;
-      view.setImageDrawable(resource);
-    }
-  }
+      @Override
+      protected void setResource(Drawable resource) {
+         this.resource = resource;
+         view.setImageDrawable(resource);
+      }
+   }
 }

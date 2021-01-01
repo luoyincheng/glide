@@ -11,16 +11,16 @@ import org.robolectric.shadows.ShadowLegacyLooper;
 
 @Implements(Looper.class)
 public class GlideShadowLooper extends ShadowLegacyLooper {
-  public static MessageQueue queue = mock(MessageQueue.class);
+   public static MessageQueue queue = mock(MessageQueue.class);
 
-  @Implementation
-  public static MessageQueue myQueue() {
-    return queue;
-  }
+   @Implementation
+   public static MessageQueue myQueue() {
+      return queue;
+   }
 
-  @Resetter
-  @Override
-  public void reset() {
-    queue = mock(MessageQueue.class);
-  }
+   @Resetter
+   @Override
+   public void reset() {
+      queue = mock(MessageQueue.class);
+   }
 }

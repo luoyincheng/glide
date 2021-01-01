@@ -19,47 +19,47 @@ import org.robolectric.annotation.Config;
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 18)
 public class BitmapDrawableResourceTest {
-  private BitmapDrawableResourceHarness harness;
+   private BitmapDrawableResourceHarness harness;
 
-  @Before
-  public void setUp() {
-    harness = new BitmapDrawableResourceHarness();
-  }
+   @Before
+   public void setUp() {
+      harness = new BitmapDrawableResourceHarness();
+   }
 
-  @Test
-  public void testReturnsGivenBitmapFromGet() {
-    assertEquals(harness.bitmap, harness.create().get().getBitmap());
-  }
+   @Test
+   public void testReturnsGivenBitmapFromGet() {
+      assertEquals(harness.bitmap, harness.create().get().getBitmap());
+   }
 
-  @Test
-  public void testReturnsDifferentDrawableEachTime() {
-    BitmapDrawableResource resource = harness.create();
-    BitmapDrawable first = resource.get();
-    BitmapDrawable second = resource.get();
+   @Test
+   public void testReturnsDifferentDrawableEachTime() {
+      BitmapDrawableResource resource = harness.create();
+      BitmapDrawable first = resource.get();
+      BitmapDrawable second = resource.get();
 
-    assertNotSame(first, second);
-  }
+      assertNotSame(first, second);
+   }
 
-  @Test
-  public void testReturnsSizeFromGivenBitmap() {
-    assertEquals(
-        harness.bitmap.getHeight() * harness.bitmap.getRowBytes(), harness.create().getSize());
-  }
+   @Test
+   public void testReturnsSizeFromGivenBitmap() {
+      assertEquals(
+            harness.bitmap.getHeight() * harness.bitmap.getRowBytes(), harness.create().getSize());
+   }
 
-  @Test
-  public void testBitmapIsReturnedToPoolOnRecycle() {
-    harness.create().recycle();
+   @Test
+   public void testBitmapIsReturnedToPoolOnRecycle() {
+      harness.create().recycle();
 
-    verify(harness.bitmapPool).put(eq(harness.bitmap));
-  }
+      verify(harness.bitmapPool).put(eq(harness.bitmap));
+   }
 
-  private static class BitmapDrawableResourceHarness {
-    final BitmapPool bitmapPool = mock(BitmapPool.class);
-    final Bitmap bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888);
+   private static class BitmapDrawableResourceHarness {
+      final BitmapPool bitmapPool = mock(BitmapPool.class);
+      final Bitmap bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888);
 
-    BitmapDrawableResource create() {
-      return new BitmapDrawableResource(
-          new BitmapDrawable(RuntimeEnvironment.application.getResources(), bitmap), bitmapPool);
-    }
-  }
+      BitmapDrawableResource create() {
+         return new BitmapDrawableResource(
+               new BitmapDrawable(RuntimeEnvironment.application.getResources(), bitmap), bitmapPool);
+      }
+   }
 }

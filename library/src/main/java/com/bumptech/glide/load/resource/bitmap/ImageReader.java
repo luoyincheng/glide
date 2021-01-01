@@ -18,91 +18,90 @@ import java.io.InputStream;
 import java.util.List;
 
 /**
- * This is a helper class for {@link Downsampler} that abstracts out image operations from the input
- * type wrapped into a {@link DataRewinder}.
+ * This is a helper class for {@link Downsampler} that abstracts out image operations from the input type wrapped into a {@link DataRewinder}.
  */
 interface ImageReader {
-  @Nullable
-  Bitmap decodeBitmap(BitmapFactory.Options options) throws IOException;
+   @Nullable
+   Bitmap decodeBitmap(BitmapFactory.Options options) throws IOException;
 
-  ImageHeaderParser.ImageType getImageType() throws IOException;
+   ImageHeaderParser.ImageType getImageType() throws IOException;
 
-  int getImageOrientation() throws IOException;
+   int getImageOrientation() throws IOException;
 
-  void stopGrowingBuffers();
+   void stopGrowingBuffers();
 
-  final class InputStreamImageReader implements ImageReader {
-    private final InputStreamRewinder dataRewinder;
-    private final ArrayPool byteArrayPool;
-    private final List<ImageHeaderParser> parsers;
+   final class InputStreamImageReader implements ImageReader {
+      private final InputStreamRewinder dataRewinder;
+      private final ArrayPool byteArrayPool;
+      private final List<ImageHeaderParser> parsers;
 
-    InputStreamImageReader(
-        InputStream is, List<ImageHeaderParser> parsers, ArrayPool byteArrayPool) {
-      this.byteArrayPool = Preconditions.checkNotNull(byteArrayPool);
-      this.parsers = Preconditions.checkNotNull(parsers);
+      InputStreamImageReader(
+            InputStream is, List<ImageHeaderParser> parsers, ArrayPool byteArrayPool) {
+         this.byteArrayPool = Preconditions.checkNotNull(byteArrayPool);
+         this.parsers = Preconditions.checkNotNull(parsers);
 
-      dataRewinder = new InputStreamRewinder(is, byteArrayPool);
-    }
+         dataRewinder = new InputStreamRewinder(is, byteArrayPool);
+      }
 
-    @Nullable
-    @Override
-    public Bitmap decodeBitmap(BitmapFactory.Options options) throws IOException {
-      return BitmapFactory.decodeStream(dataRewinder.rewindAndGet(), null, options);
-    }
+      @Nullable
+      @Override
+      public Bitmap decodeBitmap(BitmapFactory.Options options) throws IOException {
+         return BitmapFactory.decodeStream(dataRewinder.rewindAndGet(), null, options);
+      }
 
-    @Override
-    public ImageHeaderParser.ImageType getImageType() throws IOException {
-      return ImageHeaderParserUtils.getType(parsers, dataRewinder.rewindAndGet(), byteArrayPool);
-    }
+      @Override
+      public ImageHeaderParser.ImageType getImageType() throws IOException {
+         return ImageHeaderParserUtils.getType(parsers, dataRewinder.rewindAndGet(), byteArrayPool);
+      }
 
-    @Override
-    public int getImageOrientation() throws IOException {
-      return ImageHeaderParserUtils.getOrientation(
-          parsers, dataRewinder.rewindAndGet(), byteArrayPool);
-    }
+      @Override
+      public int getImageOrientation() throws IOException {
+         return ImageHeaderParserUtils.getOrientation(
+               parsers, dataRewinder.rewindAndGet(), byteArrayPool);
+      }
 
-    @Override
-    public void stopGrowingBuffers() {
-      dataRewinder.fixMarkLimits();
-    }
-  }
+      @Override
+      public void stopGrowingBuffers() {
+         dataRewinder.fixMarkLimits();
+      }
+   }
 
-  @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-  final class ParcelFileDescriptorImageReader implements ImageReader {
-    private final ArrayPool byteArrayPool;
-    private final List<ImageHeaderParser> parsers;
-    private final ParcelFileDescriptorRewinder dataRewinder;
+   @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+   final class ParcelFileDescriptorImageReader implements ImageReader {
+      private final ArrayPool byteArrayPool;
+      private final List<ImageHeaderParser> parsers;
+      private final ParcelFileDescriptorRewinder dataRewinder;
 
-    ParcelFileDescriptorImageReader(
-        ParcelFileDescriptor parcelFileDescriptor,
-        List<ImageHeaderParser> parsers,
-        ArrayPool byteArrayPool) {
-      this.byteArrayPool = Preconditions.checkNotNull(byteArrayPool);
-      this.parsers = Preconditions.checkNotNull(parsers);
+      ParcelFileDescriptorImageReader(
+            ParcelFileDescriptor parcelFileDescriptor,
+            List<ImageHeaderParser> parsers,
+            ArrayPool byteArrayPool) {
+         this.byteArrayPool = Preconditions.checkNotNull(byteArrayPool);
+         this.parsers = Preconditions.checkNotNull(parsers);
 
-      dataRewinder = new ParcelFileDescriptorRewinder(parcelFileDescriptor);
-    }
+         dataRewinder = new ParcelFileDescriptorRewinder(parcelFileDescriptor);
+      }
 
-    @Nullable
-    @Override
-    public Bitmap decodeBitmap(BitmapFactory.Options options) throws IOException {
-      return BitmapFactory.decodeFileDescriptor(
-          dataRewinder.rewindAndGet().getFileDescriptor(), null, options);
-    }
+      @Nullable
+      @Override
+      public Bitmap decodeBitmap(BitmapFactory.Options options) throws IOException {
+         return BitmapFactory.decodeFileDescriptor(
+               dataRewinder.rewindAndGet().getFileDescriptor(), null, options);
+      }
 
-    @Override
-    public ImageHeaderParser.ImageType getImageType() throws IOException {
-      return ImageHeaderParserUtils.getType(parsers, dataRewinder, byteArrayPool);
-    }
+      @Override
+      public ImageHeaderParser.ImageType getImageType() throws IOException {
+         return ImageHeaderParserUtils.getType(parsers, dataRewinder, byteArrayPool);
+      }
 
-    @Override
-    public int getImageOrientation() throws IOException {
-      return ImageHeaderParserUtils.getOrientation(parsers, dataRewinder, byteArrayPool);
-    }
+      @Override
+      public int getImageOrientation() throws IOException {
+         return ImageHeaderParserUtils.getOrientation(parsers, dataRewinder, byteArrayPool);
+      }
 
-    @Override
-    public void stopGrowingBuffers() {
-      // Nothing to do here.
-    }
-  }
+      @Override
+      public void stopGrowingBuffers() {
+         // Nothing to do here.
+      }
+   }
 }

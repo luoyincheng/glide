@@ -20,47 +20,47 @@ import org.robolectric.RuntimeEnvironment;
 
 @RunWith(RobolectricTestRunner.class)
 public class ViewTransitionAnimationFactoryTest {
-  private ViewTransition.ViewTransitionAnimationFactory viewTransitionAnimationFactory;
-  private ViewAnimationFactory<Object> factory;
+   private ViewTransition.ViewTransitionAnimationFactory viewTransitionAnimationFactory;
+   private ViewAnimationFactory<Object> factory;
 
-  @Before
-  public void setUp() {
-    viewTransitionAnimationFactory = mock(ViewTransition.ViewTransitionAnimationFactory.class);
-    factory = new ViewAnimationFactory<>(viewTransitionAnimationFactory);
-  }
+   private static Context anyContextOrNull() {
+      return any();
+   }
 
-  @Test
-  public void testFactoryReturnsNoAnimationIfFromMemoryCache() {
-    Transition<Object> animation = factory.build(DataSource.MEMORY_CACHE, true /*isFirstResource*/);
-    assertEquals(NoTransition.get(), animation);
-    verify(viewTransitionAnimationFactory, never()).build(RuntimeEnvironment.application);
-  }
+   @Before
+   public void setUp() {
+      viewTransitionAnimationFactory = mock(ViewTransition.ViewTransitionAnimationFactory.class);
+      factory = new ViewAnimationFactory<>(viewTransitionAnimationFactory);
+   }
 
-  @Test
-  public void testFactoryReturnsNoAnimationIfNotFirstResource() {
-    Transition<Object> animation =
-        factory.build(DataSource.DATA_DISK_CACHE, false /*isFirstResource*/);
-    assertEquals(NoTransition.get(), animation);
-    verify(viewTransitionAnimationFactory, never()).build(RuntimeEnvironment.application);
-  }
+   @Test
+   public void testFactoryReturnsNoAnimationIfFromMemoryCache() {
+      Transition<Object> animation = factory.build(DataSource.MEMORY_CACHE, true /*isFirstResource*/);
+      assertEquals(NoTransition.get(), animation);
+      verify(viewTransitionAnimationFactory, never()).build(RuntimeEnvironment.application);
+   }
 
-  @Test
-  public void testFactoryReturnsActualAnimationIfNotIsFromMemoryCacheAndIsFirstResource() {
-    Transition<Object> transition =
-        factory.build(DataSource.DATA_DISK_CACHE, true /*isFirstResource*/);
+   @Test
+   public void testFactoryReturnsNoAnimationIfNotFirstResource() {
+      Transition<Object> animation =
+            factory.build(DataSource.DATA_DISK_CACHE, false /*isFirstResource*/);
+      assertEquals(NoTransition.get(), animation);
+      verify(viewTransitionAnimationFactory, never()).build(RuntimeEnvironment.application);
+   }
 
-    Animation animation = mock(Animation.class);
-    when(viewTransitionAnimationFactory.build(anyContextOrNull())).thenReturn(animation);
+   @Test
+   public void testFactoryReturnsActualAnimationIfNotIsFromMemoryCacheAndIsFirstResource() {
+      Transition<Object> transition =
+            factory.build(DataSource.DATA_DISK_CACHE, true /*isFirstResource*/);
 
-    Transition.ViewAdapter adapter = mock(Transition.ViewAdapter.class);
-    View view = mock(View.class);
-    when(adapter.getView()).thenReturn(view);
-    transition.transition(new Object(), adapter);
+      Animation animation = mock(Animation.class);
+      when(viewTransitionAnimationFactory.build(anyContextOrNull())).thenReturn(animation);
 
-    verify(view).startAnimation(eq(animation));
-  }
+      Transition.ViewAdapter adapter = mock(Transition.ViewAdapter.class);
+      View view = mock(View.class);
+      when(adapter.getView()).thenReturn(view);
+      transition.transition(new Object(), adapter);
 
-  private static Context anyContextOrNull() {
-    return any();
-  }
+      verify(view).startAnimation(eq(animation));
+   }
 }

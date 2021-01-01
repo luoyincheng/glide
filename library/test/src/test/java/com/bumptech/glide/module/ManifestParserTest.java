@@ -26,127 +26,127 @@ import org.robolectric.annotation.Config;
 @Config(sdk = 18)
 @SuppressWarnings("deprecation")
 public class ManifestParserTest {
-  private static final String MODULE_VALUE = "GlideModule";
+   private static final String MODULE_VALUE = "GlideModule";
 
-  @Mock private Context context;
-  private ManifestParser parser;
-  private ApplicationInfo applicationInfo;
+   @Mock private Context context;
+   private ManifestParser parser;
+   private ApplicationInfo applicationInfo;
 
-  @Before
-  public void setUp() throws PackageManager.NameNotFoundException {
-    MockitoAnnotations.initMocks(this);
-    applicationInfo = new ApplicationInfo();
-    applicationInfo.metaData = new Bundle();
+   @Before
+   public void setUp() throws PackageManager.NameNotFoundException {
+      MockitoAnnotations.initMocks(this);
+      applicationInfo = new ApplicationInfo();
+      applicationInfo.metaData = new Bundle();
 
-    String packageName = "com.bumptech.test";
-    when(context.getPackageName()).thenReturn(packageName);
+      String packageName = "com.bumptech.test";
+      when(context.getPackageName()).thenReturn(packageName);
 
-    PackageManager pm = mock(PackageManager.class);
-    when(pm.getApplicationInfo(eq(packageName), eq(PackageManager.GET_META_DATA)))
-        .thenReturn(applicationInfo);
-    when(context.getPackageManager()).thenReturn(pm);
+      PackageManager pm = mock(PackageManager.class);
+      when(pm.getApplicationInfo(eq(packageName), eq(PackageManager.GET_META_DATA)))
+            .thenReturn(applicationInfo);
+      when(context.getPackageManager()).thenReturn(pm);
 
-    parser = new ManifestParser(context);
-  }
+      parser = new ManifestParser(context);
+   }
 
-  @Test
-  public void testParse_returnsEmptyListIfNoModulesListed() {
-    assertThat(parser.parse()).isEmpty();
-  }
+   @Test
+   public void testParse_returnsEmptyListIfNoModulesListed() {
+      assertThat(parser.parse()).isEmpty();
+   }
 
-  @Test
-  public void testParse_withSingleValidModuleName_returnsListContainingModule() {
-    addModuleToManifest(TestModule1.class);
+   @Test
+   public void testParse_withSingleValidModuleName_returnsListContainingModule() {
+      addModuleToManifest(TestModule1.class);
 
-    List<GlideModule> modules = parser.parse();
-    assertThat(modules).hasSize(1);
-    assertThat(modules.get(0)).isInstanceOf(TestModule1.class);
-  }
+      List<GlideModule> modules = parser.parse();
+      assertThat(modules).hasSize(1);
+      assertThat(modules.get(0)).isInstanceOf(TestModule1.class);
+   }
 
-  @Test
-  public void testParse_withMultipleValidModuleNames_returnsListContainingModules() {
-    addModuleToManifest(TestModule1.class);
-    addModuleToManifest(TestModule2.class);
+   @Test
+   public void testParse_withMultipleValidModuleNames_returnsListContainingModules() {
+      addModuleToManifest(TestModule1.class);
+      addModuleToManifest(TestModule2.class);
 
-    List<GlideModule> modules = parser.parse();
-    assertThat(modules).hasSize(2);
+      List<GlideModule> modules = parser.parse();
+      assertThat(modules).hasSize(2);
 
-    assertThat(modules).contains(new TestModule1());
-    assertThat(modules).contains(new TestModule2());
-  }
+      assertThat(modules).contains(new TestModule1());
+      assertThat(modules).contains(new TestModule2());
+   }
 
-  @Test
-  public void testParse_withValidModuleName_ignoresMetadataWithoutGlideModuleValue() {
-    applicationInfo.metaData.putString(TestModule1.class.getName(), MODULE_VALUE + "test");
+   @Test
+   public void testParse_withValidModuleName_ignoresMetadataWithoutGlideModuleValue() {
+      applicationInfo.metaData.putString(TestModule1.class.getName(), MODULE_VALUE + "test");
 
-    assertThat(parser.parse()).isEmpty();
-  }
+      assertThat(parser.parse()).isEmpty();
+   }
 
-  @Test(expected = RuntimeException.class)
-  public void testThrows_whenModuleNameNotFound() {
-    addToManifest("fakeClassName");
+   @Test(expected = RuntimeException.class)
+   public void testThrows_whenModuleNameNotFound() {
+      addToManifest("fakeClassName");
 
-    parser.parse();
-  }
+      parser.parse();
+   }
 
-  @Test(expected = RuntimeException.class)
-  public void testThrows_whenClassInManifestIsNotAModule() {
-    addModuleToManifest(InvalidClass.class);
+   @Test(expected = RuntimeException.class)
+   public void testThrows_whenClassInManifestIsNotAModule() {
+      addModuleToManifest(InvalidClass.class);
 
-    parser.parse();
-  }
+      parser.parse();
+   }
 
-  @Test(expected = RuntimeException.class)
-  public void testThrows_whenPackageNameNotFound() {
-    when(context.getPackageName()).thenReturn("fakePackageName");
+   @Test(expected = RuntimeException.class)
+   public void testThrows_whenPackageNameNotFound() {
+      when(context.getPackageName()).thenReturn("fakePackageName");
 
-    parser.parse();
-  }
+      parser.parse();
+   }
 
-  private void addModuleToManifest(Class<?> moduleClass) {
-    addToManifest(moduleClass.getName());
-  }
+   private void addModuleToManifest(Class<?> moduleClass) {
+      addToManifest(moduleClass.getName());
+   }
 
-  private void addToManifest(String key) {
-    applicationInfo.metaData.putString(key, MODULE_VALUE);
-  }
+   private void addToManifest(String key) {
+      applicationInfo.metaData.putString(key, MODULE_VALUE);
+   }
 
-  private static class InvalidClass {}
+   private static class InvalidClass {}
 
-  public static class TestModule1 implements GlideModule {
-    @Override
-    public void applyOptions(@NonNull Context context, @NonNull GlideBuilder builder) {}
+   public static class TestModule1 implements GlideModule {
+      @Override
+      public void applyOptions(@NonNull Context context, @NonNull GlideBuilder builder) {}
 
-    @Override
-    public void registerComponents(Context context, Glide glide, Registry registry) {}
+      @Override
+      public void registerComponents(Context context, Glide glide, Registry registry) {}
 
-    @Override
-    public boolean equals(Object o) {
-      return o instanceof TestModule1;
-    }
+      @Override
+      public boolean equals(Object o) {
+         return o instanceof TestModule1;
+      }
 
-    @Override
-    public int hashCode() {
-      return super.hashCode();
-    }
-  }
+      @Override
+      public int hashCode() {
+         return super.hashCode();
+      }
+   }
 
-  public static class TestModule2 implements GlideModule {
+   public static class TestModule2 implements GlideModule {
 
-    @Override
-    public void applyOptions(@NonNull Context context, @NonNull GlideBuilder builder) {}
+      @Override
+      public void applyOptions(@NonNull Context context, @NonNull GlideBuilder builder) {}
 
-    @Override
-    public void registerComponents(Context context, Glide glide, Registry registry) {}
+      @Override
+      public void registerComponents(Context context, Glide glide, Registry registry) {}
 
-    @Override
-    public boolean equals(Object o) {
-      return o instanceof TestModule2;
-    }
+      @Override
+      public boolean equals(Object o) {
+         return o instanceof TestModule2;
+      }
 
-    @Override
-    public int hashCode() {
-      return super.hashCode();
-    }
-  }
+      @Override
+      public int hashCode() {
+         return super.hashCode();
+      }
+   }
 }

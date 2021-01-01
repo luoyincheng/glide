@@ -6,8 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Indicates the subdirectory for a particular test that contains the test resource(s) used for the
- * method.
+ * Indicates the subdirectory for a particular test that contains the test resource(s) used for the method.
  *
  * <p>Used both by tests to extract the correct subdirectory and by the {@link
  * RegenerateResourcesRule} for the same purpose.
@@ -15,5 +14,5 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface SubDirectory {
-  String value();
+   String value();
 }

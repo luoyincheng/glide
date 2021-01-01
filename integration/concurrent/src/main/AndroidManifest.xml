@@ -1,6 +1,4 @@
-<manifest
-  package="com.bumptech.glide.integration.concurrent">
+<manifest package="com.bumptech.glide.integration.concurrent">
 
-    <application>
-    </application>
+   <application></application>
 </manifest>

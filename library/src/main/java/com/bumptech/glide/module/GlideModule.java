@@ -3,8 +3,7 @@ package com.bumptech.glide.module;
 import com.bumptech.glide.Registry;
 
 /**
- * An interface allowing lazy configuration of Glide including setting options using {@link
- * com.bumptech.glide.GlideBuilder} and registering {@link com.bumptech.glide.load.model.ModelLoader
+ * An interface allowing lazy configuration of Glide including setting options using {@link com.bumptech.glide.GlideBuilder} and registering {@link com.bumptech.glide.load.model.ModelLoader
  * ModelLoaders}.
  *
  * <p>To use this interface:
@@ -49,8 +48,7 @@ import com.bumptech.glide.Registry;
  * have conflicting modules, the application should consider avoiding the library modules and
  * instead providing their required dependencies in a single application module.
  *
- * @deprecated Libraries should use {@link LibraryGlideModule} and Applications should use {@link
- *     AppGlideModule}.
+ * @deprecated Libraries should use {@link LibraryGlideModule} and Applications should use {@link AppGlideModule}.
  */
 @Deprecated
 public interface GlideModule extends RegistersComponents, AppliesOptions {}

@@ -42,112 +42,111 @@ import org.mockito.MockitoAnnotations;
 @RunWith(AndroidJUnit4.class)
 public class ErrorHandlingTest {
 
-  @Rule public TearDownGlide tearDownGlide = new TearDownGlide();
-  @Mock private RequestListener<Drawable> requestListener;
-  private final ConcurrencyHelper concurrency = new ConcurrencyHelper();
+   private final ConcurrencyHelper concurrency = new ConcurrencyHelper();
+   @Rule public TearDownGlide tearDownGlide = new TearDownGlide();
+   @Mock private RequestListener<Drawable> requestListener;
+   private Context context;
 
-  private Context context;
+   @Before
+   public void setUp() {
+      MockitoAnnotations.initMocks(this);
+      context = ApplicationProvider.getApplicationContext();
+   }
 
-  @Before
-  public void setUp() {
-    MockitoAnnotations.initMocks(this);
-    context = ApplicationProvider.getApplicationContext();
-  }
+   // ResourceEncoders are expected not to throw and to return true or false. If they do throw, it's
+   // a developer error, so we expect UncaughtThrowableStrategy to be called.
+   @Test
+   public void load_whenEncoderFails_callsUncaughtThrowableStrategy() {
+      WaitForErrorStrategy strategy = new WaitForErrorStrategy();
+      Glide.init(
+            context,
+            new GlideBuilder()
+                  .setAnimationExecutor(GlideExecutor.newAnimationExecutor(/*threadCount=*/ 1, strategy))
+                  .setSourceExecutor(GlideExecutor.newSourceExecutor(strategy))
+                  .setDiskCacheExecutor(GlideExecutor.newDiskCacheExecutor(strategy)));
+      Glide.get(context).getRegistry().prepend(Bitmap.class, new FailEncoder());
 
-  // ResourceEncoders are expected not to throw and to return true or false. If they do throw, it's
-  // a developer error, so we expect UncaughtThrowableStrategy to be called.
-  @Test
-  public void load_whenEncoderFails_callsUncaughtThrowableStrategy() {
-    WaitForErrorStrategy strategy = new WaitForErrorStrategy();
-    Glide.init(
-        context,
-        new GlideBuilder()
-            .setAnimationExecutor(GlideExecutor.newAnimationExecutor(/*threadCount=*/ 1, strategy))
-            .setSourceExecutor(GlideExecutor.newSourceExecutor(strategy))
-            .setDiskCacheExecutor(GlideExecutor.newDiskCacheExecutor(strategy)));
-    Glide.get(context).getRegistry().prepend(Bitmap.class, new FailEncoder());
+      concurrency.get(
+            Glide.with(context).load(ResourceIds.raw.canonical).listener(requestListener).submit());
 
-    concurrency.get(
-        Glide.with(context).load(ResourceIds.raw.canonical).listener(requestListener).submit());
+      // Writing to the disk cache and therefore the exception caused by our FailEncoder may happen
+      // after the request completes, so we should wait for the expected error explicitly.
+      ConcurrencyHelper.waitOnLatch(strategy.latch);
+      assertThat(strategy.error).isEqualTo(FailEncoder.TO_THROW);
 
-    // Writing to the disk cache and therefore the exception caused by our FailEncoder may happen
-    // after the request completes, so we should wait for the expected error explicitly.
-    ConcurrencyHelper.waitOnLatch(strategy.latch);
-    assertThat(strategy.error).isEqualTo(FailEncoder.TO_THROW);
+      verify(requestListener, never())
+            .onLoadFailed(any(GlideException.class), any(), anyDrawableTarget(), anyBoolean());
+   }
 
-    verify(requestListener, never())
-        .onLoadFailed(any(GlideException.class), any(), anyDrawableTarget(), anyBoolean());
-  }
+   @Test
+   public void load_whenLoadSucceeds_butEncoderFails_doesNotCallOnLoadFailed() {
+      WaitForErrorStrategy strategy = new WaitForErrorStrategy();
+      Glide.init(
+            context,
+            new GlideBuilder()
+                  .setAnimationExecutor(GlideExecutor.newAnimationExecutor(/*threadCount=*/ 1, strategy))
+                  .setSourceExecutor(GlideExecutor.newSourceExecutor(strategy))
+                  .setDiskCacheExecutor(GlideExecutor.newDiskCacheExecutor(strategy)));
+      Glide.get(context).getRegistry().prepend(Bitmap.class, new FailEncoder());
 
-  @Test
-  public void load_whenLoadSucceeds_butEncoderFails_doesNotCallOnLoadFailed() {
-    WaitForErrorStrategy strategy = new WaitForErrorStrategy();
-    Glide.init(
-        context,
-        new GlideBuilder()
-            .setAnimationExecutor(GlideExecutor.newAnimationExecutor(/*threadCount=*/ 1, strategy))
-            .setSourceExecutor(GlideExecutor.newSourceExecutor(strategy))
-            .setDiskCacheExecutor(GlideExecutor.newDiskCacheExecutor(strategy)));
-    Glide.get(context).getRegistry().prepend(Bitmap.class, new FailEncoder());
+      concurrency.get(
+            Glide.with(context).load(ResourceIds.raw.canonical).listener(requestListener).submit());
 
-    concurrency.get(
-        Glide.with(context).load(ResourceIds.raw.canonical).listener(requestListener).submit());
+      verify(requestListener)
+            .onResourceReady(
+                  anyDrawable(), any(), anyDrawableTarget(), any(DataSource.class), anyBoolean());
+      verify(requestListener, never())
+            .onLoadFailed(any(GlideException.class), any(), anyDrawableTarget(), anyBoolean());
+   }
 
-    verify(requestListener)
-        .onResourceReady(
-            anyDrawable(), any(), anyDrawableTarget(), any(DataSource.class), anyBoolean());
-    verify(requestListener, never())
-        .onLoadFailed(any(GlideException.class), any(), anyDrawableTarget(), anyBoolean());
-  }
+   @Test
+   public void clearRequest_withError_afterPrimaryFails_clearsErrorRequest() {
+      WaitModel<Integer> errorModel = WaitModelLoader.Factory.waitOn(ResourceIds.raw.canonical);
 
-  @Test
-  public void clearRequest_withError_afterPrimaryFails_clearsErrorRequest() {
-    WaitModel<Integer> errorModel = WaitModelLoader.Factory.waitOn(ResourceIds.raw.canonical);
+      FutureTarget<Drawable> target =
+            Glide.with(context)
+                  .load((Object) null)
+                  .error(Glide.with(context).load(errorModel).listener(requestListener))
+                  .submit();
 
-    FutureTarget<Drawable> target =
-        Glide.with(context)
-            .load((Object) null)
-            .error(Glide.with(context).load(errorModel).listener(requestListener))
-            .submit();
+      Glide.with(context).clear(target);
+      errorModel.countDown();
 
-    Glide.with(context).clear(target);
-    errorModel.countDown();
+      // Make sure any pending requests run.
+      concurrency.pokeMainThread();
+      Glide.tearDown();
+      // Make sure that any callbacks posted back to the main thread run.
+      concurrency.pokeMainThread();
+   }
 
-    // Make sure any pending requests run.
-    concurrency.pokeMainThread();
-    Glide.tearDown();
-    // Make sure that any callbacks posted back to the main thread run.
-    concurrency.pokeMainThread();
-  }
+   private static final class WaitForErrorStrategy implements UncaughtThrowableStrategy {
+      final CountDownLatch latch = new CountDownLatch(1);
+      @Nullable Throwable error = null;
 
-  private static final class WaitForErrorStrategy implements UncaughtThrowableStrategy {
-    final CountDownLatch latch = new CountDownLatch(1);
-    @Nullable Throwable error = null;
-
-    @Override
-    public void handle(Throwable t) {
-      if (error != null) {
-        throw new IllegalArgumentException("Received second error", t);
+      @Override
+      public void handle(Throwable t) {
+         if (error != null) {
+            throw new IllegalArgumentException("Received second error", t);
+         }
+         error = t;
+         latch.countDown();
       }
-      error = t;
-      latch.countDown();
-    }
-  }
+   }
 
-  private static final class FailEncoder implements ResourceEncoder<Bitmap> {
+   private static final class FailEncoder implements ResourceEncoder<Bitmap> {
 
-    static final RuntimeException TO_THROW = new RuntimeException();
+      static final RuntimeException TO_THROW = new RuntimeException();
 
-    @NonNull
-    @Override
-    public EncodeStrategy getEncodeStrategy(@NonNull Options options) {
-      return EncodeStrategy.TRANSFORMED;
-    }
+      @NonNull
+      @Override
+      public EncodeStrategy getEncodeStrategy(@NonNull Options options) {
+         return EncodeStrategy.TRANSFORMED;
+      }
 
-    @Override
-    public boolean encode(
-        @NonNull Resource<Bitmap> data, @NonNull File file, @NonNull Options options) {
-      throw TO_THROW;
-    }
-  }
+      @Override
+      public boolean encode(
+            @NonNull Resource<Bitmap> data, @NonNull File file, @NonNull Options options) {
+         throw TO_THROW;
+      }
+   }
 }

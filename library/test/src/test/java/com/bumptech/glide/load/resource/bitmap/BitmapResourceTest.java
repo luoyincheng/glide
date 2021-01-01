@@ -20,57 +20,57 @@ import org.robolectric.annotation.Config;
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 18)
 public class BitmapResourceTest {
-  private int currentBuildVersion;
-  private BitmapResourceHarness harness;
+   private int currentBuildVersion;
+   private BitmapResourceHarness harness;
 
-  @Before
-  public void setUp() {
-    currentBuildVersion = Build.VERSION.SDK_INT;
-    harness = new BitmapResourceHarness();
-  }
+   @Before
+   public void setUp() {
+      currentBuildVersion = Build.VERSION.SDK_INT;
+      harness = new BitmapResourceHarness();
+   }
 
-  @After
-  public void tearDown() {
-    Util.setSdkVersionInt(currentBuildVersion);
-  }
+   @After
+   public void tearDown() {
+      Util.setSdkVersionInt(currentBuildVersion);
+   }
 
-  @Test
-  public void testCanGetBitmap() {
-    assertEquals(harness.bitmap, harness.resource.get());
-  }
+   @Test
+   public void testCanGetBitmap() {
+      assertEquals(harness.bitmap, harness.resource.get());
+   }
 
-  @Test
-  public void testSizeIsBasedOnDimensPreKitKat() {
-    Util.setSdkVersionInt(18);
-    assertEquals(
-        harness.bitmap.getWidth() * harness.bitmap.getHeight() * 4, harness.resource.getSize());
-  }
+   @Test
+   public void testSizeIsBasedOnDimensPreKitKat() {
+      Util.setSdkVersionInt(18);
+      assertEquals(
+            harness.bitmap.getWidth() * harness.bitmap.getHeight() * 4, harness.resource.getSize());
+   }
 
-  @Test
-  public void testPutsBitmapInPoolOnRecycle() {
-    harness.resource.recycle();
+   @Test
+   public void testPutsBitmapInPoolOnRecycle() {
+      harness.resource.recycle();
 
-    verify(harness.bitmapPool).put(eq(harness.bitmap));
-  }
+      verify(harness.bitmapPool).put(eq(harness.bitmap));
+   }
 
-  @Test(expected = NullPointerException.class)
-  public void testThrowsIfBitmapIsNull() {
-    new BitmapResource(null, mock(BitmapPool.class));
-  }
+   @Test(expected = NullPointerException.class)
+   public void testThrowsIfBitmapIsNull() {
+      new BitmapResource(null, mock(BitmapPool.class));
+   }
 
-  @Test(expected = NullPointerException.class)
-  public void testThrowsIfBitmapPoolIsNull() {
-    new BitmapResource(Bitmap.createBitmap(100, 100, Bitmap.Config.RGB_565), null);
-  }
+   @Test(expected = NullPointerException.class)
+   public void testThrowsIfBitmapPoolIsNull() {
+      new BitmapResource(Bitmap.createBitmap(100, 100, Bitmap.Config.RGB_565), null);
+   }
 
-  @Test(expected = NullPointerException.class)
-  public void testThrowsIfBitmapAndBitmapPoolAreNull() {
-    new BitmapResource(null, null);
-  }
+   @Test(expected = NullPointerException.class)
+   public void testThrowsIfBitmapAndBitmapPoolAreNull() {
+      new BitmapResource(null, null);
+   }
 
-  private static class BitmapResourceHarness {
-    final Bitmap bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888);
-    final BitmapPool bitmapPool = mock(BitmapPool.class);
-    final BitmapResource resource = new BitmapResource(bitmap, bitmapPool);
-  }
+   private static class BitmapResourceHarness {
+      final Bitmap bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888);
+      final BitmapPool bitmapPool = mock(BitmapPool.class);
+      final BitmapResource resource = new BitmapResource(bitmap, bitmapPool);
+   }
 }

@@ -25,41 +25,41 @@ import org.robolectric.RobolectricTestRunner;
 @RunWith(RobolectricTestRunner.class)
 public final class GlideFuturesTest {
 
-  private Context app;
+   private Context app;
 
-  @Before
-  public void setUp() {
-    app = ApplicationProvider.getApplicationContext();
+   @Before
+   public void setUp() {
+      app = ApplicationProvider.getApplicationContext();
 
-    GlideExecutor executor = MockGlideExecutor.newMainThreadExecutor();
-    Glide.init(
-        app,
-        new GlideBuilder()
-            .setAnimationExecutor(executor)
-            .setSourceExecutor(executor)
-            .setDiskCacheExecutor(executor));
-  }
+      GlideExecutor executor = MockGlideExecutor.newMainThreadExecutor();
+      Glide.init(
+            app,
+            new GlideBuilder()
+                  .setAnimationExecutor(executor)
+                  .setSourceExecutor(executor)
+                  .setDiskCacheExecutor(executor));
+   }
 
-  @Test
-  public void testBaseLoad() throws Exception {
-    ColorDrawable expected = new ColorDrawable(Color.RED);
-    ListenableFuture<Drawable> future = GlideFutures.submit(Glide.with(app).load(expected));
-    assertThat(((ColorDrawable) Futures.getDone(future)).getColor()).isEqualTo(expected.getColor());
-  }
+   @Test
+   public void testBaseLoad() throws Exception {
+      ColorDrawable expected = new ColorDrawable(Color.RED);
+      ListenableFuture<Drawable> future = GlideFutures.submit(Glide.with(app).load(expected));
+      assertThat(((ColorDrawable) Futures.getDone(future)).getColor()).isEqualTo(expected.getColor());
+   }
 
-  @Test
-  public void testErrorLoad() {
-    // Load some unsupported model.
-    final ListenableFuture<Bitmap> future =
-        GlideFutures.submit(Glide.with(app).asBitmap().load(app));
-    // Make sure that it throws.
-    assertThrows(
-        ExecutionException.class,
-        new ThrowingRunnable() {
-          @Override
-          public void run() throws Throwable {
-            Futures.getDone(future);
-          }
-        });
-  }
+   @Test
+   public void testErrorLoad() {
+      // Load some unsupported model.
+      final ListenableFuture<Bitmap> future =
+            GlideFutures.submit(Glide.with(app).asBitmap().load(app));
+      // Make sure that it throws.
+      assertThrows(
+            ExecutionException.class,
+            new ThrowingRunnable() {
+               @Override
+               public void run() throws Throwable {
+                  Futures.getDone(future);
+               }
+            });
+   }
 }

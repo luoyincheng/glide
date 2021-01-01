@@ -16,55 +16,54 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 /**
- * Ensures that adding more than one {@link com.bumptech.glide.module.AppGlideModule} to a project
- * will fail.
+ * Ensures that adding more than one {@link com.bumptech.glide.module.AppGlideModule} to a project will fail.
  */
 @RunWith(JUnit4.class)
 public class MultipleAppGlideModuleTest implements CompilationProvider {
-  private static final String FIRST_MODULE = "EmptyAppModule1.java";
-  private static final String SECOND_MODULE = "EmptyAppModule2.java";
+   private static final String FIRST_MODULE = "EmptyAppModule1.java";
+   private static final String SECOND_MODULE = "EmptyAppModule2.java";
 
-  @Rule
-  public final RegenerateResourcesRule regenerateResourcesRule = new RegenerateResourcesRule(this);
+   @Rule
+   public final RegenerateResourcesRule regenerateResourcesRule = new RegenerateResourcesRule(this);
 
-  private Compilation compilation;
+   private Compilation compilation;
 
-  // Throws.
-  @SuppressWarnings("ResultOfMethodCallIgnored")
-  @Test
-  public void compilation_withTwoAppModules_fails() {
-    assertThrows(
-        RuntimeException.class,
-        new ThrowingRunnable() {
-          @Override
-          public void run() throws Throwable {
-            javac()
-                .withProcessors(new GlideAnnotationProcessor())
-                .compile(forResource(FIRST_MODULE), forResource(SECOND_MODULE));
-          }
-        });
-  }
+   // Throws.
+   @SuppressWarnings("ResultOfMethodCallIgnored")
+   @Test
+   public void compilation_withTwoAppModules_fails() {
+      assertThrows(
+            RuntimeException.class,
+            new ThrowingRunnable() {
+               @Override
+               public void run() throws Throwable {
+                  javac()
+                        .withProcessors(new GlideAnnotationProcessor())
+                        .compile(forResource(FIRST_MODULE), forResource(SECOND_MODULE));
+               }
+            });
+   }
 
-  @Test
-  public void compilation_withFirstModuleOnly_succeeds() {
-    compilation =
-        javac().withProcessors(new GlideAnnotationProcessor()).compile(forResource(FIRST_MODULE));
-    assertThat(compilation).succeededWithoutWarnings();
-  }
+   @Test
+   public void compilation_withFirstModuleOnly_succeeds() {
+      compilation =
+            javac().withProcessors(new GlideAnnotationProcessor()).compile(forResource(FIRST_MODULE));
+      assertThat(compilation).succeededWithoutWarnings();
+   }
 
-  @Test
-  public void compilation_withSecondModuleOnly_succeeds() {
-    compilation =
-        javac().withProcessors(new GlideAnnotationProcessor()).compile(forResource(SECOND_MODULE));
-    assertThat(compilation).succeededWithoutWarnings();
-  }
+   @Test
+   public void compilation_withSecondModuleOnly_succeeds() {
+      compilation =
+            javac().withProcessors(new GlideAnnotationProcessor()).compile(forResource(SECOND_MODULE));
+      assertThat(compilation).succeededWithoutWarnings();
+   }
 
-  private JavaFileObject forResource(String name) {
-    return Util.forResource(getClass().getSimpleName(), name);
-  }
+   private JavaFileObject forResource(String name) {
+      return Util.forResource(getClass().getSimpleName(), name);
+   }
 
-  @Override
-  public Compilation getCompilation() {
-    return compilation;
-  }
+   @Override
+   public Compilation getCompilation() {
+      return compilation;
+   }
 }

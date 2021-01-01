@@ -36,74 +36,74 @@ import org.robolectric.annotation.Config;
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 18)
 public class GifDrawableTransformationTest {
-  @Rule public final KeyTester keyTester = new KeyTester();
-  @Mock private Transformation<Bitmap> wrapped;
-  @Mock private BitmapPool bitmapPool;
+   @Rule public final KeyTester keyTester = new KeyTester();
+   @Mock private Transformation<Bitmap> wrapped;
+   @Mock private BitmapPool bitmapPool;
 
-  private GifDrawableTransformation transformation;
-  private Context context;
+   private GifDrawableTransformation transformation;
+   private Context context;
 
-  @Before
-  public void setUp() {
-    MockitoAnnotations.initMocks(this);
-    context = RuntimeEnvironment.application;
+   @Before
+   public void setUp() {
+      MockitoAnnotations.initMocks(this);
+      context = RuntimeEnvironment.application;
 
-    Glide.init(context, new GlideBuilder().setBitmapPool(bitmapPool));
-    transformation = new GifDrawableTransformation(wrapped);
-  }
+      Glide.init(context, new GlideBuilder().setBitmapPool(bitmapPool));
+      transformation = new GifDrawableTransformation(wrapped);
+   }
 
-  @After
-  public void tearDown() {
-    Glide.tearDown();
-  }
+   @After
+   public void tearDown() {
+      Glide.tearDown();
+   }
 
-  @Test
-  @SuppressWarnings("unchecked")
-  public void testSetsTransformationAsFrameTransformation() {
-    Resource<GifDrawable> resource = mockResource();
-    GifDrawable gifDrawable = mock(GifDrawable.class);
-    Transformation<Bitmap> unitTransformation = UnitTransformation.get();
-    when(gifDrawable.getFrameTransformation()).thenReturn(unitTransformation);
-    when(gifDrawable.getIntrinsicWidth()).thenReturn(500);
-    when(gifDrawable.getIntrinsicHeight()).thenReturn(500);
-    when(resource.get()).thenReturn(gifDrawable);
+   @Test
+   @SuppressWarnings("unchecked")
+   public void testSetsTransformationAsFrameTransformation() {
+      Resource<GifDrawable> resource = mockResource();
+      GifDrawable gifDrawable = mock(GifDrawable.class);
+      Transformation<Bitmap> unitTransformation = UnitTransformation.get();
+      when(gifDrawable.getFrameTransformation()).thenReturn(unitTransformation);
+      when(gifDrawable.getIntrinsicWidth()).thenReturn(500);
+      when(gifDrawable.getIntrinsicHeight()).thenReturn(500);
+      when(resource.get()).thenReturn(gifDrawable);
 
-    Bitmap firstFrame = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888);
-    when(gifDrawable.getFirstFrame()).thenReturn(firstFrame);
+      Bitmap firstFrame = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888);
+      when(gifDrawable.getFirstFrame()).thenReturn(firstFrame);
 
-    final int width = 123;
-    final int height = 456;
-    Bitmap expectedBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-    Resource<Bitmap> expectedResource = mockResource();
-    when(expectedResource.get()).thenReturn(expectedBitmap);
-    when(wrapped.transform(any(Context.class), Util.<Bitmap>anyResource(), anyInt(), anyInt()))
-        .thenReturn(expectedResource);
+      final int width = 123;
+      final int height = 456;
+      Bitmap expectedBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+      Resource<Bitmap> expectedResource = mockResource();
+      when(expectedResource.get()).thenReturn(expectedBitmap);
+      when(wrapped.transform(any(Context.class), Util.<Bitmap>anyResource(), anyInt(), anyInt()))
+            .thenReturn(expectedResource);
 
-    transformation.transform(context, resource, width, height);
+      transformation.transform(context, resource, width, height);
 
-    verify(gifDrawable).setFrameTransformation(isA(Transformation.class), eq(expectedBitmap));
-  }
+      verify(gifDrawable).setFrameTransformation(isA(Transformation.class), eq(expectedBitmap));
+   }
 
-  @Test
-  public void testEquals() throws NoSuchAlgorithmException {
-    doAnswer(new Util.WriteDigest("first"))
-        .when(wrapped)
-        .updateDiskCacheKey(isA(MessageDigest.class));
-    @SuppressWarnings("unchecked")
-    Transformation<Bitmap> other = mock(Transformation.class);
-    doAnswer(new Util.WriteDigest("other"))
-        .when(other)
-        .updateDiskCacheKey(isA(MessageDigest.class));
-    keyTester
-        .addEquivalenceGroup(
-            transformation,
-            new GifDrawableTransformation(wrapped),
-            new GifDrawableTransformation(wrapped))
-        .addEquivalenceGroup(wrapped)
-        .addEquivalenceGroup(new GifDrawableTransformation(other))
-        .addRegressionTest(
-            new GifDrawableTransformation(wrapped),
-            "a7937b64b8caa58f03721bb6bacf5c78cb235febe0e70b1b84cd99541461a08e")
-        .test();
-  }
+   @Test
+   public void testEquals() throws NoSuchAlgorithmException {
+      doAnswer(new Util.WriteDigest("first"))
+            .when(wrapped)
+            .updateDiskCacheKey(isA(MessageDigest.class));
+      @SuppressWarnings("unchecked")
+      Transformation<Bitmap> other = mock(Transformation.class);
+      doAnswer(new Util.WriteDigest("other"))
+            .when(other)
+            .updateDiskCacheKey(isA(MessageDigest.class));
+      keyTester
+            .addEquivalenceGroup(
+                  transformation,
+                  new GifDrawableTransformation(wrapped),
+                  new GifDrawableTransformation(wrapped))
+            .addEquivalenceGroup(wrapped)
+            .addEquivalenceGroup(new GifDrawableTransformation(other))
+            .addRegressionTest(
+                  new GifDrawableTransformation(wrapped),
+                  "a7937b64b8caa58f03721bb6bacf5c78cb235febe0e70b1b84cd99541461a08e")
+            .test();
+   }
 }

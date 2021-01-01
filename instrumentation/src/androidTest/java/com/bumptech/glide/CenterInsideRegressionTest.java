@@ -25,79 +25,79 @@ import org.junit.runner.RunWith;
 @SplitBySdk({24, 21, 16})
 @RegressionTest
 public class CenterInsideRegressionTest {
-  @Rule public final TestName testName = new TestName();
-  @Rule public final TearDownGlide tearDownGlide = new TearDownGlide();
-  private BitmapRegressionTester bitmapRegressionTester;
-  private Context context;
-  private CanonicalBitmap canonical;
+   @Rule public final TestName testName = new TestName();
+   @Rule public final TearDownGlide tearDownGlide = new TearDownGlide();
+   private BitmapRegressionTester bitmapRegressionTester;
+   private Context context;
+   private CanonicalBitmap canonical;
 
-  @Before
-  public void setUp() {
-    context = ApplicationProvider.getApplicationContext();
-    bitmapRegressionTester = new BitmapRegressionTester(getClass(), testName);
-    canonical = new CanonicalBitmap();
-  }
+   @Before
+   public void setUp() {
+      context = ApplicationProvider.getApplicationContext();
+      bitmapRegressionTester = new BitmapRegressionTester(getClass(), testName);
+      canonical = new CanonicalBitmap();
+   }
 
-  @Test
-  public void centerInside_withSquareSmallerThanImage_returnsImageFitWithinSquare()
-      throws ExecutionException, InterruptedException {
+   @Test
+   public void centerInside_withSquareSmallerThanImage_returnsImageFitWithinSquare()
+         throws ExecutionException, InterruptedException {
 
-    Bitmap result =
-        bitmapRegressionTester.test(
-            GlideApp.with(context)
-                .asBitmap()
-                .load(canonical.getBitmap())
-                .centerInside()
-                .override(50));
+      Bitmap result =
+            bitmapRegressionTester.test(
+                  GlideApp.with(context)
+                        .asBitmap()
+                        .load(canonical.getBitmap())
+                        .centerInside()
+                        .override(50));
 
-    assertThat(result.getWidth()).isEqualTo(50);
-    assertThat(result.getHeight()).isEqualTo(37);
-  }
+      assertThat(result.getWidth()).isEqualTo(50);
+      assertThat(result.getHeight()).isEqualTo(37);
+   }
 
-  @Test
-  public void centerInside_withSquareLargerThanImage_returnsOriginalImage()
-      throws ExecutionException, InterruptedException {
-    float multiplier = 1.1f;
-    int multipliedWidth = (int) (canonical.getWidth() * multiplier);
-    Bitmap result =
-        bitmapRegressionTester.test(
-            GlideApp.with(context)
-                .asBitmap()
-                .load(canonical.getBitmap())
-                .centerInside()
-                .override(multipliedWidth));
+   @Test
+   public void centerInside_withSquareLargerThanImage_returnsOriginalImage()
+         throws ExecutionException, InterruptedException {
+      float multiplier = 1.1f;
+      int multipliedWidth = (int) (canonical.getWidth() * multiplier);
+      Bitmap result =
+            bitmapRegressionTester.test(
+                  GlideApp.with(context)
+                        .asBitmap()
+                        .load(canonical.getBitmap())
+                        .centerInside()
+                        .override(multipliedWidth));
 
-    assertThat(result.getWidth()).isEqualTo(canonical.getWidth());
-    assertThat(result.getHeight()).isEqualTo(canonical.getHeight());
-  }
+      assertThat(result.getWidth()).isEqualTo(canonical.getWidth());
+      assertThat(result.getHeight()).isEqualTo(canonical.getHeight());
+   }
 
-  @Test
-  public void centerInside_withNarrowRectangle_fitsWithinMaintainingAspectRatio()
-      throws ExecutionException, InterruptedException {
-    Bitmap result =
-        bitmapRegressionTester.test(
-            GlideApp.with(context)
-                .asBitmap()
-                .load(canonical.getBitmap())
-                .centerInside()
-                .override(canonical.getWidth() / 10, canonical.getHeight()));
+   @Test
+   public void centerInside_withNarrowRectangle_fitsWithinMaintainingAspectRatio()
+         throws ExecutionException, InterruptedException {
+      Bitmap result =
+            bitmapRegressionTester.test(
+                  GlideApp.with(context)
+                        .asBitmap()
+                        .load(canonical.getBitmap())
+                        .centerInside()
+                        .override(canonical.getWidth() / 10, canonical.getHeight()));
 
-    assertThat(result.getWidth()).isEqualTo(canonical.getWidth() / 10);
-    assertThat(result.getHeight()).isEqualTo(canonical.getHeight() / 10);
-  }
+      assertThat(result.getWidth()).isEqualTo(canonical.getWidth() / 10);
+      assertThat(result.getHeight()).isEqualTo(canonical.getHeight() / 10);
+   }
 
-  @Test
-  public void centerInside_withShortRectangle_fitsWithinMaintainingAspectRatio()
-      throws ExecutionException, InterruptedException {
-    Bitmap result =
-        bitmapRegressionTester.test(
-            GlideApp.with(context)
-                .asBitmap()
-                .load(canonical.getBitmap())
-                .centerInside()
-                .override(canonical.getWidth(), canonical.getHeight() / 2));
+   @Test
+   public void centerInside_withShortRectangle_fitsWithinMaintainingAspectRatio()
+         throws ExecutionException, InterruptedException {
+      Bitmap result =
+            bitmapRegressionTester.test(
+                  GlideApp.with(context)
+                        .asBitmap()
+                        .load(canonical.getBitmap())
+                        .centerInside()
+                        .override(canonical.getWidth(), canonical.getHeight() / 2));
 
-    assertThat(result.getWidth()).isEqualTo(canonical.getWidth() / 2);
-    assertThat(result.getHeight()).isEqualTo(canonical.getHeight() / 2);
-  }
+      assertThat(result.getWidth()).isEqualTo(canonical.getWidth() / 2);
+      assertThat(result.getHeight()).isEqualTo(canonical.getHeight() / 2);
+   }
 }
