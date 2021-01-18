@@ -17,6 +17,7 @@ import com.bumptech.glide.load.data.DataFetcher;
 import com.bumptech.glide.load.data.DataRewinder;
 import com.bumptech.glide.load.engine.cache.DiskCache;
 import com.bumptech.glide.load.resource.bitmap.Downsampler;
+import com.bumptech.glide.mine.PrettyLogger;
 import com.bumptech.glide.util.LogTime;
 import com.bumptech.glide.util.Synthetic;
 import com.bumptech.glide.util.pool.FactoryPools.Poolable;
@@ -79,6 +80,8 @@ class DecodeJob<R>
    DecodeJob(DiskCacheProvider diskCacheProvider, Pools.Pool<DecodeJob<?>> pool) {
       this.diskCacheProvider = diskCacheProvider;
       this.pool = pool;
+      PrettyLogger.glideRequest(this);
+      PrettyLogger.invokeTrack();
    }
 
    DecodeJob<R> init(
@@ -217,6 +220,7 @@ class DecodeJob<R>
    @SuppressWarnings("PMD.AvoidRethrowingException")
    @Override
    public void run() {
+      PrettyLogger.invokeTrack();
       // This should be much more fine grained, but since Java's thread pool implementation silently
       // swallows all otherwise fatal exceptions, this will at least make it obvious to developers
       // that something is failing.
@@ -381,7 +385,7 @@ class DecodeJob<R>
       this.currentDataSource = dataSource;
       this.currentAttemptingKey = attemptedKey;
       this.isLoadingFromAlternateCacheKey = sourceKey != decodeHelper.getCacheKeys().get(0);
-
+      PrettyLogger.glideRequest(Thread.currentThread(), currentThread, sourceKey, data, attemptedKey);
       if (Thread.currentThread() != currentThread) {
          runReason = RunReason.DECODE_DATA;
          callback.reschedule(this);

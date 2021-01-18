@@ -35,6 +35,7 @@ class SourceGenerator implements DataFetcherGenerator, DataFetcherGenerator.Fetc
    private DataCacheKey originalKey;
 
    SourceGenerator(DecodeHelper<?> helper, FetcherReadyCallback cb) {
+      PrettyLogger.glideRequest(this);
       this.helper = helper;
       this.cb = cb;
    }
@@ -73,6 +74,7 @@ class SourceGenerator implements DataFetcherGenerator, DataFetcherGenerator.Fetc
             new DataCallback<Object>() {
                @Override
                public void onDataReady(@Nullable Object data) {
+                  PrettyLogger.glideRequest(data);
                   if (isCurrentRequest(toStart)) {
                      onDataReadyInternal(toStart, data);
                   }
@@ -80,6 +82,7 @@ class SourceGenerator implements DataFetcherGenerator, DataFetcherGenerator.Fetc
 
                @Override
                public void onLoadFailed(@NonNull Exception e) {
+                  PrettyLogger.glideRequest(e);
                   if (isCurrentRequest(toStart)) {
                      onLoadFailedInternal(toStart, e);
                   }
@@ -141,11 +144,13 @@ class SourceGenerator implements DataFetcherGenerator, DataFetcherGenerator.Fetc
    void onDataReadyInternal(LoadData<?> loadData, Object data) {
       DiskCacheStrategy diskCacheStrategy = helper.getDiskCacheStrategy();
       if (data != null && diskCacheStrategy.isDataCacheable(loadData.fetcher.getDataSource())) {
+         PrettyLogger.glideRequest("缓存数据 切换到Glide自身的线程");
          dataToCache = data;
          // We might be being called back on someone else's thread. Before doing anything, we should
          // reschedule to get back onto Glide's thread.
          cb.reschedule();
       } else {
+         PrettyLogger.glideRequest("不缓存数据 直接回调 FetcherReadyCallback.onDataFetcherReady");
          cb.onDataFetcherReady(
                loadData.sourceKey,
                data,

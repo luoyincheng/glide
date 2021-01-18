@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+   xmlns:app="http://schemas.android.com/apk/res-auto"
+   android:layout_width="match_parent"
+   android:layout_height="match_parent">
+   <androidx.appcompat.widget.AppCompatTextView
+      android:id="@+id/tv_bug_activity"
+      android:textStyle="bold"
+      android:layout_width="match_parent"
+      android:layout_height="88dp"
+      android:padding="10dp"
+      android:gravity="center"
+      android:onClick="glideBug"
+      android:text="GlideBug"
+      android:textColor="@android:color/black"
+      app:layout_constraintTop_toTopOf="parent" />
+
+   <androidx.appcompat.widget.AppCompatTextView
+      android:textStyle="bold"
+      android:layout_width="match_parent"
+      android:layout_height="88dp"
+      android:padding="10dp"
+      android:gravity="center"
+      android:onClick="glideFlow"
+      android:text="GlideFLow"
+      android:textColor="@android:color/black"
+      app:layout_constraintTop_toBottomOf="@+id/tv_bug_activity" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

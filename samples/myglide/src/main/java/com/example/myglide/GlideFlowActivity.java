@@ -188,10 +188,10 @@ public class GlideFlowActivity extends AppCompatActivity {
 //      RequestManager requestManager = Glide.with(isNext ? GlideFlowActivity.this : getApplicationContext());
 //
       RequestManager requestManager = Glide.with(GlideFlowActivity.this);
-      RequestBuilder<Bitmap> requestBuilder1 = requestManager.asBitmap().diskCacheStrategy(DiskCacheStrategy.NONE);
-      RequestBuilder<Bitmap> requestBuilder2 = requestManager.asBitmap().diskCacheStrategy(DiskCacheStrategy.NONE);
-      RequestBuilder<Bitmap> requestBuilder3 = requestManager.asBitmap().diskCacheStrategy(DiskCacheStrategy.NONE);
-      RequestBuilder<Bitmap> requestBuilder4 = requestManager.asBitmap().diskCacheStrategy(DiskCacheStrategy.NONE);
+      RequestBuilder<Bitmap> requestBuilder1 = requestManager.asBitmap().diskCacheStrategy(DiskCacheStrategy.NONE).skipMemoryCache(true);
+      RequestBuilder<Bitmap> requestBuilder2 = requestManager.asBitmap().diskCacheStrategy(DiskCacheStrategy.NONE).skipMemoryCache(true);
+      RequestBuilder<Bitmap> requestBuilder3 = requestManager.asBitmap().diskCacheStrategy(DiskCacheStrategy.NONE).skipMemoryCache(true);
+      RequestBuilder<Bitmap> requestBuilder4 = requestManager.asBitmap().diskCacheStrategy(DiskCacheStrategy.NONE).skipMemoryCache(true);
       requestBuilder4 = requestBuilder4.load(url4);
       requestBuilder4.into(mCustomTarget4);
       requestBuilder3 = requestBuilder3.load(url3);

@@ -10,7 +10,7 @@
       android:supportsRtl="true"
       android:theme="@style/Theme.Glideparent">
       <activity
-         android:name=".GlideBugActivity"
+         android:name=".GlideActivity"
          android:screenOrientation="landscape"
          android:theme="@style/FullScreenLight">
          <intent-filter>
@@ -19,6 +19,15 @@
             <category android:name="android.intent.category.LAUNCHER" />
          </intent-filter>
       </activity>
+
+      <activity
+         android:name=".GlideBugActivity"
+         android:screenOrientation="landscape"
+         android:theme="@style/FullScreenLight" />
+      <activity
+         android:name=".GlideFlowActivity"
+         android:screenOrientation="landscape"
+         android:theme="@style/FullScreenLight" />
    </application>
 
    <uses-permission android:name="android.permission.INTERNET" />

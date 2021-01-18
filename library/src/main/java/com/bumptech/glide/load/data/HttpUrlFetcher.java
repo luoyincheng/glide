@@ -8,6 +8,7 @@ import com.bumptech.glide.Priority;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.HttpException;
 import com.bumptech.glide.load.model.GlideUrl;
+import com.bumptech.glide.mine.PrettyLogger;
 import com.bumptech.glide.util.ContentLengthInputStream;
 import com.bumptech.glide.util.LogTime;
 import com.bumptech.glide.util.Synthetic;
@@ -76,6 +77,7 @@ public class HttpUrlFetcher implements DataFetcher<InputStream> {
    @Override
    public void loadData(
          @NonNull Priority priority, @NonNull DataCallback<? super InputStream> callback) {
+      PrettyLogger.glideRequest();
       long startTime = LogTime.getLogTime();
       try {
          InputStream result = loadDataWithRedirects(glideUrl.toURL(), 0, null, glideUrl.getHeaders());

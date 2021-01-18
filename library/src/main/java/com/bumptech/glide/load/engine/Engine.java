@@ -16,6 +16,7 @@ import com.bumptech.glide.load.engine.cache.DiskCache;
 import com.bumptech.glide.load.engine.cache.DiskCacheAdapter;
 import com.bumptech.glide.load.engine.cache.MemoryCache;
 import com.bumptech.glide.load.engine.executor.GlideExecutor;
+import com.bumptech.glide.mine.PrettyLogger;
 import com.bumptech.glide.request.ResourceCallback;
 import com.bumptech.glide.util.Executors;
 import com.bumptech.glide.util.LogTime;
@@ -291,6 +292,7 @@ public class Engine
       jobs.put(key, engineJob);
 
       engineJob.addCallback(cb, callbackExecutor);
+      PrettyLogger.glideRequest("开始执行decodeJob");
       engineJob.start(decodeJob);
 
       if (VERBOSE_IS_LOGGABLE) {
@@ -485,6 +487,7 @@ public class Engine
             boolean onlyRetrieveFromCache,
             Options options,
             DecodeJob.Callback<R> callback) {
+         PrettyLogger.glideRequest("从缓存中获取DecodeJob...");
          DecodeJob<R> result = Preconditions.checkNotNull((DecodeJob<R>) pool.acquire());
          return result.init(
                glideContext,
