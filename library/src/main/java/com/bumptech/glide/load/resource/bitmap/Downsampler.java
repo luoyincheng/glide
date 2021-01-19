@@ -22,6 +22,7 @@ import com.bumptech.glide.load.engine.Resource;
 import com.bumptech.glide.load.engine.bitmap_recycle.ArrayPool;
 import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool;
 import com.bumptech.glide.load.resource.bitmap.DownsampleStrategy.SampleSizeRounding;
+import com.bumptech.glide.mine.PrettyLogger;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.util.LogTime;
@@ -844,7 +845,8 @@ public final class Downsampler {
             bitmapPool.put(downsampled);
          }
       }
-
+      PrettyLogger.glideFlow(rotated, "width:" + rotated.getWidth(), "height:" + rotated.getHeight());
+      PrettyLogger.invokeTrack("Downsampler#decodeFromWrappedStreams");
       return rotated;
    }
 

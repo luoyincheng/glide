@@ -16,7 +16,6 @@ import com.bumptech.glide.load.Transformation;
 import com.bumptech.glide.load.data.DataFetcher;
 import com.bumptech.glide.load.data.DataRewinder;
 import com.bumptech.glide.load.engine.cache.DiskCache;
-import com.bumptech.glide.load.resource.bitmap.BitmapResource;
 import com.bumptech.glide.load.resource.bitmap.Downsampler;
 import com.bumptech.glide.mine.PrettyLogger;
 import com.bumptech.glide.util.LogTime;
@@ -274,6 +273,7 @@ class DecodeJob<R>
          case INITIALIZE:
             stage = getNextStage(Stage.INITIALIZE);
             currentGenerator = getNextGenerator();
+            PrettyLogger.glideFlow(currentGenerator, "根据Glide配置和缓存情况选择了相应的DataFetcherGenerator");
             runGenerators();
             break;
          case SWITCH_TO_SOURCE_SERVICE:
@@ -311,6 +311,7 @@ class DecodeJob<R>
             && !(isStarted = currentGenerator.startNext())) {
          stage = getNextStage(stage);
          currentGenerator = getNextGenerator();
+         PrettyLogger.glideFlow(currentGenerator, "再次 根据Glide配置和缓存情况选择了相应的DataFetcherGenerator");
 
          if (stage == Stage.SOURCE) {
             reschedule();
@@ -371,6 +372,7 @@ class DecodeJob<R>
 
    @Override
    public void reschedule() {
+      PrettyLogger.glideFlow();
       runReason = RunReason.SWITCH_TO_SOURCE_SERVICE;
       callback.reschedule(this);
    }
@@ -378,13 +380,14 @@ class DecodeJob<R>
    @Override
    public void onDataFetcherReady(
          Key sourceKey, Object data, DataFetcher<?> fetcher, DataSource dataSource, Key attemptedKey) {
+      PrettyLogger.invokeTrack("DecodeJob#onDataFetcherReady");
       this.currentSourceKey = sourceKey;
       this.currentData = data;
       this.currentFetcher = fetcher;
       this.currentDataSource = dataSource;
       this.currentAttemptingKey = attemptedKey;
       this.isLoadingFromAlternateCacheKey = sourceKey != decodeHelper.getCacheKeys().get(0);
-      PrettyLogger.glideRequest(Thread.currentThread(), currentThread, sourceKey, data, attemptedKey);
+      PrettyLogger.glideFlow(currentSourceKey, currentData, currentFetcher, currentDataSource, currentAttemptingKey, isLoadingFromAlternateCacheKey);
       if (Thread.currentThread() != currentThread) {
          runReason = RunReason.DECODE_DATA;
          callback.reschedule(this);

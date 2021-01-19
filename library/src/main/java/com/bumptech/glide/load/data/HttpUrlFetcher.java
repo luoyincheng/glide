@@ -77,7 +77,7 @@ public class HttpUrlFetcher implements DataFetcher<InputStream> {
    @Override
    public void loadData(
          @NonNull Priority priority, @NonNull DataCallback<? super InputStream> callback) {
-      PrettyLogger.glideRequest();
+      PrettyLogger.glideFlow();
       long startTime = LogTime.getLogTime();
       try {
          InputStream result = loadDataWithRedirects(glideUrl.toURL(), 0, null, glideUrl.getHeaders());

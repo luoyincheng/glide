@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.core.util.Pools.Pool;
 import com.bumptech.glide.load.Options;
 import com.bumptech.glide.load.data.DataRewinder;
+import com.bumptech.glide.mine.PrettyLogger;
 import com.bumptech.glide.util.Preconditions;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,6 +50,7 @@ public class LoadPath<Data, ResourceType, Transcode> {
          int height,
          DecodePath.DecodeCallback<ResourceType> decodeCallback)
          throws GlideException {
+      PrettyLogger.glideFlow();
       List<Throwable> throwables = Preconditions.checkNotNull(listPool.acquire());
       try {
          return loadWithExceptionList(rewinder, options, width, height, decodeCallback, throwables);
@@ -65,6 +67,7 @@ public class LoadPath<Data, ResourceType, Transcode> {
          DecodePath.DecodeCallback<ResourceType> decodeCallback,
          List<Throwable> exceptions)
          throws GlideException {
+      PrettyLogger.glideFlow(decodePaths.toString());
       Resource<Transcode> result = null;
       //noinspection ForLoopReplaceableByForEach to improve perf
       for (int i = 0, size = decodePaths.size(); i < size; i++) {

@@ -89,6 +89,7 @@ public class DecodePath<DataType, ResourceType, Transcode> {
             DataType data = rewinder.rewindAndGet();
             if (decoder.handles(data, options)) {
                data = rewinder.rewindAndGet();
+               PrettyLogger.glideFlow(decoder);
                result = decoder.decode(data, width, height, options);
             }
             // Some decoders throw unexpectedly. If they do, we shouldn't fail the entire load path, but

@@ -8,6 +8,7 @@ import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.Key;
 import com.bumptech.glide.load.engine.EngineResource.ResourceListener;
 import com.bumptech.glide.load.engine.executor.GlideExecutor;
+import com.bumptech.glide.mine.PrettyLogger;
 import com.bumptech.glide.request.ResourceCallback;
 import com.bumptech.glide.util.Executors;
 import com.bumptech.glide.util.Preconditions;
@@ -121,6 +122,7 @@ class EngineJob<R> implements DecodeJob.Callback<R>, Poolable {
       this.decodeJob = decodeJob;
       GlideExecutor executor =
             decodeJob.willDecodeFromCache() ? diskCacheExecutor : getActiveSourceExecutor();
+      PrettyLogger.glideFlow(decodeJob.willDecodeFromCache(), executor);
       executor.execute(decodeJob);
    }
 
@@ -328,6 +330,7 @@ class EngineJob<R> implements DecodeJob.Callback<R>, Poolable {
    public void reschedule(DecodeJob<?> job) {
       // Even if the job is cancelled here, it still needs to be scheduled so that it can clean itself
       // up.
+      PrettyLogger.glideFlow();
       getActiveSourceExecutor().execute(job);
    }
 

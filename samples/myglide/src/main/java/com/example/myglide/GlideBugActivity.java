@@ -100,9 +100,9 @@ public class GlideBugActivity extends AppCompatActivity {
       RequestManager requestManager = Glide.with(GlideBugActivity.this);
 //      RequestManager requestManager = Glide.with(getApplicationContext());
       RequestBuilder<Bitmap> requestBuilder = requestManager
-            .asBitmap()
-            .diskCacheStrategy(DiskCacheStrategy.NONE)
-            .skipMemoryCache(true);
+            .asBitmap();
+//            .diskCacheStrategy(DiskCacheStrategy.NONE)
+//            .skipMemoryCache(true);
       requestBuilder = requestBuilder.load(url);
       requestBuilder.into(mCustomTarget);
    }

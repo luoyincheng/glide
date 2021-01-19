@@ -292,7 +292,7 @@ public class Engine
       jobs.put(key, engineJob);
 
       engineJob.addCallback(cb, callbackExecutor);
-      PrettyLogger.glideRequest("开始执行decodeJob");
+      PrettyLogger.glideFlow("开始执行decodeJob");
       engineJob.start(decodeJob);
 
       if (VERBOSE_IS_LOGGABLE) {
@@ -459,7 +459,7 @@ public class Engine
                   new FactoryPools.Factory<DecodeJob<?>>() {
                      @Override
                      public DecodeJob<?> create() {
-                        PrettyLogger.glideRequest("创建DecodeJob(new)");
+                        PrettyLogger.glideFlow("创建DecodeJob(new)");
                         return new DecodeJob<>(diskCacheProvider, pool);
                      }
                   });
@@ -489,7 +489,7 @@ public class Engine
             Options options,
             DecodeJob.Callback<R> callback) {
          DecodeJob<R> result = Preconditions.checkNotNull((DecodeJob<R>) pool.acquire());
-         PrettyLogger.glideRequest("从缓存中获取DecodeJob...", result);
+         PrettyLogger.glideFlow("从缓存中获取DecodeJob...", result);
          return result.init(
                glideContext,
                model,

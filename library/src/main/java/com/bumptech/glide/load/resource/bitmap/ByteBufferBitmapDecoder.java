@@ -5,6 +5,7 @@ import androidx.annotation.NonNull;
 import com.bumptech.glide.load.Options;
 import com.bumptech.glide.load.ResourceDecoder;
 import com.bumptech.glide.load.engine.Resource;
+import com.bumptech.glide.mine.PrettyLogger;
 import com.bumptech.glide.util.ByteBufferUtil;
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,6 +31,8 @@ public class ByteBufferBitmapDecoder implements ResourceDecoder<ByteBuffer, Bitm
          @NonNull ByteBuffer source, int width, int height, @NonNull Options options)
          throws IOException {
       InputStream is = ByteBufferUtil.toStream(source);
-      return downsampler.decode(is, width, height, options);
+      Resource<Bitmap> result = downsampler.decode(is, width, height, options);
+      PrettyLogger.glideFlow(source, is, result);
+      return result;
    }
 }
