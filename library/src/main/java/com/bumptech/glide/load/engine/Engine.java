@@ -459,6 +459,7 @@ public class Engine
                   new FactoryPools.Factory<DecodeJob<?>>() {
                      @Override
                      public DecodeJob<?> create() {
+                        PrettyLogger.glideRequest("创建DecodeJob(new)");
                         return new DecodeJob<>(diskCacheProvider, pool);
                      }
                   });
@@ -487,8 +488,8 @@ public class Engine
             boolean onlyRetrieveFromCache,
             Options options,
             DecodeJob.Callback<R> callback) {
-         PrettyLogger.glideRequest("从缓存中获取DecodeJob...");
          DecodeJob<R> result = Preconditions.checkNotNull((DecodeJob<R>) pool.acquire());
+         PrettyLogger.glideRequest("从缓存中获取DecodeJob...", result);
          return result.init(
                glideContext,
                model,

@@ -15,6 +15,8 @@ public class PrettyLogger {
    private static final String PRETTY_LOGGER = "PRETTY_LOGGER";
    private static final String GLIDE_FLOW = "GLIDE_FLOW";
    private static final String GLIDE_REQUEST = "GLIDE_REQUEST";
+   private static final String GLIDE_DECODE = "GLIDE_DECODE";
+   private static final String GLIDE_CACHE = "GLIDE_CACHE";
    private static final String INVOKE_TRACK = "INVOKE_TRACK";
 
    public static String identityHashCode(Object o) {
@@ -29,20 +31,26 @@ public class PrettyLogger {
    public static void glideFlow(String content) { justLog(GLIDE_FLOW, content); }
 
    public static void glideFlow(Object... objects) { justLog(GLIDE_FLOW, objects); }
+   //endregion
 
    //region GLIDE_REQUEST
    public static void glideRequest() { justLog(GLIDE_REQUEST, ""); }
-   //endregion
 
    public static void glideRequest(String content) { justLog(GLIDE_REQUEST, content); }
 
    public static void glideRequest(Object... objects) { justLog(GLIDE_REQUEST, objects); }
+   //endregion
+
+   //region GLIDE_DECODE and GLIDE_CACHE
+   public static void glideDecode(Object... objects) { justLog(GLIDE_DECODE, objects); }
+
+   public static void glideCache(Object... objects) { justLog(GLIDE_CACHE, objects); }
+   //endregion
 
    //region common
    public static void commonLog() {
       justLog("", "");
    }
-   //endregion
 
    public static void commonLog(String filter) {
       justLog(filter, "");
@@ -55,10 +63,9 @@ public class PrettyLogger {
    public static void commonLog(String filter, Object... objects) {
       justLog(filter, objects);
    }
+   //endregion
 
-   /*
-    * 追踪一个方法调用，粗略过滤
-    */
+   //region invokeTrack
    public static void invokeTrack() {
       Pair<Integer, StackTraceElement[]> pair = getStackInfo().second;
       StringBuilder builder = new StringBuilder();
@@ -68,7 +75,6 @@ public class PrettyLogger {
       }
       Log.i(INVOKE_TRACK, builder.toString());
    }
-   //endregion
 
    /*
     * 追踪一个/多个方法调用，精准过滤
@@ -80,6 +86,7 @@ public class PrettyLogger {
       if (pair.length < 2) { throw new IllegalStateException("params of invokeTrack must contain at least one \"#\""); }
       justTrack(pair[0], Arrays.copyOfRange(pair, 1, pair.length));
    }
+   //endregion
 
    private static void justTrack(@NonNull String clazz, @NonNull String... methods) {
       Pair<Pair<String, String>, Pair<Integer, StackTraceElement[]>> stackInfo = getStackInfo();

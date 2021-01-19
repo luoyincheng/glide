@@ -1,0 +1,10 @@
+- decode(ResourceDecoderRegistry) vs encode(ResourceEncoderRegistry) vs transcode(TranscoderRegistry,ResourceTranscoder)
+- 如何给实现了ResourceDecoder接口的所有类中的decode方法开头添加PrettyLogger.track()方法, 不影响旧逻辑的前提下！！！
+- 解码入口在ResourceDecoder下，一般为StreamBitmapDecoder
+- 解码：
+      DecodePath
+      DecodeJob
+      StreamBitmapDecoder
+
+- Target:
+      adf

@@ -16,6 +16,7 @@ import com.bumptech.glide.load.Transformation;
 import com.bumptech.glide.load.data.DataFetcher;
 import com.bumptech.glide.load.data.DataRewinder;
 import com.bumptech.glide.load.engine.cache.DiskCache;
+import com.bumptech.glide.load.resource.bitmap.BitmapResource;
 import com.bumptech.glide.load.resource.bitmap.Downsampler;
 import com.bumptech.glide.mine.PrettyLogger;
 import com.bumptech.glide.util.LogTime;
@@ -80,8 +81,6 @@ class DecodeJob<R>
    DecodeJob(DiskCacheProvider diskCacheProvider, Pools.Pool<DecodeJob<?>> pool) {
       this.diskCacheProvider = diskCacheProvider;
       this.pool = pool;
-      PrettyLogger.glideRequest(this);
-      PrettyLogger.invokeTrack();
    }
 
    DecodeJob<R> init(
@@ -472,6 +471,7 @@ class DecodeJob<R>
 
    private <Data> Resource<R> decodeFromData(
          DataFetcher<?> fetcher, Data data, DataSource dataSource) throws GlideException {
+      PrettyLogger.glideDecode(fetcher, data, dataSource);
       try {
          if (data == null) {
             return null;
@@ -491,7 +491,9 @@ class DecodeJob<R>
    private <Data> Resource<R> decodeFromFetcher(Data data, DataSource dataSource)
          throws GlideException {
       LoadPath<Data, ?, R> path = decodeHelper.getLoadPath((Class<Data>) data.getClass());
-      return runLoadPath(data, dataSource, path);
+      Resource<R> result = runLoadPath(data, dataSource, path);
+      PrettyLogger.glideDecode(path, result);
+      return result;
    }
 
    @NonNull

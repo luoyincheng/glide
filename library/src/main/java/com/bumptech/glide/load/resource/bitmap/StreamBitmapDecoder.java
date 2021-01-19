@@ -7,6 +7,7 @@ import com.bumptech.glide.load.ResourceDecoder;
 import com.bumptech.glide.load.engine.Resource;
 import com.bumptech.glide.load.engine.bitmap_recycle.ArrayPool;
 import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool;
+import com.bumptech.glide.mine.PrettyLogger;
 import com.bumptech.glide.util.ExceptionCatchingInputStream;
 import com.bumptech.glide.util.MarkEnforcingInputStream;
 import java.io.IOException;
@@ -34,7 +35,7 @@ public class StreamBitmapDecoder implements ResourceDecoder<InputStream, Bitmap>
    public Resource<Bitmap> decode(
          @NonNull InputStream source, int width, int height, @NonNull Options options)
          throws IOException {
-
+      PrettyLogger.invokeTrack("StreamBitmapDecoder#decode");
       // Use to fix the mark limit to avoid allocating buffers that fit entire images.
       final RecyclableBufferedInputStream bufferedStream;
       final boolean ownsBufferedStream;
@@ -59,7 +60,9 @@ public class StreamBitmapDecoder implements ResourceDecoder<InputStream, Bitmap>
       MarkEnforcingInputStream invalidatingStream = new MarkEnforcingInputStream(exceptionStream);
       UntrustedCallbacks callbacks = new UntrustedCallbacks(bufferedStream, exceptionStream);
       try {
-         return downsampler.decode(invalidatingStream, width, height, options, callbacks);
+         Resource<Bitmap> result = downsampler.decode(invalidatingStream, width, height, options, callbacks);
+         PrettyLogger.commonLog("StreamBitmapDecoder#decode", width, height, result.get().getWidth(), result.get().getHeight());
+         return result;
       } finally {
          exceptionStream.release();
          if (ownsBufferedStream) {
