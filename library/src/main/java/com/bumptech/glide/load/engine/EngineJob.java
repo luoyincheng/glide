@@ -8,7 +8,7 @@ import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.Key;
 import com.bumptech.glide.load.engine.EngineResource.ResourceListener;
 import com.bumptech.glide.load.engine.executor.GlideExecutor;
-import com.bumptech.glide.mine.PrettyLogger;
+import com.bumptech.glide.mine.Logger.PrettyLogger;
 import com.bumptech.glide.request.ResourceCallback;
 import com.bumptech.glide.util.Executors;
 import com.bumptech.glide.util.Preconditions;

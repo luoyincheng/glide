@@ -16,7 +16,7 @@ import com.bumptech.glide.load.engine.Engine;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.load.engine.Resource;
 import com.bumptech.glide.load.resource.drawable.DrawableDecoderCompat;
-import com.bumptech.glide.mine.PrettyLogger;
+import com.bumptech.glide.mine.Logger.PrettyLogger;
 import com.bumptech.glide.mine.Recite;
 import com.bumptech.glide.request.target.SizeReadyCallback;
 import com.bumptech.glide.request.target.Target;

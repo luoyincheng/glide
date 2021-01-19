@@ -5,7 +5,7 @@ import androidx.annotation.NonNull;
 import com.bumptech.glide.load.Options;
 import com.bumptech.glide.load.ResourceDecoder;
 import com.bumptech.glide.load.engine.Resource;
-import com.bumptech.glide.mine.PrettyLogger;
+import com.bumptech.glide.mine.Logger.PrettyLogger;
 import com.bumptech.glide.util.ByteBufferUtil;
 import java.io.IOException;
 import java.io.InputStream;

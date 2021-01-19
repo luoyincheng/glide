@@ -17,7 +17,7 @@ import com.bumptech.glide.load.data.DataFetcher;
 import com.bumptech.glide.load.data.DataRewinder;
 import com.bumptech.glide.load.engine.cache.DiskCache;
 import com.bumptech.glide.load.resource.bitmap.Downsampler;
-import com.bumptech.glide.mine.PrettyLogger;
+import com.bumptech.glide.mine.Logger.PrettyLogger;
 import com.bumptech.glide.util.LogTime;
 import com.bumptech.glide.util.Synthetic;
 import com.bumptech.glide.util.pool.FactoryPools.Poolable;
@@ -155,6 +155,7 @@ class DecodeJob<R>
     */
    private void onEncodeComplete() {
       if (releaseManager.onEncodeComplete()) {
+         PrettyLogger.glideFlow();
          releaseInternal();
       }
    }
@@ -336,6 +337,7 @@ class DecodeJob<R>
 
    private void notifyComplete(
          Resource<R> resource, DataSource dataSource, boolean isLoadedFromAlternateCacheKey) {
+      PrettyLogger.glideFlow("hasResourceToEncode?" + deferredEncodeManager.hasResourceToEncode());
       setNotifiedOrThrow();
       callback.onResourceReady(resource, dataSource, isLoadedFromAlternateCacheKey);
    }
@@ -436,6 +438,7 @@ class DecodeJob<R>
          throwables.add(e);
       }
       if (resource != null) {
+         PrettyLogger.glideFlow("解码完成，开始通知...");
          notifyEncodeAndRelease(resource, currentDataSource, isLoadingFromAlternateCacheKey);
       } else {
          runGenerators();
@@ -565,6 +568,7 @@ class DecodeJob<R>
    @Synthetic
    @NonNull
    <Z> Resource<Z> onResourceDecoded(DataSource dataSource, @NonNull Resource<Z> decoded) {
+      PrettyLogger.glideFlow();
       @SuppressWarnings("unchecked")
       Class<Z> resourceSubClass = (Class<Z>) decoded.get().getClass();
       Transformation<Z> appliedTransformation = null;
@@ -742,6 +746,7 @@ class DecodeJob<R>
       }
 
       void encode(DiskCacheProvider diskCacheProvider, Options options) {
+         PrettyLogger.glideFlow("toEncode:" + toEncode);
          GlideTrace.beginSection("DecodeJob.encode");
          try {
             diskCacheProvider
@@ -751,6 +756,7 @@ class DecodeJob<R>
             toEncode.unlock();
             GlideTrace.endSection();
          }
+         PrettyLogger.glideFlow("toEncode:" + toEncode + " encode finished");
       }
 
       boolean hasResourceToEncode() {

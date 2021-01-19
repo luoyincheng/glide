@@ -10,7 +10,7 @@ import com.bumptech.glide.load.data.DataFetcher;
 import com.bumptech.glide.load.data.DataFetcher.DataCallback;
 import com.bumptech.glide.load.model.ModelLoader;
 import com.bumptech.glide.load.model.ModelLoader.LoadData;
-import com.bumptech.glide.mine.PrettyLogger;
+import com.bumptech.glide.mine.Logger.PrettyLogger;
 import com.bumptech.glide.util.LogTime;
 import com.bumptech.glide.util.Synthetic;
 import java.util.Collections;

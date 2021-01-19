@@ -1,4 +1,4 @@
-package com.bumptech.glide.mine;
+package com.bumptech.glide.mine.Logger;
 
 import android.text.TextUtils;
 import android.util.ArrayMap;
@@ -197,4 +197,12 @@ public class PrettyLogger {
       JUST,    // "@"
       THREAD_EXCLUDE, // "-"
    }
+
+   public static final int FLOW = 1;
+   public static final int FLOW_REQUEST = 1 << 1;
+   public static final int FLOW_REQUEST_DECODE = 1 << 2;
+   public static final int FLOW_REQUEST_DECODE_TRANSCODE = 1 << 3;
+   public static final int FLOW_REQUEST_DECODE_TRANSCODE_ENCODE = 1 << 4;
+   public static final int FLOW_REQUEST_DECODE_TRANSCODE_ENCODE_MEMCACHE = 1 << 5;
+   public static final int FLOW_REQUEST_DECODE_TRANSCODE_ENCODE_MEMCACHE_DISKCACHE = 1 << 6;
 }

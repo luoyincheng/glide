@@ -8,7 +8,7 @@ import com.bumptech.glide.Priority;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.HttpException;
 import com.bumptech.glide.load.model.GlideUrl;
-import com.bumptech.glide.mine.PrettyLogger;
+import com.bumptech.glide.mine.Logger.PrettyLogger;
 import com.bumptech.glide.util.ContentLengthInputStream;
 import com.bumptech.glide.util.LogTime;
 import com.bumptech.glide.util.Synthetic;

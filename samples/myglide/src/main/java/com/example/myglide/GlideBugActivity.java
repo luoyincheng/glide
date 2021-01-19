@@ -13,7 +13,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestBuilder;
 import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.mine.PrettyLogger;
+import com.bumptech.glide.mine.Logger.PrettyLogger;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 import java.util.Arrays;
@@ -100,9 +100,9 @@ public class GlideBugActivity extends AppCompatActivity {
       RequestManager requestManager = Glide.with(GlideBugActivity.this);
 //      RequestManager requestManager = Glide.with(getApplicationContext());
       RequestBuilder<Bitmap> requestBuilder = requestManager
-            .asBitmap();
-//            .diskCacheStrategy(DiskCacheStrategy.NONE)
-//            .skipMemoryCache(true);
+            .asBitmap()
+            .diskCacheStrategy(DiskCacheStrategy.NONE)
+            .skipMemoryCache(true);
       requestBuilder = requestBuilder.load(url);
       requestBuilder.into(mCustomTarget);
    }

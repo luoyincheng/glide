@@ -16,7 +16,7 @@ import com.bumptech.glide.load.engine.cache.DiskCache;
 import com.bumptech.glide.load.engine.cache.DiskCacheAdapter;
 import com.bumptech.glide.load.engine.cache.MemoryCache;
 import com.bumptech.glide.load.engine.executor.GlideExecutor;
-import com.bumptech.glide.mine.PrettyLogger;
+import com.bumptech.glide.mine.Logger.PrettyLogger;
 import com.bumptech.glide.request.ResourceCallback;
 import com.bumptech.glide.util.Executors;
 import com.bumptech.glide.util.LogTime;

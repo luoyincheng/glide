@@ -2,6 +2,7 @@ package com.bumptech.glide.load.engine;
 
 import androidx.annotation.NonNull;
 import androidx.core.util.Pools;
+import com.bumptech.glide.mine.Logger.PrettyLogger;
 import com.bumptech.glide.util.Preconditions;
 import com.bumptech.glide.util.Synthetic;
 import com.bumptech.glide.util.pool.FactoryPools;
@@ -35,6 +36,7 @@ final class LockedResource<Z> implements Resource<Z>, FactoryPools.Poolable {
    @SuppressWarnings("unchecked")
    @NonNull
    static <Z> LockedResource<Z> obtain(Resource<Z> resource) {
+      PrettyLogger.glideFlow("resource:" + resource);
       LockedResource<Z> result = Preconditions.checkNotNull((LockedResource<Z>) POOL.acquire());
       result.init(resource);
       return result;
