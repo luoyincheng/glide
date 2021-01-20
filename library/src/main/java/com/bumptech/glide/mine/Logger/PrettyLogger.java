@@ -76,6 +76,20 @@ public class PrettyLogger {
       Log.i(INVOKE_TRACK, builder.toString());
    }
 
+   //追踪该方法的调用者
+   public static void invokeTrackLast() {
+      Pair<Pair<String, String>, Pair<Integer, StackTraceElement[]>> stackInfo = getStackInfo();
+      StringBuilder builder = new StringBuilder();
+      builder.append(INVOKE_TRACK).append(" ▶▶ ").append("\n");
+      for (int i = stackInfo.second.first; i < stackInfo.second.second.length; i++) {
+         builder.append(stackInfo.second.second[i].toString()).append("\n");
+         if (!stackInfo.second.second[i].getClassName().equals(stackInfo.first.first) ||
+               !stackInfo.second.second[i].getMethodName().equals(stackInfo.first.second)) { break; }
+      }
+      builder.append(stackInfo.first.first).append("\n").append(stackInfo.first.second);
+      Log.i(INVOKE_TRACK, builder.toString());
+   }
+
    /*
     * 追踪一个/多个方法调用，精准过滤
     * @param clazzAndMethods, combine clazz and multi methods with "#" to track these methods at the same time

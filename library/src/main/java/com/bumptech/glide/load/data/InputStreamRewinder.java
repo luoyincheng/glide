@@ -3,6 +3,7 @@ package com.bumptech.glide.load.data;
 import androidx.annotation.NonNull;
 import com.bumptech.glide.load.engine.bitmap_recycle.ArrayPool;
 import com.bumptech.glide.load.resource.bitmap.RecyclableBufferedInputStream;
+import com.bumptech.glide.mine.Logger.PrettyLogger;
 import com.bumptech.glide.util.Synthetic;
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,7 +28,10 @@ public final class InputStreamRewinder implements DataRewinder<InputStream> {
    @NonNull
    @Override
    public InputStream rewindAndGet() throws IOException {
+      PrettyLogger.invokeTrackLast();
+      PrettyLogger.glideFlow("before:" + bufferedStream.toString());
       bufferedStream.reset();
+      PrettyLogger.glideFlow("after:" + bufferedStream.toString());
       return bufferedStream;
    }
 

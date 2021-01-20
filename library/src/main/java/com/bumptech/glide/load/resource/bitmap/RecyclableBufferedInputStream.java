@@ -20,7 +20,6 @@ package com.bumptech.glide.load.resource.bitmap;
 import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
 import com.bumptech.glide.load.engine.bitmap_recycle.ArrayPool;
-import com.bumptech.glide.mine.Logger.PrettyLogger;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -58,6 +57,11 @@ public class RecyclableBufferedInputStream extends FilterInputStream {
     * The current position within the byte array {@code buf}.
     */
    private int pos;
+
+   @Override
+   public String toString() {
+      return "RecyclableBufferedInputStream{ position=" + pos + ", markpos=" + markpos + " }";
+   }
 
    public RecyclableBufferedInputStream(@NonNull InputStream in, @NonNull ArrayPool byteArrayPool) {
       this(in, byteArrayPool, ArrayPool.STANDARD_BUFFER_SIZE_BYTES);
@@ -202,13 +206,6 @@ public class RecyclableBufferedInputStream extends FilterInputStream {
       return true;
    }
 
-   private long totalByte = 0L;
-
-   private synchronized void totalRead(int readByte) {
-      totalByte += readByte;
-      PrettyLogger.glideFlow("totalByte:" + totalByte);
-   }
-
    /**
     * Reads a single byte from this stream and returns it as an integer in the range from 0 to 255. Returns -1 if the end of the source string has been reached. If the internal buffer does not contain
     * any available bytes then it is filled from the source stream and the first byte is returned.
@@ -218,8 +215,6 @@ public class RecyclableBufferedInputStream extends FilterInputStream {
     */
    @Override
    public synchronized int read() throws IOException {
-      PrettyLogger.glideFlow("只读取一个byte");
-      totalRead(1);
       // Use local refs since buf and in may be invalidated by an
       // unsynchronized close()
       byte[] localBuf = buf;
@@ -261,8 +256,6 @@ public class RecyclableBufferedInputStream extends FilterInputStream {
    @Override
    public synchronized int read(@NonNull byte[] buffer, int offset, int byteCount)
          throws IOException {
-      PrettyLogger.glideFlow("offset:" + offset, "byteCount:" + byteCount);
-      totalRead(byteCount);
       // Use local ref since buf may be invalidated by an unsynchronized close()
       byte[] localBuf = buf;
       if (localBuf == null) {

@@ -46,9 +46,7 @@ interface ImageReader {
       @Nullable
       @Override
       public Bitmap decodeBitmap(BitmapFactory.Options options) throws IOException {
-//         return BitmapFactory.decodeStream(dataRewinder.rewindAndGet(), null, options);
-         return null;
-         // TODO: 21-1-19
+         return BitmapFactory.decodeStream(dataRewinder.rewindAndGet(), null, options);
       }
 
       @Override
