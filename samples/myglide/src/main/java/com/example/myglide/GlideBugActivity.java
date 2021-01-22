@@ -1,5 +1,7 @@
 package com.example.myglide;
 
+import android.app.Activity;
+import android.app.ActivityManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -21,8 +23,9 @@ import java.util.List;
 
 public class GlideBugActivity extends AppCompatActivity {
    private Drawable mDrawable;
-   private AppCompatImageView mIv_bg;
-   private CustomTarget<Bitmap> mCustomTarget;
+   private AppCompatImageView mIvSource, mIvSmall;
+   //   private AppCompatTextView mTvMemAvailable, mTvMemUsed;
+   private CustomTarget<Bitmap> mCustomTargetSource, mCustomTargetSmall;
    private List<String> mUrls = Arrays.asList(
          "https://clubimg.club.vmall.com/data/attachment/forum/201905/17/082652qm7mayijp9eua6d5.jpg",
          "https://ottimg.cdn.pandora.xiaomi.com/e52cdffbf10abaef0a5daeebeebb48cc.jpg.webp",
@@ -54,6 +57,7 @@ public class GlideBugActivity extends AppCompatActivity {
       switch (event.getAction()) {
          case MotionEvent.ACTION_DOWN:
             huapingBug(event.getX() > 1080);
+            showMemInfo();
             break;
       }
       return true;
@@ -61,12 +65,13 @@ public class GlideBugActivity extends AppCompatActivity {
 
    private void huapingBug(boolean isNext) {
       String url = getNextUrl(isNext);
-      if (mCustomTarget != null) {
-         Glide.with(isNext ? GlideBugActivity.this : getApplicationContext()).clear(mCustomTarget);
-         mCustomTarget = null;
+      if (mCustomTargetSource != null) {
+         Glide.with(isNext ? GlideBugActivity.this : getApplicationContext()).clear(mCustomTargetSource);
+         mCustomTargetSource = null;
       }
 
-      mCustomTarget = new CustomTarget<Bitmap>(320, 180) {
+//      mCustomTarget = new CustomTarget<Bitmap>(320, 180) {
+      mCustomTargetSource = new CustomTarget<Bitmap>() {
 
          @Override
          public void onLoadCleared(@Nullable Drawable placeholder) {
@@ -83,35 +88,77 @@ public class GlideBugActivity extends AppCompatActivity {
          public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
             PrettyLogger.glideFlow();
             mDrawable = new BitmapDrawable(getResources(), resource);
-            mIv_bg.setImageDrawable(mDrawable);
+            mIvSource.setImageDrawable(mDrawable);
          }
 
          @Override
          public void onLoadFailed(@Nullable Drawable errorDrawable) {
-            PrettyLogger.glideFlow();
+            PrettyLogger.glideFlow(errorDrawable);
             super.onLoadFailed(errorDrawable);
-            mIv_bg.setImageDrawable(errorDrawable);
+            mIvSource.setImageDrawable(errorDrawable);
+         }
+      };
+
+      mCustomTargetSmall = new CustomTarget<Bitmap>() {
+
+         @Override
+         public void onLoadCleared(@Nullable Drawable placeholder) {
+            PrettyLogger.glideFlow();
          }
 
+         @Override
+         public void onLoadStarted(@Nullable Drawable placeholder) {
+            PrettyLogger.glideFlow();
+            super.onLoadStarted(placeholder);
+         }
 
+         @Override
+         public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+            PrettyLogger.glideFlow();
+            mDrawable = new BitmapDrawable(getResources(), resource);
+            mIvSource.setImageDrawable(mDrawable);
+         }
+
+         @Override
+         public void onLoadFailed(@Nullable Drawable errorDrawable) {
+            PrettyLogger.glideFlow(errorDrawable);
+            super.onLoadFailed(errorDrawable);
+            mIvSource.setImageDrawable(errorDrawable);
+         }
       };
-      // TODO: 21-1-13 参数推断为Context，kotlin中会怎样呢？
-//      RequestManager requestManager = Glide.with(isNext ? GlideBugActivity.this : getApplicationContext());
-      RequestManager requestManager = Glide.with(GlideBugActivity.this);
-//      RequestManager requestManager = Glide.with(getApplicationContext());
-      RequestBuilder<Bitmap> requestBuilder = requestManager
+      RequestManager requestManagerSource = Glide.with(GlideBugActivity.this);
+      RequestBuilder<Bitmap> requestBuilderSource = requestManagerSource
             .asBitmap()
-            .diskCacheStrategy(DiskCacheStrategy.NONE)
-            .skipMemoryCache(true);
-      requestBuilder = requestBuilder.load(url);
-      requestBuilder.into(mCustomTarget);
+            .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
+            .skipMemoryCache(false);
+      requestBuilderSource = requestBuilderSource.load(url);
+      requestBuilderSource.into(mCustomTargetSource);
+
+      RequestManager requestManagerSmall = Glide.with(GlideBugActivity.this);
+      RequestBuilder<Bitmap> requestBuilderSmall = requestManagerSmall
+            .asBitmap()
+            .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
+            .skipMemoryCache(false);
+      requestBuilderSmall = requestBuilderSmall.load(url);
+      requestBuilderSmall.into(mCustomTargetSmall);
    }
 
    @Override
    protected void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
       setContentView(R.layout.activity_glide_bug);
-      mIv_bg = findViewById(R.id.iv_bg);
+      mIvSource = findViewById(R.id.iv_source);
+      mIvSmall = findViewById(R.id.iv_small);
+//      mTvMemAvailable = findViewById(R.id.tv_available_mem);
+//      mTvMemUsed = findViewById(R.id.tv_mem_in_use);
       //"https://w.wallhaven.cc/full/rd/wallhaven-rd3pjw.jpg";
+   }
+
+   public void showMemInfo() {
+      ActivityManager activityManager = (ActivityManager) this.getSystemService(Activity.ACTIVITY_SERVICE);
+      ActivityManager.MemoryInfo curMemInfo = new ActivityManager.MemoryInfo();
+      activityManager.getMemoryInfo(curMemInfo);
+//      mTvMemAvailable.setText("totalMem: " + curMemInfo.totalMem / 1024 + " | availMem: " + curMemInfo.availMem / 1024);
+//      mTvMemUsed.setText("lowMemory: " + curMemInfo.lowMemory + " | threshold: " + curMemInfo.threshold / 1024);
    }
 }

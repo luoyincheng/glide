@@ -12,6 +12,7 @@ import com.bumptech.glide.load.data.DataRewinder;
 import com.bumptech.glide.load.data.InputStreamRewinder;
 import com.bumptech.glide.load.data.ParcelFileDescriptorRewinder;
 import com.bumptech.glide.load.engine.bitmap_recycle.ArrayPool;
+import com.bumptech.glide.mine.Logger.PrettyLogger;
 import com.bumptech.glide.util.Preconditions;
 import java.io.IOException;
 import java.io.InputStream;
@@ -46,7 +47,9 @@ interface ImageReader {
       @Nullable
       @Override
       public Bitmap decodeBitmap(BitmapFactory.Options options) throws IOException {
-         return BitmapFactory.decodeStream(dataRewinder.rewindAndGet(), null, options);
+         Bitmap bitmap = BitmapFactory.decodeStream(dataRewinder.rewindAndGet(), null, options);
+         if (bitmap != null) { PrettyLogger.glideFlow("decodedBitmap:" + bitmap.getWidth() + " : " + bitmap.getHeight()); }
+         return bitmap;
       }
 
       @Override
