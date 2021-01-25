@@ -16,12 +16,12 @@ public abstract class BaseTVActivity extends AppCompatActivity {
       @Override
       public void onFocusChange(View v, boolean hasFocus) {
          PrettyLogger.commonLog();
-         v.setBackgroundDrawable(hasFocus ? checkedColorDrawable : uncheckedColorDrawable);
+         v.setBackground(hasFocus ? checkedColorDrawable : uncheckedColorDrawable);
       }
    };
 
-   ColorDrawable checkedColorDrawable = new ColorDrawable(Color.parseColor("#ff0000"));
-   ColorDrawable uncheckedColorDrawable = new ColorDrawable(Color.parseColor("#ffffff"));
+   final ColorDrawable checkedColorDrawable = new ColorDrawable(Color.parseColor("#11ff0000"));
+   final ColorDrawable uncheckedColorDrawable = new ColorDrawable(Color.parseColor("#33ffffff"));
 
    @Override
    protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -37,11 +37,11 @@ public abstract class BaseTVActivity extends AppCompatActivity {
       viewStack.add(rootView);
       while (!viewStack.isEmpty()) {
          View view = viewStack.pop();
-         if (view instanceof ViewGroup) {//容器
+         if (view instanceof ViewGroup) {
             for (int i = 0; i < ((ViewGroup) view).getChildCount(); i++) {
                viewStack.push(((ViewGroup) view).getChildAt(i));
             }
-         } else {//View
+         } else {
             view.setOnFocusChangeListener(onFocusChangeListener);
          }
       }

@@ -10,10 +10,8 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatImageView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestBuilder;
@@ -62,7 +60,7 @@ public class GlideBugTVActivity extends BaseTVActivity {
       switch (event.getAction()) {
          case MotionEvent.ACTION_DOWN:
             huapingBug(event.getX() > 1080);
-            showMemInfo();
+//            showMemInfo();
             break;
       }
       return true;
@@ -174,11 +172,11 @@ public class GlideBugTVActivity extends BaseTVActivity {
    }
 
    public void leftClick(View view) {
-      Toast.makeText(this, "left", Toast.LENGTH_LONG).show();
+      huapingBug(false);
    }
 
    public void rightClick(View view) {
-      Toast.makeText(this, "right", Toast.LENGTH_LONG).show();
+      huapingBug(true);
    }
 
    public void showMemInfo() {
