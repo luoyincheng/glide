@@ -24,6 +24,11 @@
          android:name=".GlideBugActivity"
          android:screenOrientation="landscape"
          android:theme="@style/FullScreenLight" />
+
+      <activity
+         android:name=".GlideBugTVActivity"
+         android:screenOrientation="landscape"
+         android:theme="@style/FullScreenLight" />
       <activity
          android:name=".GlideFlowActivity"
          android:screenOrientation="landscape"

@@ -29,4 +29,28 @@
       android:layout_height="180px"
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintRight_toRightOf="parent" />
+
+   <androidx.appcompat.widget.AppCompatImageView
+      android:id="@+id/iv_left"
+      style="@style/TVStyle"
+      android:layout_width="0dp"
+      android:layout_height="0dp"
+      android:background="@null"
+      android:onClick="leftClick"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintLeft_toLeftOf="parent"
+      app:layout_constraintRight_toLeftOf="@+id/iv_right"
+      app:layout_constraintTop_toTopOf="parent" />
+
+   <androidx.appcompat.widget.AppCompatImageView
+      android:id="@+id/iv_right"
+      style="@style/TVStyle"
+      android:layout_width="0dp"
+      android:layout_height="0dp"
+      android:background="@null"
+      android:onClick="rightClick"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintLeft_toRightOf="@+id/iv_left"
+      app:layout_constraintRight_toRightOf="parent"
+      app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
    <!-- Base application theme. -->
    <style name="Theme.Glideparent" parent="Theme.AppCompat.Light.DarkActionBar">
       <!-- Primary brand color. -->
@@ -11,6 +11,13 @@
    <style name="FullScreenLight" parent="Theme.AppCompat.DayNight.NoActionBar">
       <item name="android:windowNoTitle">true</item>
       <item name="android:windowFullscreen">true</item>
-<!--      <item name="android:windowBackground">@null</item>-->
+      <!--      <item name="android:windowBackground">@null</item>-->
+   </style>
+
+   <style name="TVStyle">
+      <item name="android:clickable">true</item>
+      <item name="android:focusable">true</item>
+      <item name="android:focusableInTouchMode">true</item>
+      <item name="android:defaultFocusHighlightEnabled" tools:targetApi="o">true</item>
    </style>
 </resources>
