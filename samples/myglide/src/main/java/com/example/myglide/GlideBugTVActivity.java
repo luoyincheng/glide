@@ -29,22 +29,6 @@ public class GlideBugTVActivity extends BaseTVActivity {
    private AppCompatImageView mIvSource, mIvSmall;
    //   private AppCompatTextView mTvMemAvailable, mTvMemUsed;
    private CustomTarget<Bitmap> mCustomTargetSource, mCustomTargetSmall;
-   private List<String> mUrls = Arrays.asList(
-         "https://clubimg.club.vmall.com/data/attachment/forum/201905/17/082652qm7mayijp9eua6d5.jpg",
-         "https://ottimg.cdn.pandora.xiaomi.com/e52cdffbf10abaef0a5daeebeebb48cc.jpg.webp",
-         "https://img.leitu123.com/article/UploadPic/2012-7/20127271358077420.jpg",
-         "https://ottimg.cdn.pandora.xiaomi.com/6eacc8d2da4296ceea1c54ef38da4f83.jpg.webp",
-         "https://images.hdqwalls.com/download/small-memory-lp-1920x1080.jpg",
-         "https://ottimg.cdn.pandora.xiaomi.com/a1f6deee50943e8c6e64c21ca2851b97.png.webp",
-         "https://images.hdqwalls.com/download/not-in-mood-4k-qy-1920x1080.jpg",
-         "https://ottimg.cdn.pandora.xiaomi.com/d22c2450041578e96ac3aa258998122f.jpg.webp",
-         "https://www.winwallpapers.net/w1/2018/08/Windows-Logo-Surface-Cubes-1920x1080.jpg",
-         "https://image.cdn.pandora.xiaomi.com/mitv/10007/0/b7eece58ee3aa3ab572bf7bec51f5ad2.webp",
-         "https://www.winwallpapers.net/w1/2018/08/Windows-Clouds-Sky-Blue-White-1920x1080.jpg",
-         "https://ottimg.cdn.pandora.xiaomi.com/6b3b60ce22ffe8e9501ae9759433367c.jpeg.webp",
-         "https://www.winwallpapers.net/w1/2018/08/Windows-Logo-Operating-System-1920x1080.jpg",
-         "https://ottimg.cdn.pandora.xiaomi.com/ff5eef11775003a9a14c537bbc8f2f08.webp"
-   );
 
    private int mNextIndex = mUrls.size() - 1;
 
