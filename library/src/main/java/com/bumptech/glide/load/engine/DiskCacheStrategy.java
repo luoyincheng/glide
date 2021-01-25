@@ -2,6 +2,7 @@ package com.bumptech.glide.load.engine;
 
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.EncodeStrategy;
+import com.bumptech.glide.mine.Logger.PrettyLogger;
 
 /**
  * Set of available caching strategies for media.
@@ -126,15 +127,24 @@ public abstract class DiskCacheStrategy {
          new DiskCacheStrategy() {
             @Override
             public boolean isDataCacheable(DataSource dataSource) {
+               PrettyLogger.commonLog("result of isDataCacheable ", dataSource == DataSource.REMOTE);
                return dataSource == DataSource.REMOTE;
             }
 
             @Override
             public boolean isResourceCacheable(
                   boolean isFromAlternateCacheKey, DataSource dataSource, EncodeStrategy encodeStrategy) {
-               return ((isFromAlternateCacheKey && dataSource == DataSource.DATA_DISK_CACHE)
+               boolean result = ((isFromAlternateCacheKey && dataSource == DataSource.DATA_DISK_CACHE)
                      || dataSource == DataSource.LOCAL)
                      && encodeStrategy == EncodeStrategy.TRANSFORMED;
+               PrettyLogger.commonLog("result of isResourceCacheable ",
+                     result,
+                     isFromAlternateCacheKey,
+                     (dataSource == DataSource.DATA_DISK_CACHE),
+                     (dataSource == DataSource.LOCAL),
+                     (encodeStrategy == EncodeStrategy.TRANSFORMED)
+               );
+               return result;
             }
 
             @Override

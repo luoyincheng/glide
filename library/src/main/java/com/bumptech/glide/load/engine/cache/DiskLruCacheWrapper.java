@@ -8,6 +8,7 @@ import android.util.Log;
 import com.bumptech.glide.disklrucache.DiskLruCache;
 import com.bumptech.glide.disklrucache.DiskLruCache.Value;
 import com.bumptech.glide.load.Key;
+import com.bumptech.glide.mine.Logger.PrettyLogger;
 import java.io.File;
 import java.io.IOException;
 
@@ -36,6 +37,7 @@ public class DiskLruCacheWrapper implements DiskCache {
    // Deprecated public API.
    @SuppressWarnings({"WeakerAccess", "DeprecatedIsStillUsed"})
    protected DiskLruCacheWrapper(File directory, long maxSize) {
+      PrettyLogger.commonLog("cacheFlow");
       this.directory = directory;
       this.maxSize = maxSize;
       this.safeKeyGenerator = new SafeKeyGenerator();
@@ -94,6 +96,7 @@ public class DiskLruCacheWrapper implements DiskCache {
          final DiskLruCache.Value value = getDiskCache().get(safeKey);
          if (value != null) {
             result = value.getFile(0);
+            PrettyLogger.commonLog("cacheFlow", result);
          }
       } catch (IOException e) {
          if (Log.isLoggable(TAG, Log.WARN)) {
@@ -105,6 +108,7 @@ public class DiskLruCacheWrapper implements DiskCache {
 
    @Override
    public void put(Key key, Writer writer) {
+      PrettyLogger.commonLog("cacheFlow");
       // We want to make sure that puts block so that data is available when put completes. We may
       // actually not write any data if we find that data is written by the time we acquire the lock.
       String safeKey = safeKeyGenerator.getSafeKey(key);
@@ -146,6 +150,7 @@ public class DiskLruCacheWrapper implements DiskCache {
 
    @Override
    public void delete(Key key) {
+      PrettyLogger.commonLog("cacheFlow");
       String safeKey = safeKeyGenerator.getSafeKey(key);
       try {
          getDiskCache().remove(safeKey);
@@ -158,6 +163,7 @@ public class DiskLruCacheWrapper implements DiskCache {
 
    @Override
    public synchronized void clear() {
+      PrettyLogger.commonLog("cacheFlow");
       try {
          getDiskCache().delete();
       } catch (IOException e) {
@@ -173,6 +179,7 @@ public class DiskLruCacheWrapper implements DiskCache {
    }
 
    private synchronized void resetDiskCache() {
+      PrettyLogger.commonLog("cacheFlow");
       diskLruCache = null;
    }
 }

@@ -81,6 +81,7 @@ public class HttpUrlFetcher implements DataFetcher<InputStream> {
       long startTime = LogTime.getLogTime();
       try {
          InputStream result = loadDataWithRedirects(glideUrl.toURL(), 0, null, glideUrl.getHeaders());
+         PrettyLogger.commonLog("HttpUrlFetcher#loadData",glideUrl);
          callback.onDataReady(result);
       } catch (IOException e) {
          if (Log.isLoggable(TAG, Log.DEBUG)) {

@@ -1,5 +1,7 @@
 package com.example.myglide;
 
+import android.animation.ValueAnimator;
+import android.animation.ValueAnimator.AnimatorUpdateListener;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.graphics.Bitmap;
@@ -22,7 +24,8 @@ import java.util.Arrays;
 import java.util.List;
 
 public class GlideBugActivity extends AppCompatActivity {
-   private Drawable mDrawable;
+   private ValueAnimator valueAnimator = ValueAnimator.ofFloat(1.0f, 0.0f);
+   private Drawable mDrawableSource, mDrawableSmall;
    private AppCompatImageView mIvSource, mIvSmall;
    //   private AppCompatTextView mTvMemAvailable, mTvMemUsed;
    private CustomTarget<Bitmap> mCustomTargetSource, mCustomTargetSmall;
@@ -70,7 +73,6 @@ public class GlideBugActivity extends AppCompatActivity {
          mCustomTargetSource = null;
       }
 
-//      mCustomTarget = new CustomTarget<Bitmap>(320, 180) {
       mCustomTargetSource = new CustomTarget<Bitmap>() {
 
          @Override
@@ -87,8 +89,9 @@ public class GlideBugActivity extends AppCompatActivity {
          @Override
          public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
             PrettyLogger.glideFlow();
-            mDrawable = new BitmapDrawable(getResources(), resource);
-            mIvSource.setImageDrawable(mDrawable);
+            mDrawableSource = new BitmapDrawable(getResources(), resource);
+            mDrawableSource.setAlpha(255);
+            valueAnimator.start();
          }
 
          @Override
@@ -99,7 +102,7 @@ public class GlideBugActivity extends AppCompatActivity {
          }
       };
 
-      mCustomTargetSmall = new CustomTarget<Bitmap>() {
+      mCustomTargetSmall = new CustomTarget<Bitmap>(320, 180) {
 
          @Override
          public void onLoadCleared(@Nullable Drawable placeholder) {
@@ -115,15 +118,15 @@ public class GlideBugActivity extends AppCompatActivity {
          @Override
          public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
             PrettyLogger.glideFlow();
-            mDrawable = new BitmapDrawable(getResources(), resource);
-            mIvSource.setImageDrawable(mDrawable);
+            mDrawableSmall = new BitmapDrawable(getResources(), resource);
+            mIvSmall.setImageDrawable(mDrawableSmall);
          }
 
          @Override
          public void onLoadFailed(@Nullable Drawable errorDrawable) {
             PrettyLogger.glideFlow(errorDrawable);
             super.onLoadFailed(errorDrawable);
-            mIvSource.setImageDrawable(errorDrawable);
+            mIvSmall.setImageDrawable(errorDrawable);
          }
       };
       RequestManager requestManagerSource = Glide.with(GlideBugActivity.this);
@@ -152,6 +155,16 @@ public class GlideBugActivity extends AppCompatActivity {
 //      mTvMemAvailable = findViewById(R.id.tv_available_mem);
 //      mTvMemUsed = findViewById(R.id.tv_mem_in_use);
       //"https://w.wallhaven.cc/full/rd/wallhaven-rd3pjw.jpg";
+      valueAnimator.setDuration(2000);
+      valueAnimator.addUpdateListener(new AnimatorUpdateListener() {
+         @Override
+         public void onAnimationUpdate(ValueAnimator animation) {
+            float curVal = (float) animation.getAnimatedValue();
+            PrettyLogger.commonLog("curVal:" + curVal);
+            mDrawableSource.setAlpha((int) (255 * curVal));
+            mIvSource.setImageDrawable(mDrawableSource);
+         }
+      });
    }
 
    public void showMemInfo() {
