@@ -21,4 +21,12 @@ public class GlideActivity extends BaseTVActivity {
    public void glideFlow(View view) {
       startActivity(new Intent(this, GlideFlowActivity.class));
    }
+
+   public void glideTVBugRecycler(View view) {
+      startActivity(new Intent(this, GlideBugRecyclerViewActivity.class));
+   }
+
+   public void glideTVBugHalfImage(View view) {
+      startActivity(new Intent(this, GlideBugHalfImageActivity.class));
+   }
 }

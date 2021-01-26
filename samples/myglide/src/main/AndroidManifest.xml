@@ -34,6 +34,16 @@
          android:name=".GlideFlowActivity"
          android:screenOrientation="landscape"
          android:theme="@style/FullScreenLight" />
+
+      <activity
+         android:name=".GlideBugRecyclerViewActivity"
+         android:screenOrientation="landscape"
+         android:theme="@style/FullScreenLight" />
+
+      <activity
+         android:name=".GlideBugHalfImageActivity"
+         android:screenOrientation="landscape"
+         android:theme="@style/FullScreenLight" />
    </application>
 
    <uses-permission android:name="android.permission.INTERNET" />

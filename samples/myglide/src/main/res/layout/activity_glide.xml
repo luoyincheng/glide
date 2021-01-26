@@ -15,6 +15,7 @@
       android:text="GlideBug"
       android:textColor="@android:color/black"
       app:layout_constraintTop_toTopOf="parent" />
+
    <androidx.appcompat.widget.AppCompatTextView
       android:id="@+id/glide_bug_tv_activity"
       style="@style/TVStyle"
@@ -27,6 +28,7 @@
       android:text="GlideBugTV"
       android:textColor="@android:color/black"
       app:layout_constraintTop_toBottomOf="@+id/glide_bug_activity" />
+
    <androidx.appcompat.widget.AppCompatTextView
       android:id="@+id/tv_four"
       style="@style/TVStyle"
@@ -40,4 +42,29 @@
       android:textColor="@android:color/black"
       app:layout_constraintTop_toBottomOf="@+id/glide_bug_tv_activity" />
 
+   <androidx.appcompat.widget.AppCompatTextView
+      android:id="@+id/glide_bug_tv_activity_recycler"
+      style="@style/TVStyle"
+      android:textStyle="bold"
+      android:layout_width="match_parent"
+      android:layout_height="88dp"
+      android:padding="10dp"
+      android:gravity="center"
+      android:onClick="glideTVBugRecycler"
+      android:text="GlideBugTVRecycler"
+      android:textColor="@android:color/black"
+      app:layout_constraintTop_toBottomOf="@+id/tv_four" />
+
+   <androidx.appcompat.widget.AppCompatTextView
+      android:id="@+id/glide_bug_tv_activity_half_image"
+      style="@style/TVStyle"
+      android:textStyle="bold"
+      android:layout_width="match_parent"
+      android:layout_height="88dp"
+      android:padding="10dp"
+      android:gravity="center"
+      android:onClick="glideTVBugHalfImage"
+      android:text="GlideBugTVHalfImage"
+      android:textColor="@android:color/black"
+      app:layout_constraintTop_toBottomOf="@+id/glide_bug_tv_activity_recycler" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,5 +1,7 @@
 package com.example.myglide;
 
+import static com.example.myglide.data.ImgUrls.mWEBPs;
+
 import android.animation.ValueAnimator;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
 import android.app.Activity;
@@ -27,6 +29,7 @@ import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 import java.io.ByteArrayOutputStream;
+import java.util.List;
 
 public class GlideBugTVActivity extends BaseTVActivity {
    private ValueAnimator valueAnimator = ValueAnimator.ofFloat(1.0f, 0.3f);
@@ -34,14 +37,15 @@ public class GlideBugTVActivity extends BaseTVActivity {
    private AppCompatImageView mIvSource, mIvSmall;
    //   private AppCompatTextView mTvMemAvailable, mTvMemUsed;
    private CustomTarget<Bitmap> mCustomTargetSource, mCustomTargetSmall;
+   private final List<String> testSource = mWEBPs;
 
-   private int mNextIndex = mUrls.size() - 1;
+   private int mNextIndex = testSource.size() - 1;
 
    private String getNextUrl(boolean isNext) {
       if (isNext) { mNextIndex++; } else { mNextIndex--; }
-      if (mNextIndex == mUrls.size()) { mNextIndex = 0; }
-      if (mNextIndex == -1) { mNextIndex = mUrls.size() - 1; }
-      return mUrls.get(mNextIndex);
+      if (mNextIndex == testSource.size()) { mNextIndex = 0; }
+      if (mNextIndex == -1) { mNextIndex = testSource.size() - 1; }
+      return testSource.get(mNextIndex);
    }
 
    @Override
@@ -70,7 +74,8 @@ public class GlideBugTVActivity extends BaseTVActivity {
    }
 
    public void leftClick(View view) {
-      loadSmallImg();
+//      loadSmallImg();
+      loadSmallImgNormally();
    }
 
    public void rightClick(View view) {
@@ -89,7 +94,7 @@ public class GlideBugTVActivity extends BaseTVActivity {
       ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
       source.compress(CompressFormat.WEBP, 100, outputStream);
       BitmapFactory.Options options = new Options();
-      options.inPreferredConfig = Config.ARGB_8888;
+      options.inPreferredConfig = Config.RGB_565;
       return BitmapFactory.decodeByteArray(outputStream.toByteArray(), 0, outputStream.size(), options);
    }
 
@@ -118,7 +123,7 @@ public class GlideBugTVActivity extends BaseTVActivity {
          @Override
          public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
             Bitmap newResource = changeBitmapConfig(resource);
-            PrettyLogger.glideFlow("resource.getConfig(): ", resource.getConfig(), "newResource.getConfig():", newResource.getConfig());
+            PrettyLogger.glideFlow(resource, resource.getConfig(), newResource, newResource.getConfig());
             mDrawableSource = new BitmapDrawable(getResources(), newResource);
             mDrawableSource.setAlpha(255);
             valueAnimator.start();
@@ -185,5 +190,15 @@ public class GlideBugTVActivity extends BaseTVActivity {
             .apply(RequestOptions.bitmapTransform(new RoundedCorners(5)));//会用到BitmapPool
       requestBuilderSmall = requestBuilderSmall.load(mCurUrl);
       requestBuilderSmall.into(mCustomTargetSmall);
+   }
+
+   private void loadSmallImgNormally() {
+      mCurUrl = getNextUrl(true);
+      Glide
+            .with(this)
+            .load(mCurUrl)
+            .dontAnimate()
+            .diskCacheStrategy(DiskCacheStrategy.NONE)
+            .into(mIvSmall);
    }
 }
