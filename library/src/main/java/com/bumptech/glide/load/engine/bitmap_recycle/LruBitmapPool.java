@@ -9,6 +9,7 @@ import android.os.Build;
 import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import com.bumptech.glide.mine.Logger.PrettyLogger;
 import com.bumptech.glide.util.Synthetic;
 import java.util.Arrays;
 import java.util.Collections;
@@ -209,9 +210,11 @@ public class LruBitmapPool implements BitmapPool {
       trimToSize(maxSize);
    }
 
+   private int getInvokeCount = 0;
    @Override
    @NonNull
    public Bitmap get(int width, int height, Bitmap.Config config) {
+      PrettyLogger.commonLog(++getInvokeCount);
       Bitmap result = getDirtyOrNull(width, height, config);
       if (result != null) {
          // Bitmaps in the pool contain random data that in some cases must be cleared for an image

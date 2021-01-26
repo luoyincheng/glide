@@ -2,7 +2,6 @@ package com.example.myglide;
 
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -11,13 +10,14 @@ import android.view.View.OnFocusChangeListener;
 import android.view.ViewGroup;
 import android.widget.GridLayout;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintLayout.LayoutParams;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.mine.Logger.PrettyLogger;
+import com.bumptech.glide.request.RequestOptions;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Stack;
@@ -46,7 +46,7 @@ public abstract class BaseTVActivity extends AppCompatActivity {
          "https://ottimg.cdn.pandora.xiaomi.com/9468936113b2abef9b224ccf67f37088.webp",
          "https://ottimg.cdn.pandora.xiaomi.com/04fc547a6908fa5cd80d26f03d6c2efc.webp",
          "https://image.cdn.pandora.xiaomi.com/mitv/10007/0/b7eece58ee3aa3ab572bf7bec51f5ad2.webp"//重复
-         );
+   );
 
    final OnFocusChangeListener onFocusChangeListener = new OnFocusChangeListener() {
       @Override
@@ -56,10 +56,9 @@ public abstract class BaseTVActivity extends AppCompatActivity {
       }
    };
 
-   final ColorDrawable checkedColorDrawable = new ColorDrawable(Color.parseColor("#11ff0000"));
+   final ColorDrawable checkedColorDrawable = new ColorDrawable(Color.parseColor("#44ff0000"));
    final ColorDrawable uncheckedColorDrawable = new ColorDrawable(Color.parseColor("#33ffffff"));
 
-   @RequiresApi(api = VERSION_CODES.LOLLIPOP)
    @Override
    protected void onCreate(@Nullable Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
@@ -68,7 +67,6 @@ public abstract class BaseTVActivity extends AppCompatActivity {
       LayoutInflater layoutInflater = LayoutInflater.from(this);
       ConstraintLayout.LayoutParams layoutParams = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT, ConstraintLayout.LayoutParams.MATCH_PARENT);
       mRootContainer.addView(layoutInflater.inflate(withLayoutId(), null, false), layoutParams);
-      fullFillWithImageView();
       registerFocusListenerForAllViews(getWindow().getDecorView());
    }
 
@@ -89,8 +87,7 @@ public abstract class BaseTVActivity extends AppCompatActivity {
       }
    }
 
-   @RequiresApi(api = VERSION_CODES.LOLLIPOP)
-   private void fullFillWithImageView() {
+   void fullFillWithImageView() {
       GridLayout gridLayout = new GridLayout(this);
       gridLayout.setColumnCount(4);
       gridLayout.setRowCount(5);
@@ -98,7 +95,6 @@ public abstract class BaseTVActivity extends AppCompatActivity {
          for (int j = 0; j < gridLayout.getColumnCount(); j++) {
             PrettyLogger.commonLog("i:" + i, "j:" + j);
             AppCompatImageView imageView = new AppCompatImageView(this);
-            imageView.setBackground(new ColorDrawable(Color.parseColor("#ff0000")));
             GridLayout.Spec rowSpec = GridLayout.spec(i, 1.0f);
             GridLayout.Spec columnSpec = GridLayout.spec(j, 1.0f);
             GridLayout.LayoutParams gridLayoutParams = new GridLayout.LayoutParams(rowSpec, columnSpec);
@@ -109,7 +105,11 @@ public abstract class BaseTVActivity extends AppCompatActivity {
             gridLayout.addView(imageView, gridLayoutParams);
             int curIndex = i * gridLayout.getColumnCount() + j;
             if (curIndex > mUrls.size() - 1) { break; }
-            Glide.with(this).load(mUrls.get(curIndex)).into(imageView);
+            Glide
+                  .with(this)
+                  .load(mUrls.get(curIndex))
+                  .apply(RequestOptions.bitmapTransform(new RoundedCorners(10)))
+                  .into(imageView);
          }
       }
       mRootContainer.addView(gridLayout, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
