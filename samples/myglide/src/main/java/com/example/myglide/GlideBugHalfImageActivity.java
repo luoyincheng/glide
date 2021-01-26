@@ -8,6 +8,7 @@ import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatImageView;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.mine.Logger.PrettyLogger;
 import java.io.File;
 import java.io.FileInputStream;
@@ -37,10 +38,9 @@ public class GlideBugHalfImageActivity extends BaseTVActivity {
       PrettyLogger.commonLog(mFullFile);
       PrettyLogger.commonLog(mHalfFile);
       generateBitmapAndSaveToFullFile();
-      Glide.with(this).load(mFullFile).into(mIvFull);
+      Glide.with(this).load(mFullFile).diskCacheStrategy(DiskCacheStrategy.NONE).into(mIvFull);
       readToHalfFile();
-//      readToHalfFile();
-//      Glide.with(this).load(mHalfFile).into(mIvHalf);
+      Glide.with(this).load(mHalfFile).diskCacheStrategy(DiskCacheStrategy.NONE).into(mIvHalf);
    }
 
    private void generateBitmapAndSaveToFullFile() {
@@ -70,7 +70,7 @@ public class GlideBugHalfImageActivity extends BaseTVActivity {
 
    private void readToHalfFile() {
       if (mHalfFile == null) { throw new IllegalStateException("mHalfFile does not exists!!!"); }
-      byte[] cache = new byte[128];
+      byte[] cache = new byte[500];
 
       FileInputStream fileInputStream = null;
       FileOutputStream fileOutputStream = null;
@@ -78,13 +78,16 @@ public class GlideBugHalfImageActivity extends BaseTVActivity {
          fileInputStream = new FileInputStream(mFullFile);
          fileOutputStream = new FileOutputStream(mHalfFile);
          int curRead;
-         while ((curRead = fileInputStream.read(cache)) != -1) {
-            readTimes++;
-            if (readTimes < 200) {
-               fileOutputStream.write(cache, 0, curRead);
-               fileOutputStream.flush();
-            }
-         }
+         curRead = fileInputStream.read(cache);
+         fileOutputStream.write(cache, 0, curRead);
+         fileOutputStream.flush();
+//         while ((curRead = fileInputStream.read(cache)) != -1) {
+//            readTimes++;
+//            if (readTimes < 200) {
+//               fileOutputStream.write(cache, 0, curRead);
+//               fileOutputStream.flush();
+//            }
+//         }
          fileInputStream.close();
          fileOutputStream.close();
       } catch (IOException e) {
@@ -104,6 +107,7 @@ public class GlideBugHalfImageActivity extends BaseTVActivity {
                e.printStackTrace();
             }
          }
+         PrettyLogger.commonLog("readTimes:" + readTimes);
       }
    }
 }

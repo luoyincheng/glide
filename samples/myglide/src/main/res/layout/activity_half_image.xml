@@ -7,14 +7,16 @@
       android:id="@+id/iv_full"
       android:layout_width="0dp"
       android:layout_height="match_parent"
+      android:layout_margin="20dp"
       app:layout_constraintLeft_toLeftOf="parent"
-      app:layout_constraintWidth_percent="0.5" />
+      app:layout_constraintWidth_percent="0.4" />
 
    <androidx.appcompat.widget.AppCompatImageView
       android:id="@+id/iv_half"
       android:layout_width="0dp"
       android:layout_height="match_parent"
+      android:layout_margin="20dp"
       app:layout_constraintRight_toRightOf="parent"
-      app:layout_constraintWidth_percent="0.5" />
+      app:layout_constraintWidth_percent="0.4" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
