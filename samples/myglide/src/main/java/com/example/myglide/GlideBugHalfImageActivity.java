@@ -70,7 +70,7 @@ public class GlideBugHalfImageActivity extends BaseTVActivity {
 
    private void readToHalfFile() {
       if (mHalfFile == null) { throw new IllegalStateException("mHalfFile does not exists!!!"); }
-      byte[] cache = new byte[4 * 1024];
+      byte[] cache = new byte[128];
 
       FileInputStream fileInputStream = null;
       FileOutputStream fileOutputStream = null;
@@ -78,12 +78,14 @@ public class GlideBugHalfImageActivity extends BaseTVActivity {
          fileInputStream = new FileInputStream(mFullFile);
          fileOutputStream = new FileOutputStream(mHalfFile);
          int curRead;
-         while ((curRead = fileInputStream.read()) != -1) {
+         while ((curRead = fileInputStream.read(cache)) != -1) {
             readTimes++;
-            fileOutputStream.write(cache, 0, curRead);
+            if (readTimes < 200) {
+               fileOutputStream.write(cache, 0, curRead);
+               fileOutputStream.flush();
+            }
          }
          fileInputStream.close();
-         fileOutputStream.flush();
          fileOutputStream.close();
       } catch (IOException e) {
          e.printStackTrace();
@@ -102,7 +104,6 @@ public class GlideBugHalfImageActivity extends BaseTVActivity {
                e.printStackTrace();
             }
          }
-         PrettyLogger.commonLog("readCount:" + readTimes);
       }
    }
 }
