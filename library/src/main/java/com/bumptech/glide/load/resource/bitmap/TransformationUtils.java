@@ -526,6 +526,7 @@ public final class TransformationUtils {
 
       // Alpha is required for this transformation.
       Bitmap.Config safeConfig = getAlphaSafeConfig(inBitmap);
+      //确保inBitmap有Alpha通道
       Bitmap toTransform = getAlphaSafeBitmap(pool, inBitmap);
       Bitmap result = pool.get(toTransform.getWidth(), toTransform.getHeight(), safeConfig);
 

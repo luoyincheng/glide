@@ -1,9 +1,17 @@
 package com.example.myglide;
 
+import static com.bumptech.glide.load.resource.bitmap.TransformationUtils.getAlphaSafeConfig;
+
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.Bitmap.Config;
+import android.graphics.BitmapShader;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.RectF;
+import android.graphics.Shader;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatImageView;
@@ -109,5 +117,40 @@ public class GlideBugHalfImageActivity extends BaseTVActivity {
          }
          PrettyLogger.commonLog("readTimes:" + readTimes);
       }
+   }
+
+   /**
+    * 因为圆角的四个角落需要用透明色填充，因此生成的这个Bitmap必须有Alpha通道
+    */
+   private Bitmap roundedCorners(Bitmap inBitmap){
+      // Alpha is required for this transformation.
+      Bitmap.Config safeConfig = Bitmap.Config.ARGB_8888;
+      // 将inBitmap转化为含有Alpha通道的Bitmap
+      Bitmap toTransform = getAlphaSafeBitmap(pool, inBitmap);
+      Bitmap result = pool.get(toTransform.getWidth(), toTransform.getHeight(), safeConfig);
+
+      result.setHasAlpha(true);
+
+      BitmapShader shader =
+            new BitmapShader(toTransform, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
+      Paint paint = new Paint();
+      paint.setAntiAlias(true);
+      paint.setShader(shader);
+      RectF rect = new RectF(0, 0, result.getWidth(), result.getHeight());
+      BITMAP_DRAWABLE_LOCK.lock();
+      try {
+         Canvas canvas = new Canvas(result);
+         canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
+         drawRoundedCornerFn.drawRoundedCorners(canvas, paint, rect);
+         clear(canvas);
+      } finally {
+         BITMAP_DRAWABLE_LOCK.unlock();
+      }
+
+      if (!toTransform.equals(inBitmap)) {
+         pool.put(toTransform);
+      }
+
+      return result;
    }
 }
