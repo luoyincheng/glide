@@ -1,7 +1,5 @@
 package com.example.myglide;
 
-import static com.bumptech.glide.load.resource.bitmap.TransformationUtils.getAlphaSafeConfig;
-
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.Bitmap.Config;
@@ -17,6 +15,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatImageView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.engine.bitmap_recycle.LruBitmapPool;
 import com.bumptech.glide.mine.Logger.PrettyLogger;
 import java.io.File;
 import java.io.FileInputStream;
@@ -27,6 +26,8 @@ public class GlideBugHalfImageActivity extends BaseTVActivity {
    private static int mDefaultColor = Color.parseColor("#ee0000");
    private AppCompatImageView mIvFull, mIvHalf;
    private File mFullFile, mHalfFile;
+   private Bitmap mSourceBitmap;
+   private Bitmap mRoundedCornersBitmap;
 
    //读取一个完整的Bitmap需要的次数
    private long readTimes = 0;
@@ -47,8 +48,9 @@ public class GlideBugHalfImageActivity extends BaseTVActivity {
       PrettyLogger.commonLog(mHalfFile);
       generateBitmapAndSaveToFullFile();
       Glide.with(this).load(mFullFile).diskCacheStrategy(DiskCacheStrategy.NONE).into(mIvFull);
-      readToHalfFile();
-      Glide.with(this).load(mHalfFile).diskCacheStrategy(DiskCacheStrategy.NONE).into(mIvHalf);
+//      readToHalfFile();
+      mRoundedCornersBitmap = roundedCorners(mSourceBitmap);
+      Glide.with(this).load(mRoundedCornersBitmap).diskCacheStrategy(DiskCacheStrategy.NONE).into(mIvHalf);
    }
 
    private void generateBitmapAndSaveToFullFile() {
@@ -60,6 +62,7 @@ public class GlideBugHalfImageActivity extends BaseTVActivity {
       }
       try {
          FileOutputStream fileOutputStream = new FileOutputStream(mFullFile);
+         mSourceBitmap = bitmap;
          bitmap.compress(CompressFormat.WEBP, 100, fileOutputStream);
          fileOutputStream.flush();
          fileOutputStream.close();
@@ -122,35 +125,32 @@ public class GlideBugHalfImageActivity extends BaseTVActivity {
    /**
     * 因为圆角的四个角落需要用透明色填充，因此生成的这个Bitmap必须有Alpha通道
     */
-   private Bitmap roundedCorners(Bitmap inBitmap){
+   private Bitmap roundedCorners(Bitmap inBitmap) {
       // Alpha is required for this transformation.
       Bitmap.Config safeConfig = Bitmap.Config.ARGB_8888;
       // 将inBitmap转化为含有Alpha通道的Bitmap
-      Bitmap toTransform = getAlphaSafeBitmap(pool, inBitmap);
-      Bitmap result = pool.get(toTransform.getWidth(), toTransform.getHeight(), safeConfig);
-
-      result.setHasAlpha(true);
-
+      Bitmap argbBitmapToGenerateShader = Bitmap.createBitmap(inBitmap.getWidth(), inBitmap.getHeight(), safeConfig);
+      new Canvas(argbBitmapToGenerateShader).drawBitmap(inBitmap, 0 /*left*/, 0 /*top*/, null /*paint*/);
+      argbBitmapToGenerateShader.setHasAlpha(true);
+      //shader
       BitmapShader shader =
-            new BitmapShader(toTransform, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
+            new BitmapShader(argbBitmapToGenerateShader, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
+
+      Bitmap result = Bitmap.createBitmap(inBitmap.getWidth(), inBitmap.getHeight(), safeConfig);
+
       Paint paint = new Paint();
       paint.setAntiAlias(true);
       paint.setShader(shader);
       RectF rect = new RectF(0, 0, result.getWidth(), result.getHeight());
-      BITMAP_DRAWABLE_LOCK.lock();
+//      BITMAP_DRAWABLE_LOCK.lock();
       try {
          Canvas canvas = new Canvas(result);
          canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
-         drawRoundedCornerFn.drawRoundedCorners(canvas, paint, rect);
-         clear(canvas);
+         canvas.drawRoundRect(rect, 5, 5, paint);
+         canvas.setBitmap(null);
       } finally {
-         BITMAP_DRAWABLE_LOCK.unlock();
+//         BITMAP_DRAWABLE_LOCK.unlock();
       }
-
-      if (!toTransform.equals(inBitmap)) {
-         pool.put(toTransform);
-      }
-
       return result;
    }
 }
