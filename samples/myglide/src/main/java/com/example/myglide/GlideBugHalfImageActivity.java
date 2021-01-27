@@ -15,7 +15,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatImageView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.load.engine.bitmap_recycle.LruBitmapPool;
 import com.bumptech.glide.mine.Logger.PrettyLogger;
 import java.io.File;
 import java.io.FileInputStream;
@@ -49,7 +48,7 @@ public class GlideBugHalfImageActivity extends BaseTVActivity {
       generateBitmapAndSaveToFullFile();
       Glide.with(this).load(mFullFile).diskCacheStrategy(DiskCacheStrategy.NONE).into(mIvFull);
 //      readToHalfFile();
-      mRoundedCornersBitmap = roundedCorners(mSourceBitmap);
+      mRoundedCornersBitmap = generateRoundedCornersBitmap(mSourceBitmap);
       Glide.with(this).load(mRoundedCornersBitmap).diskCacheStrategy(DiskCacheStrategy.NONE).into(mIvHalf);
    }
 
@@ -125,7 +124,7 @@ public class GlideBugHalfImageActivity extends BaseTVActivity {
    /**
     * 因为圆角的四个角落需要用透明色填充，因此生成的这个Bitmap必须有Alpha通道
     */
-   private Bitmap roundedCorners(Bitmap inBitmap) {
+   private Bitmap generateRoundedCornersBitmap(Bitmap inBitmap) {
       // Alpha is required for this transformation.
       Bitmap.Config safeConfig = Bitmap.Config.ARGB_8888;
       // 将inBitmap转化为含有Alpha通道的Bitmap
@@ -142,15 +141,10 @@ public class GlideBugHalfImageActivity extends BaseTVActivity {
       paint.setAntiAlias(true);
       paint.setShader(shader);
       RectF rect = new RectF(0, 0, result.getWidth(), result.getHeight());
-//      BITMAP_DRAWABLE_LOCK.lock();
-      try {
-         Canvas canvas = new Canvas(result);
-         canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
-         canvas.drawRoundRect(rect, 5, 5, paint);
-         canvas.setBitmap(null);
-      } finally {
-//         BITMAP_DRAWABLE_LOCK.unlock();
-      }
+      Canvas canvas = new Canvas(result);
+      canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
+      canvas.drawRoundRect(rect, 10, 10, paint);
+      canvas.setBitmap(null);
       return result;
    }
 }
