@@ -4,6 +4,11 @@ import java.util.Arrays;
 import java.util.List;
 
 public class ImgUrls {
+   public static final List<String> mLessUrls = Arrays.asList(
+         "https://ottimg.cdn.pandora.xiaomi.com/e52cdffbf10abaef0a5daeebeebb48cc.jpg.webp",
+         "https://ottimg.cdn.pandora.xiaomi.com/6eacc8d2da4296ceea1c54ef38da4f83.jpg.webp",
+         "https://clubimg.club.vmall.com/data/attachment/forum/201905/17/082652qm7mayijp9eua6d5.jpg"
+   );
    public static final List<String> mJPEGs = Arrays.asList(
          "https://clubimg.club.vmall.com/data/attachment/forum/201905/17/082652qm7mayijp9eua6d5.jpg",
          "https://img.leitu123.com/article/UploadPic/2012-7/20127271358077420.jpg",

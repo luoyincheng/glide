@@ -29,4 +29,8 @@ public class GlideActivity extends BaseTVActivity {
    public void glideTVBugHalfImage(View view) {
       startActivity(new Intent(this, GlideBugHalfImageActivity.class));
    }
+
+   public void ultimateAdapter(View view) {
+      startActivity(new Intent(this, UltimateRecyclerviewActivity.class));
+   }
 }

@@ -11,7 +11,6 @@
       android:theme="@style/Theme.Glideparent">
       <activity
          android:name=".GlideActivity"
-         android:screenOrientation="landscape"
          android:theme="@style/FullScreenLight">
          <intent-filter>
             <action android:name="android.intent.action.MAIN" />
@@ -42,6 +41,11 @@
 
       <activity
          android:name=".GlideBugHalfImageActivity"
+         android:screenOrientation="landscape"
+         android:theme="@style/FullScreenLight" />
+
+      <activity
+         android:name=".UltimateRecyclerviewActivity"
          android:screenOrientation="landscape"
          android:theme="@style/FullScreenLight" />
    </application>

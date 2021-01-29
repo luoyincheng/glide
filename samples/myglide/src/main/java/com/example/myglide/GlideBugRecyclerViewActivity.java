@@ -4,7 +4,6 @@ import static androidx.recyclerview.widget.RecyclerView.VERTICAL;
 
 import android.os.Bundle;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.myglide.data.GlideDataAdapter;
