@@ -1,10 +1,8 @@
 package com.example.myglide;
 
-import static androidx.recyclerview.widget.RecyclerView.VERTICAL;
-
 import android.os.Bundle;
 import androidx.annotation.Nullable;
-import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.myglide.data.GlideDataAdapter;
 
@@ -17,12 +15,16 @@ public class GlideBugRecyclerViewActivity extends BaseTVActivity {
       super.onCreate(savedInstanceState);
       mRecyclerView = findViewById(R.id.recycler);
       mGlideDataAdapter = new GlideDataAdapter();
-      GridLayoutManager gridLayoutManager = new GridLayoutManager(
+//      GridLayoutManager gridLayoutManager = new GridLayoutManager(
+//            this,
+//            4,
+//            VERTICAL,
+//            false);
+      LinearLayoutManager linearLayoutManager = new LinearLayoutManager(
             this,
-            4,
-            VERTICAL,
+            LinearLayoutManager.VERTICAL,
             false);
-      mRecyclerView.setLayoutManager(gridLayoutManager);
+      mRecyclerView.setLayoutManager(linearLayoutManager);
       mRecyclerView.setAdapter(mGlideDataAdapter);
    }
 

@@ -33,4 +33,7 @@ public class GlideActivity extends BaseTVActivity {
    public void ultimateAdapter(View view) {
       startActivity(new Intent(this, UltimateRecyclerviewActivity.class));
    }
+
+   public void intentActionView(View view) {
+   }
 }

@@ -79,4 +79,17 @@
       android:text="ultimateAdapter"
       android:textColor="@android:color/black"
       app:layout_constraintTop_toBottomOf="@+id/glide_bug_tv_activity_half_image" />
+
+   <androidx.appcompat.widget.AppCompatTextView
+      android:id="@+id/action_view"
+      style="@style/TVStyle"
+      android:textStyle="bold"
+      android:layout_width="match_parent"
+      android:layout_height="66dp"
+      android:padding="10dp"
+      android:gravity="center"
+      android:onClick="intentActionView"
+      android:text="intentActionView"
+      android:textColor="@android:color/black"
+      app:layout_constraintTop_toBottomOf="@+id/ultimate_adapter" />
 </androidx.constraintlayout.widget.ConstraintLayout>
